@@ -1,0 +1,49 @@
+<div class="login-page">
+  <div class="login-card">
+
+
+    <div class="login-left">
+      <div class="image-wrapper">
+        <img src="/images/Login/Left-Side.png" class="login-image" />
+
+        <div class="login-left-text">
+          <h2>Optimize.<br />Track.<br />Strengthen.</h2>
+          <p>Your supply chain, synced in real time—from sourcing to delivery</p>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="login-right">
+      <div class="right-inner">
+
+        <h1>OTP</h1>
+        <p class="subtitle">Please enter the code sent to your email</p>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <div class="otp-wrapper">
+            <input maxlength="1" *ngFor="let c of code; let i = index" class="otp-box" (input)="moveNext($event, i)"
+              formControlName="d{{ i }}" />
+          </div>
+
+          <div class="backend-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+          <button class="btn-primary" type="submit" [disabled]="loading">
+            {{ loading ? 'Loading...' : 'Continue' }}
+          </button>
+        </form>
+
+        <p class="resend-text">
+          Didn’t receive OTP?
+          <a (click)="resendCode()">Resend Code</a>
+        </p>
+
+        <div class="back-wrapper">
+          <button class="btn-back" (click)="goBack()">Back</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

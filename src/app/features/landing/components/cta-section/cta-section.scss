@@ -1,0 +1,165 @@
+.cta-form-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem 1.5rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  height: 596px;
+  display: flex;
+}
+.cta-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.section-label {
+  display: inline-block;
+  align-items: center;
+  font-family: "Urbanist", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  background-color: #edf8f7;
+  color: #3ea397;
+  padding: 0.4rem 0.8rem;
+  border-radius: 25px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+
+.cta-heading {
+  font-weight: 650;
+  font-size: 1.9rem;
+  font-family: "Urbanist", sans-serif;
+  color: #000000;
+}
+
+.cta-form .form-group {
+  margin-bottom: 0.3rem;
+  font-family: "Urbanist", sans-serif;
+}
+.cta-form .form-group:last-of-type {
+  margin-bottom: 1rem;
+}
+
+.cta-form .form-group + .form-group .form-control {
+  margin-top: 1.5rem;
+  font-family: "Urbanist", sans-serif;
+}
+
+.cta-form .form-group:first-child .form-control {
+  margin-top: 0;
+}
+
+.cta-form textarea.form-control {
+  resize: vertical;
+  font-family: "Urbanist", sans-serif;
+  min-height: 240px;
+  max-height: 300px;
+}
+
+.btn-teal {
+  background-color: #3ea397;
+  color: white;
+  font-family: "Urbanist", sans-serif;
+  font-weight: 400;
+  padding: 0.85rem 2rem;
+  border: none;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: auto;
+}
+
+.btn-teal:hover {
+  background-color: #1a9b8e;
+}
+
+.field-1,
+.field-2,
+.field-3,
+.field-4 {
+  background-color: #edf8f7;
+  border: 1px solid #dde8e7;
+  border-radius: 20px;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  color: #4d4d4d;
+  transition: all 0.3s ease;
+}
+
+.field-1:focus,
+.field-2:focus,
+.field-3:focus,
+.field-4:focus {
+  outline: none;
+  border-color: #20b2aa;
+  background-color: white;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.cta-section {
+  position: relative;
+}
+
+.cta-visual {
+  position: relative;
+  border-radius: 32px;
+  overflow: hidden;
+  height: 596px;
+  padding: 3rem 2.5rem 2rem;
+  background-color: #d2f2ed;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.cta-title {
+  position: absolute;
+  z-index: 4;
+  top: 40px;
+  left: 40px;
+  font-family: "Urbanist", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #0E2522;
+  max-width: 3800px;
+  margin: 0;
+  padding: 0;
+}
+
+.cta-mockup {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right bottom;
+  z-index: 2;
+  pointer-events: none;
+}
+
+
+@media (max-width: 768px) {
+  .cta-visual {
+    height: 420px;
+  }
+
+  .cta-title {
+    top: 30px;
+    left: 24px;
+    font-size: 1.8rem;
+    max-width: 2000px;
+  }
+
+  .cta-mockup {
+    width: 155%;
+    right: -32%;
+    bottom: -38%;
+  }
+}

@@ -1,0 +1,22 @@
+<section class="vision-section py-5" id="vision">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="section-label">Vision</p>
+      <h2 class="section-title mb-3">Vision that sees beyond the surface.</h2>
+    </div>
+
+    <div class="row g-4">
+      <div *ngFor="let card of visionCards" class="col-md-6 col-lg-4">
+        <div class="vision-card">
+          <div class="card-image">
+            <img [src]="card.image" [alt]="card.title" class="img-fluid" />
+          </div>
+          <div class="card-content">
+            <h4>{{ card.title }}</h4>
+            <p>{{ card.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

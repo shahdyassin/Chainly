@@ -1,0 +1,22 @@
+<div class="map-picker-wrapper">
+
+  <div class="map-search">
+    <input
+      #searchBox
+      type="text"
+      placeholder="Search for a place (e.g. Cairo, Nasr City)"
+      (keyup.enter)="searchPlace(searchBox.value)"
+    />
+    <button type="button" (click)="searchPlace(searchBox.value)">
+      Search
+    </button>
+  </div>
+
+
+  <div #mapContainer class="map-container"></div>
+
+
+  <div class="search-error" *ngIf="searchError">
+    {{ searchError }}
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<section class="metrics-section">
+  <div class="metrics-inner">
+    <div class="metrics-row">
+
+     <div class="metric-item" *ngFor="let metric of heroMetrics">
+  <div class="metric-value">{{ metric.value }}</div>
+  <div class="metric-label">{{ metric.label }}</div>
+</div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,31 @@
+<section class="testimonials-section">
+  <div class="container">
+    <div class="text-start heading-block">
+      <p class="section-label">Why Us</p>
+      <h2 class="section-title">
+        Uncover the reasons behind our clients’ trust
+      </h2>
+    </div>
+
+    <div class="row gx-4 gy-4 justify-content-center">
+      <div *ngFor="let testimonial of testimonials; let i = index"
+           class="col-md-6 col-lg-4 d-flex">
+        <div class="testimonial-card w-100"
+             [ngClass]="{ 'center-card': testimonial.gradient }"
+             [ngStyle]="{ 'background': testimonial.bgColor }">
+
+          <div class="icon-wrapper"
+               [ngStyle]="{
+                 'background-color': testimonial.iconBg,
+                 'color': testimonial.iconColor
+               }">
+            <div [innerHTML]="testimonial.icon"></div>
+          </div>
+
+          <h4 [innerHTML]="testimonial.title"></h4>
+          <p [innerHTML]="testimonial.description"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

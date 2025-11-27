@@ -1,0 +1,388 @@
+@import "../../login/login.scss";
+
+
+.login-card {
+  display: flex;
+  min-height: 100vh;
+}
+
+
+.login-right {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 40px;
+  margin-top: 10px;
+}
+
+.login-right .right-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  margin-top: 8px;
+  margin-bottom: 32px;
+  font-family: "Urbanist", sans-serif;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #b3b3b3;
+}
+
+.step::after {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  width: 60px;
+  height: 2px;
+  background: #d9d9d9;
+  border-radius: 2px;
+  transform: translateX(40px);
+}
+
+.step:last-child::after {
+  display: none;
+}
+
+.step.active::after {
+  background: #1877F2;
+}
+
+
+.step.completed::after {
+  background: #3ea397;
+}
+
+.step-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  transition: 0.2s ease;
+}
+
+.step-icon img {
+  width: 20px;
+  height: 20px;
+}
+
+.step-number {
+  font-size: 14px;
+  margin: 0;
+  color: #666666;
+}
+
+.step-label {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 2px 0 0;
+  text-align: center;
+  color: #666666;
+}
+
+.step.active .step-icon {
+  background: #1877F2;
+  border-color: #1877F2;
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.25);
+}
+
+.step.active .step-icon img {
+  filter: brightness(0) invert(1);
+}
+
+.step.active .step-label {
+  font-weight: 700;
+  color: #2E2E2E;
+}
+
+.step-line.completed {
+  background: #3ea397;
+}
+
+.step.completed .step-icon {
+  background: #3ea397;
+  border-color: #3ea397;
+}
+
+.step.completed .step-icon img {
+  filter: brightness(0) invert(1);
+}
+
+.step.completed .step-label {
+  font-weight: 600;
+  color: #666666;
+}
+
+
+.form {
+  margin-top: 4px;
+  font-family: "Urbanist", sans-serif;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 14px;
+
+  label {
+    display: block;
+    font-family: "Urbanist", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    font-style: semibold;
+    color: #4b5563;
+    margin-bottom: 4px;
+  }
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+input {
+  width: 100%;
+  border-radius: 20px;
+  border: 1.5px solid #d1d5db;
+  padding: 10px 16px 10px 40px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+  color: #999999;
+}
+
+
+input:focus {
+  border-color: #3ea397;
+  box-shadow: 0 0 0 3px rgba(62, 163, 151, 0.15);
+}
+
+.location-btn {
+  margin-top: 6px;
+  width: 100%;
+  border-radius: 20px;
+  border: none;
+  background: #3ea397;
+  color: #ffffff;
+  font-family: "Urbanist", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 14px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.location-btn:hover {
+  background: #2d8e84;
+}
+
+.location-icon img {
+  width: 18px;
+  height: 18px;
+}
+
+.location-btn img {
+  filter: brightness(0) invert(1);
+}
+
+.location-text {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.bottom-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 2.5rem;
+
+  button {
+    width: 160px;
+    min-width: 160px;
+    border-radius: 24px;
+  }
+}
+
+.btn-primary,
+.btn-secondary {
+  min-width: 140px;
+  height: 48px;
+  padding: 12px 32px;
+  border-radius: 999px;
+  font-family: "Urbanist", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease;
+  margin-bottom: -2rem;
+}
+
+.btn-primary {
+  background: #3ea397;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(62, 163, 151, 0.25);
+  margin-right: -0.5rem;
+  border-radius: 16px !important;
+}
+
+.btn-primary:hover {
+  background: #2d8e84;
+}
+
+.btn-primary:disabled {
+  background: #c6dcd9;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: #3ea397;
+  border: 1.5px solid #3ea397;
+  border-radius: 16px !important;
+  margin-left: -0.5rem;
+}
+
+.btn-secondary:hover {
+  background: #e6f4f2;
+}
+
+.map-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.map-dialog {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px 18px;
+  width: 90%;
+  max-width: 640px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+
+  h3 {
+    margin: 0 0 8px;
+    font-family: "Urbanist", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.map-container {
+  width: 100%;
+  height: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.map-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 1024px) {
+  .login-right {
+    margin-top: 60px;
+  }
+
+  .stepper {
+    gap: 24px;
+    justify-content: center;
+  }
+
+  .bottom-actions {
+    justify-content: center;
+    margin-bottom: 40rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .login-card {
+    flex-direction: column;
+  }
+
+  .login-left {
+    display: none;
+  }
+
+  .login-right {
+    padding: 24px 20px;
+    margin-top: 32px;
+  }
+
+  .stepper {
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .bottom-actions {
+    justify-content: space-between;
+    margin-bottom: 16rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .stepper {
+    gap: 10px;
+  }
+
+  .step-line {
+    width: 40px;
+  }
+
+  .login-right {
+    margin-top: 24px;
+  }
+}

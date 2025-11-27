@@ -1,1 +1,233 @@
-/* You can add global styles to this file, and also import other style files */
+
+
+/* Leaflet styles */
+@import "leaflet/dist/leaflet.css";
+
+
+$primary-color: #20b2aa;
+$secondary-color: #1a2a3a;
+$bg-light: #e8f5f4;
+$bg-lighter: #f0fffe;
+$text-dark: #1a2a3a;
+$text-muted: #556b7a;
+$text-light: #b8c5cc;
+$border-color: #e0e8eb;
+$radius: 12px;
+$radius-lg: 15px;
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: $text-dark;
+  background-color: #ffffff;
+}
+
+/* Lufga Regular */
+@font-face {
+  font-family: 'Lufga';
+  src: url('/fonts/lufga/Fontspring-DEMO-lufga-regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Lufga Medium */
+@font-face {
+  font-family: 'Lufga';
+  src: url('/fonts/lufga/Fontspring-DEMO-lufga-medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Lufga Semibold */
+@font-face {
+  font-family: 'Lufga';
+  src: url('/fonts/lufga/Fontspring-DEMO-lufga-semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+.text-teal {
+  color: $primary-color !important;
+}
+
+.bg-teal {
+  background-color: $primary-color !important;
+}
+
+.btn-teal {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+    color: white;
+  }
+}
+
+.btn-outline-teal {
+  border: 2px solid $primary-color;
+  color: $primary-color;
+
+  &:hover {
+    background-color: $primary-color;
+    color: white;
+  }
+}
+
+.text-muted {
+  color: $text-muted !important;
+}
+
+.gap-4 {
+  gap: 1.5rem;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+
+::-webkit-scrollbar {
+  width: 10px;
+
+  &-track {
+    background: #f1f1f1;
+  }
+
+  &-thumb {
+    background: #2a6f67;
+    border-radius: 5px;
+
+    &:hover {
+      background: darken(#2a6f67, 10%);
+    }
+  }
+}
+
+
+.testimonials-section .testimonial-card .icon-wrapper svg {
+  width: 35px !important;
+  height: 35px !important;
+  display: block;
+}
+
+
+@media (max-width: 768px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  color: $text-dark;
+}
+
+p {
+  line-height: 1.6;
+  color: $text-muted;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: darken($primary-color, 10%);
+  }
+}
+
+
+.card {
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 20px rgba(32, 178, 170, 0.12);
+    transform: translateY(-4px);
+  }
+}
+
+
+.container {
+  max-width: 1200px;
+}
+
+
+section {
+  padding: 3rem 0;
+}
+
+
+input,
+textarea,
+select {
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.1);
+  }
+}
+
+
+img {
+  max-width: 100%;
+  height: auto;
+}

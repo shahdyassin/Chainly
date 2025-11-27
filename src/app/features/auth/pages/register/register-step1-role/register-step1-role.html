@@ -1,0 +1,106 @@
+<div class="login-page">
+  <div class="login-card">
+
+
+    <div class="login-left">
+      <div class="image-wrapper">
+        <img src="/images/Login/Left-Side.png" alt="Chainly" class="login-image" />
+        <div class="login-left-text">
+          <h2>
+            Getting Started
+          </h2>
+          <p>
+            Your supply chain, synced in real time—from sourcing to delivery
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="login-right">
+      <div class="right-inner">
+        <div class="top-login">
+          <span>Already have an account?</span>
+          <button type="button" (click)="goToLogin()">Login</button>
+        </div>
+        <div class="stepper">
+          <div class="step active">
+            <div class="step-icon">
+              <img src="/icons/register/your-role.svg" alt="Your Role" />
+            </div>
+            <p class="step-number">Step 1</p>
+            <p class="step-label">Your Role</p>
+          </div>
+
+          <div class="step-line active"></div>
+
+          <div class="step">
+            <div class="step-icon">
+              <img src="/icons/register/person.svg" alt="Personal Information" />
+            </div>
+            <p class="step-number">Step 2</p>
+            <p class="step-label">Personal Information</p>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step">
+            <div class="step-icon">
+              <img src="/icons/register/password.svg" alt="Password" />
+            </div>
+            <p class="step-number">Step 3</p>
+            <p class="step-label">Password</p>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step">
+            <div class="step-icon">
+              <img src="/icons/register/email.svg" alt="Email Confirmation" />
+            </div>
+            <p class="step-number">Step 4</p>
+            <p class="step-label">Email Confirmation</p>
+          </div>
+        </div>
+
+
+
+        <div class="roles-list">
+
+          <button type="button" class="role-card" [class.selected]="isSelected('Manager')"
+            (click)="selectRole('Manager')">
+            <div class="role-icon">
+
+              <img src="/icons/register/management-1.svg" alt="Manager" />
+            </div>
+            <div class="role-text">
+              <h3>Manager</h3>
+              <p>Manage production, suppliers, and orders in one place</p>
+            </div>
+          </button>
+
+
+          <button type="button" class="role-card" [class.selected]="isSelected('Customer')"
+            (click)="selectRole('Customer')">
+            <div class="role-icon">
+
+              <img src="/icons/register/Customer.svg" alt="Customer" />
+            </div>
+            <div class="role-text">
+              <h3>Customer</h3>
+              <p>Track your orders and stay updated in real time</p>
+            </div>
+          </button>
+        </div>
+
+
+        <div class="bottom-actions">
+          <button class="btn-primary" type="button" [disabled]="!selectedRole" (click)="next()">
+            Next
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+.metrics-section {
+  position: relative;
+  padding: 2rem 0 4rem;
+}
+
+.metrics-inner {
+  max-width: 1500px;
+  margin: 0 auto;
+  border-radius: 40px;
+  overflow: hidden;
+  background-image: url("/images/Hero/dashboard-numbers.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 5rem 1rem;
+}
+
+.metrics-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+}
+
+.metric-item {
+  flex: 1;
+  text-align: center;
+  padding: 0 2rem;
+  position: relative;
+}
+
+.metric-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 42.5px;
+  background: #999999;
+}
+
+.metric-value {
+  font-family: "Urbanist", sans-serif;
+  font-size: 3rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.4rem;
+}
+
+.metric-label {
+  font-family: "Urbanist", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  font-style: semibold;
+  color: #666666;
+}
+
+
+
+@media (max-width: 992px) {
+  .metrics-inner {
+    max-width: 100%;
+    padding: 2.4rem 2.2rem;
+    border-radius: 32px;
+  }
+
+  .metric-value {
+    font-size: 2.4rem;
+  }
+
+  .metric-item {
+    padding: 0 1.2rem;
+  }
+
+  .metric-item:not(:last-child)::after {
+    height: 45px;
+  }
+}
+
+@media (max-width: 768px) {
+  .metrics-inner {
+    padding: 1.8rem 1.5rem;
+  }
+
+  .metrics-row {
+    flex-direction: column;
+    gap: 1.8rem;
+  }
+
+  .metric-item {
+    padding: 0;
+  }
+
+  .metric-item::after {
+    display: none;
+  }
+
+  .metric-value {
+    font-size: 2.1rem;
+  }
+}

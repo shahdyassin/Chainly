@@ -1,0 +1,24 @@
+<section class="features-section py-16" id="features">
+  <div class="container">
+    <div class="text-start mb-12">
+      <div class="inline-flex py-2.5 px-4 justify-center items-center gap-2.5 rounded-full bg-turquoise-50 w-fit mb-4">
+        <div class="feature-label">Features</div>
+      </div>
+      <h2 class="section-title text-left mb-12">Highlighted Features</h2>
+    </div>
+
+    <div class="row g-4">
+      <div *ngFor="let feature of features" class="col-md-6">
+        <div class="feature-card" [ngStyle]="{'background': feature.bgGradient}">
+          <div class="icon-wrapper" [ngStyle]="{'background': feature.iconBg}">
+            <div class="feature-icon" [innerHTML]="feature.icon"></div>
+          </div>
+          <div class="feature-content">
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

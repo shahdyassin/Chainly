@@ -1,0 +1,102 @@
+<div class="login-page">
+  <div class="login-card">
+
+    <div class="login-left">
+      <div class="image-wrapper">
+        <img src="/images/Login/Left-Side.png" alt="Chainly" class="login-image" />
+        <div class="login-left-text">
+          <h2>Getting Started</h2>
+          <p>Your supply chain, synced in real time—from sourcing to delivery</p>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="login-right">
+      <div class="right-inner">
+
+        <div class="stepper">
+          <div class="step completed">
+            <div class="step-icon">
+              <img src="/icons/register/check.svg" alt="Done" />
+            </div>
+            <p class="step-number">Step 1</p>
+            <p class="step-label">Your Role</p>
+          </div>
+
+          <div class="step-line completed"></div>
+
+          <div class="step active">
+            <div class="step-icon">
+              <img src="/icons/register/person.svg" alt="Personal Information" />
+            </div>
+            <p class="step-number">Step 2</p>
+            <p class="step-label">Personal Information</p>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step">
+            <div class="step-icon">
+              <img src="/icons/register/password.svg" alt="Password" />
+            </div>
+            <p class="step-number">Step 3</p>
+            <p class="step-label">Password</p>
+          </div>
+
+          <div class="step-line"></div>
+
+          <div class="step">
+            <div class="step-icon">
+              <img src="/icons/register/email.svg" alt="Email Confirmation" />
+            </div>
+            <p class="step-number">Step 4</p>
+            <p class="step-label">Email Confirmation</p>
+          </div>
+        </div>
+
+
+        <div class="upload-card" [class.drag-over]="isDragOver" (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+
+          <input #fileInput type="file" accept="image/*" (change)="onFileChange($event)" hidden />
+
+
+          <div class="upload-inner" *ngIf="!previewUrl">
+            <div class="upload-icon">
+              <img src="/icons/register/upload.svg" alt="Upload" />
+            </div>
+
+            <p class="upload-text-main">Choose a file or drag & drop it here.</p>
+            <p class="upload-text-sub">PNG, JPG up to 5MB.</p>
+
+            <button type="button" class="upload-btn" (click)="fileInput.click()">
+              Upload your photo
+            </button>
+          </div>
+
+
+          <div class="preview-only" *ngIf="previewUrl">
+            <img [src]="previewUrl" alt="Preview" />
+            <button type="button" class="upload-btn change-btn" (click)="fileInput.click()">
+              Change photo
+            </button>
+          </div>
+        </div>
+
+
+        <div class="bottom-actions">
+          <button type="button" class="btn-secondary" (click)="back()">
+            Back
+          </button>
+
+          <span class="skip-text" (click)="skip()">Skip</span>
+
+          <button type="button" class="btn-primary" [disabled]="!selectedFile" (click)="next()">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

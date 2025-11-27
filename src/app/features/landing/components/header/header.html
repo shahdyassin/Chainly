@@ -1,0 +1,42 @@
+<header class="header" [class.menu-open]="mobileMenuOpen">
+  <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light">
+
+
+      <div class="navbar-brand d-flex align-items-center gap-2">
+        <img src="images/logo.png" alt="Chainly Logo" class="brand-logo-img" />
+        <span class="brand-text">Chainly</span>
+      </div>
+
+
+      <button
+        class="menu-toggle d-lg-none"
+        type="button"
+        (click)="toggleMobileMenu()"
+        aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" (click)="scrollToSection('home')">Home</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollToSection('vision')">Vision</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollToSection('features')">Features</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollToSection('insights')">Insights</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollToSection('why-us')">Why Us</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollToSection('contact')">Contact Us</a></li>
+      </ul>
+
+
+      <div class="navbar-actions">
+        <a [routerLink]="'/auth/login'" target="_blank" rel="noopener" class="login-btn">Log In</a>
+        <a [routerLink]="'/auth/register-step1-role'" target="_blank" rel="noopener" class="get-started-link">
+          <span class="get-started-btn">Get Started</span>
+        </a>
+      </div>
+
+    </nav>
+  </div>
+</header>
