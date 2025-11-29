@@ -98,20 +98,23 @@ export class RegisterStep2Personal {
 
 
   onLocationSelected(location: { lat: number; lng: number }) {
-    this.tempLocation = location;
-    this.selectedLocation = `${location.lat.toFixed(
-      5
-    )}, ${location.lng.toFixed(5)}`;
-  }
+  this.tempLocation = location;
 
- 
+  this.getPlaceName(location.lat, location.lng).then(place => {
+    this.selectedLocation = place;
+  });
+}
+
+
+
   confirmLocation() {
-    if (!this.tempLocation) return;
+  if (!this.tempLocation) return;
 
-    const { lat, lng } = this.tempLocation;
+  const { lat, lng } = this.tempLocation;
 
-    this.selectedLocation = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-    this.personalForm.get('companyLocation')?.setValue(this.selectedLocation);
+  this.getPlaceName(lat, lng).then(place => {
+    this.selectedLocation = place;
+    this.personalForm.get('companyLocation')?.setValue(place);
 
     const { email, fullName, companyName } = this.personalForm.value;
 
@@ -124,5 +127,22 @@ export class RegisterStep2Personal {
     });
 
     this.showMap = false;
-  }
+  });
+}
+
+  getPlaceName(lat: number, lng: number) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+  return fetch(url, {
+    headers: {
+      'Accept-Language': 'en',
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      return data?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    })
+    .catch(() => `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+}
+
 }

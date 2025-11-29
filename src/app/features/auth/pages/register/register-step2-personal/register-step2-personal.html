@@ -97,19 +97,18 @@
           <div class="form-group">
             <label>Company Location</label>
 
-            <button
-              type="button"
-              class="location-btn"
+            <button type="button" class="location-btn" [ngClass]="{ 'location-selected': selectedLocation }"
               (click)="openLocationPicker()">
+
               <span class="location-icon">
                 <img src="/icons/register/location.svg" alt="" />
               </span>
-              <span>Add Company's Location</span>
+
+              <span class="location-label">
+                {{ selectedLocation || "Add Company's Location" }}
+              </span>
             </button>
 
-            <p class="location-text" *ngIf="selectedLocation">
-              Selected: {{ selectedLocation }}
-            </p>
           </div>
 
           <!-- Bottom buttons -->
@@ -135,20 +134,15 @@
     <div class="map-dialog">
       <h3>Select Company Location</h3>
 
-      
-      <app-map-picker
-        (locationSelected)="onLocationSelected($event)">
+
+      <app-map-picker (locationSelected)="onLocationSelected($event)">
       </app-map-picker>
 
       <div class="map-actions">
         <button type="button" class="btn-secondary" (click)="cancelLocation()">
           Cancel
         </button>
-        <button
-          type="button"
-          class="btn-primary"
-          [disabled]="!tempLocation"
-          (click)="confirmLocation()">
+        <button type="button" class="btn-primary" [disabled]="!tempLocation" (click)="confirmLocation()">
           Use this location
         </button>
       </div>
