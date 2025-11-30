@@ -1,0 +1,308 @@
+<!-- src/app/features/dashboard/pages/home-dashboard/home-dashboard.html -->
+<div class="dashboard-layout">
+  <!-- ===== TOP HEADER ===== -->
+  <header class="dashboard-header">
+    <div class="welcome-block">
+      <div class="welcome-text">
+        <p class="hello">Welcome Mr. {{ userName }},</p>
+        <p class="hint">Ready to manage smarter?</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="date-chip">
+        <img src="/icons/dashboard/calendar.svg" alt="" />
+        <span>{{ todayLabel }}</span>
+        <img src="/icons/dashboard/downArrow.svg" alt="" />
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== TOP CARDS ===== -->
+  <section class="summary-row">
+    <!-- Delivered -->
+    <div class="summary-card green">
+      <div class="summary-left">
+        <p class="label">Delivered Orders</p>
+        <div class="value-row">
+          <h2>{{ deliveredCount }}</h2>
+        </div>
+        <p class="sub">
+          <span class="percent neutral">0%</span>
+          <span class="text">Last month</span>
+        </p>
+      </div>
+      <div class="summary-right">
+        <div class="icon-circle green">
+          <img src="/icons/dashboard/check.svg" alt="Delivered" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Placed -->
+    <div class="summary-card purple">
+      <div class="summary-left">
+        <p class="label">Total Placed Orders</p>
+        <div class="value-row">
+          <h2>{{ totalPlacedCount }}</h2>
+        </div>
+        <p class="sub">
+          <span class="percent neutral">0%</span>
+          <span class="text">Last month</span>
+        </p>
+      </div>
+      <div class="summary-right">
+        <div class="icon-circle purple">
+          <img src="/icons/dashboard/order.svg" alt="Orders" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending -->
+    <div class="summary-card orange">
+      <div class="summary-left">
+        <p class="label">Pending Orders</p>
+        <div class="value-row">
+          <h2>{{ pendingCount }}</h2>
+        </div>
+        <p class="sub">
+          <span class="percent down">0%</span>
+          <span class="text">Last month</span>
+        </p>
+      </div>
+      <div class="summary-right">
+        <div class="icon-circle orange">
+          <img src="/icons/dashboard/pending.svg" alt="Pending" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancelled -->
+    <div class="summary-card pink">
+      <div class="summary-left">
+        <p class="label">Cancelled Orders</p>
+        <div class="value-row">
+          <h2>{{ cancelledCount }}</h2>
+        </div>
+        <p class="sub">
+          <span class="percent down">0%</span>
+          <span class="text">Last month</span>
+        </p>
+      </div>
+      <div class="summary-right">
+        <div class="icon-circle pink">
+          <img src="/icons/dashboard/wrong.svg" alt="Cancelled" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MIDDLE ROW ===== -->
+  <section class="middle-row">
+    <!-- Total Orders chart -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Total Orders</h3>
+        <button class="chip">
+          Last Year
+          <img src="/icons/dashboard/downArrow.svg" alt="" />
+        </button>
+      </div>
+
+      <div class="panel-body">
+        <apx-chart
+          [series]="totalOrdersChartOptions.series"
+          [chart]="totalOrdersChartOptions.chart"
+          [xaxis]="totalOrdersChartOptions.xaxis"
+          [yaxis]="totalOrdersChartOptions.yaxis"
+          [dataLabels]="totalOrdersChartOptions.dataLabels"
+          [stroke]="totalOrdersChartOptions.stroke"
+          [fill]="totalOrdersChartOptions.fill"
+          [grid]="totalOrdersChartOptions.grid"
+        ></apx-chart>
+
+        <div class="chart-empty" *ngIf="!hasData">
+          No data to show yet. Place some orders to see the trend here.
+        </div>
+      </div>
+
+      <div class="panel-footer dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- Rising Demands -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Rising Demands</h3>
+        <button class="chip">View all</button>
+      </div>
+
+      <div class="panel-body" *ngIf="hasData; else risingEmpty">
+        <div class="demand-item" *ngFor="let item of risingDemands">
+          <p class="title">{{ item.productName }}</p>
+          <p class="sub">In-Stock: {{ item.stock }}</p>
+          <p class="hint">
+            The demand is expected to increase by {{ item.increasePercent }}% tomorrow
+          </p>
+        </div>
+      </div>
+
+      <ng-template #risingEmpty>
+        <div class="empty-state">
+          <p>No data to show</p>
+        </div>
+      </ng-template>
+
+      <div class="panel-footer dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BOTTOM ROW ===== -->
+  <section class="bottom-row">
+    <!-- Insights donut -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Insights</h3>
+        <button class="chip">
+          {{ todayLabel }}
+          <img src="/icons/dashboard/downArrow.svg" alt="" />
+        </button>
+      </div>
+
+      <div class="panel-body">
+        <apx-chart
+          [series]="insightsDonutOptions.series"
+          [chart]="insightsDonutOptions.chart"
+          [labels]="insightsDonutOptions.labels"
+          [responsive]="insightsDonutOptions.responsive"
+          [legend]="insightsDonutOptions.legend"
+          [plotOptions]="insightsDonutOptions.plotOptions"
+          [colors]="insightsDonutOptions.colors"
+        ></apx-chart>
+
+        <div class="chart-empty chart-empty-insights">
+          No insights available yet. Once orders start flowing, you’ll see analytics here.
+        </div>
+
+        <div class="insights-footer">
+          <div class="legend-line">
+            <img src="/icons/dashboard/defect.svg" alt="" />
+            <span>Defected Products / Production Line</span>
+          </div>
+
+          <div class="progress-card">
+            <div class="top">
+              <span class="name">Production Line 01</span>
+              <span class="percent">0%</span>
+            </div>
+            <div class="bar">
+              <div class="fill"></div>
+            </div>
+            <div class="bottom">
+              <span>0 out of 0 Defected</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-footer dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- Recent Orders table -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Recent Orders</h3>
+        <button class="chip">View all</button>
+      </div>
+
+      <!-- شريط السيرش + الفلتر فوق التابل -->
+      <div class="orders-toolbar">
+        <div class="orders-search">
+          <img src="/icons/dashboard/search.svg" alt="" />
+          <input type="text" placeholder="Search" />
+        </div>
+
+        <button class="orders-filter-btn">
+          <img src="/icons/dashboard/filter.svg" alt="Filter" />
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-no">
+                <span>No.</span>
+              </th>
+
+              <th class="col-icon-text">
+                <img src="/icons/dashboard/order-id.svg" alt="" />
+                <span>Order ID</span>
+              </th>
+
+              <th class="col-icon-text">
+                <img src="/icons/dashboard/public-code.svg" alt="" />
+                <span>Public Code</span>
+              </th>
+
+              <th class="col-icon-text">
+                <img src="/icons/dashboard/status.svg" alt="" />
+                <span>Status</span>
+              </th>
+
+              <th class="col-icon-text">
+                <img src="/icons/dashboard/actions.svg" alt="" />
+                <span>Actions</span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- no data -->
+            <tr *ngIf="!hasData">
+              <td colspan="5" class="no-data-cell">No data to show</td>
+            </tr>
+
+            <!-- rows لما يبقى في أوردارات -->
+            <tr *ngFor="let o of orders; index as i">
+              <td>{{ i + 1 }}</td>
+              <td>{{ o.id }}</td>
+              <td>{{ o.publicCode }}</td>
+              <td>
+                <span
+                  class="status-chip"
+                  [class.pending]="o.status === 'Pending'"
+                  [class.delivered]="o.status === 'Delivered'"
+                  [class.cancelled]="o.status === 'Cancelled'"
+                >
+                  {{ o.status }}
+                </span>
+              </td>
+              <td>
+                <button class="icon-btn">⋮</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- dots أسفل البلوك -->
+      <div class="panel-footer dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,3 +1,4 @@
+// src/app/features/auth/pages/register/register-step5-email-confirm.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -7,10 +8,10 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, UserRole } from '../../../../../core/services/auth.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-register-step4',
+  selector: 'app-register-step5',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './register-step5-email-confirm.html',
@@ -91,7 +92,11 @@ export class RegisterStep5EmailConfirm implements OnInit {
       .subscribe({
         next: () => {
           this.loading = false;
+
+          // ✅ اعتبريه Logged in بالبيانات اللي جمعتيها في خطوات الريجستر
+          this.auth.setAuthFromRegister();
           this.auth.clearRegisterData();
+
           this.router.navigate(['/dashboard']);
         },
         error: () => {

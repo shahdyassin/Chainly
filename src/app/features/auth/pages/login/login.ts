@@ -1,27 +1,33 @@
+// src/app/features/auth/pages/login/login.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService, UserRole } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
 export class Login {
-form: FormGroup;
+  form: FormGroup;
   loading = false;
   errorMessage = '';
   showPassword = false;
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
@@ -53,11 +59,23 @@ form: FormGroup;
     this.authService.login(this.form.value).subscribe({
       next: (res) => {
         this.loading = false;
-        console.log('LOGIN SUCCESS', res);
+
+        // عدّلي ده حسب شكل الريسبونس الحقيقي لو مختلف
+       this.authService.setAuthSession({
+  fullName: res.fullName,
+  email: res.email,
+  role: res.role as UserRole,
+  token: res.token,
+  avatarUrl: res.profilePictureUrl ?? null,
+});
+
+
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.error?.message || 'Login failed, please try again.';
+        this.errorMessage =
+          err.error?.message || 'Login failed, please try again.';
       },
     });
   }

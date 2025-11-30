@@ -1,0 +1,158 @@
+<div class="shell" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar">
+    <!-- Logo -->
+    <div class="logo-row">
+      <div class="logo">
+        <img src="/images/logo.png" alt="Chainly" />
+      </div>
+      <span class="logo-text">Chainly</span>
+
+      <button class="logo-mini-btn" (click)="toggleSidebar()">
+        <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
+      </button>
+    </div>
+
+    <!-- Nav groups -->
+    <nav class="nav">
+      <div class="nav-group">
+        <p class="group-title">Main</p>
+
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/home.svg" alt="" />
+          <span>Dashboard</span>
+        </a>
+
+        <a
+          routerLink="/dashboard/insights"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/insights.svg" alt="" />
+          <span>Insights</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <p class="group-title">Operations</p>
+
+        <a
+          routerLink="/dashboard/rising-demands"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/increase.svg" alt="" />
+          <span>Rising Demands</span>
+        </a>
+
+        <a
+          routerLink="/dashboard/production-lines"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/factory.svg" alt="" />
+          <span>Production Lines</span>
+        </a>
+
+        <a
+          routerLink="/dashboard/orders"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/order.svg" alt="" />
+          <span>Orders</span>
+        </a>
+
+        <a
+          routerLink="/dashboard/digital-twin"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/twin.svg" alt="" />
+          <span>Digital Twin</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <p class="group-title">Suppliers Network</p>
+
+        <a
+          routerLink="/dashboard/suppliers"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/suppliers.svg" alt="" />
+          <span>Suppliers</span>
+        </a>
+
+        <a
+          routerLink="/dashboard/supplies"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/truck.svg" alt="" />
+          <span>Supplies</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <p class="group-title">Management</p>
+
+        <a
+          routerLink="/dashboard/users"
+          routerLinkActive="active"
+          class="nav-item"
+        >
+          <img src="/icons/dashboard/users.svg" alt="" />
+          <span>Users</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- User mini card bottom -->
+    <div class="user-card">
+      <div class="avatar">
+        <img [src]="userAvatarUrl" alt="User" />
+      </div>
+      <div class="user-text">
+        <p class="name">{{ userName }}</p>
+        <p class="role">{{ userRole }}</p>
+      </div>
+      <button class="more-btn">⋮</button>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN AREA (TOPBAR + CONTENT) ========== -->
+  <div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Dashboard</span>
+
+        <div class="search-wrapper">
+          <img src="/icons/dashboard/search.svg" alt="" />
+          <input type="text" placeholder="Search anything.." />
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <button class="icon-btn">
+          <img src="/icons/dashboard/notification.svg" alt="Notifications" />
+        </button>
+        <button class="icon-btn">
+          <img src="/icons/dashboard/bot.svg" alt="AI" />
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

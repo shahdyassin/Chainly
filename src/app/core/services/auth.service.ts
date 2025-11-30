@@ -1,3 +1,4 @@
+// src/app/core/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -11,7 +12,15 @@ interface RegisterData {
   companyName: string | null;
   latitude: number | null;
   longitude: number | null;
-  profilePicture: File | null;     
+  profilePicture: File | null;
+}
+
+interface AuthSession {
+  fullName: string;
+  email: string;
+  role: UserRole | null;
+  token: string;
+  avatarUrl?: string | null;
 }
 
 @Injectable({
@@ -20,6 +29,7 @@ interface RegisterData {
 export class AuthService {
   private baseUrl = 'https://chainly.azurewebsites.net/api/Authentication';
 
+  // بيانات الريجستر لحد ما يكمّل كل الستيبس
   private registerData: RegisterData = {
     role: null,
     fullName: null,
@@ -30,9 +40,72 @@ export class AuthService {
     profilePicture: null,
   };
 
-  constructor(private http: HttpClient) {}
+  // جلسة المستخدم
+  private currentUser: AuthSession | null = null;
+  private STORAGE_KEY = 'chainly-auth';
+
+  constructor(private http: HttpClient) {
+    this.loadSessionFromStorage();
+  }
+
+  /* ============== session helpers ============== */
+
+  getCurrentUserAvatar(): string | null {
+  return this.currentUser?.avatarUrl ?? null;
+}
+
+getCurrentUserRole(): string | null {
+  return this.currentUser?.role ?? null;
+}
+
+  private loadSessionFromStorage() {
+    const raw = localStorage.getItem(this.STORAGE_KEY);
+    if (!raw) return;
+
+    try {
+      this.currentUser = JSON.parse(raw) as AuthSession;
+    } catch {
+      this.currentUser = null;
+    }
+  }
+
+  setAuthSession(session: AuthSession) {
+  this.currentUser = session;
+  localStorage.setItem(this.STORAGE_KEY, JSON.stringify(session));
+}
 
 
+
+
+
+  /** تستخدم بعد نجاح الـ OTP – لسه معندناش توكن حقيقي من الـ API */
+  setAuthFromRegister() {
+    if (!this.registerData.email || !this.registerData.fullName) return;
+
+    const session: AuthSession = {
+      fullName: this.registerData.fullName,
+      email: this.registerData.email,
+      role: this.registerData.role,
+      token: 'REGISTER_VERIFIED', // أي سترينج يخلّي isLoggedIn = true
+    };
+
+    this.setAuthSession(session);
+  }
+
+  getCurrentUserName(): string | null {
+    return this.currentUser?.fullName ?? null;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.currentUser?.token;
+  }
+
+  logout() {
+    this.currentUser = null;
+    localStorage.removeItem(this.STORAGE_KEY);
+  }
+
+  /* ============== register flow data ============== */
 
   setRegisterRole(role: UserRole) {
     this.registerData.role = role;
@@ -87,7 +160,7 @@ export class AuthService {
     };
   }
 
-
+  /* ============== auth APIs ============== */
 
   login(payload: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, payload);
@@ -120,8 +193,6 @@ export class AuthService {
     });
   }
 
-
-
   register(payload: {
     fullName: string;
     email: string;
@@ -140,7 +211,6 @@ export class AuthService {
     formData.append('CompanyName', payload.companyName);
     formData.append('LocationLatitude', String(payload.latitude));
     formData.append('LocationLongitude', String(payload.longitude));
-
 
     const profileFile =
       payload.profilePicture ?? this.registerData.profilePicture;
