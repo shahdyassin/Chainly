@@ -1,7 +1,14 @@
-<!-- src/app/features/dashboard/pages/home-dashboard/home-dashboard.html -->
 <div class="dashboard-layout">
   <!-- ===== TOP HEADER ===== -->
   <header class="dashboard-header">
+    <!-- hidden date input used by all date chips -->
+    <input
+      #dateInput
+      type="date"
+      class="hidden-date-input"
+      (change)="onDateChange(dateInput.value)"
+    />
+
     <div class="welcome-block">
       <div class="welcome-text">
         <p class="hello">Welcome Mr. {{ userName }},</p>
@@ -10,7 +17,7 @@
     </div>
 
     <div class="header-right">
-      <button class="date-chip">
+      <button class="date-chip" (click)="openDatePicker(dateInput)">
         <img src="/icons/dashboard/calendar.svg" alt="" />
         <span>{{ todayLabel }}</span>
         <img src="/icons/dashboard/downArrow.svg" alt="" />
@@ -21,76 +28,68 @@
   <!-- ===== TOP CARDS ===== -->
   <section class="summary-row">
     <!-- Delivered -->
-    <div class="summary-card green">
+    <div class="summary-card">
       <div class="summary-left">
         <p class="label">Delivered Orders</p>
-        <div class="value-row">
-          <h2>{{ deliveredCount }}</h2>
-        </div>
+        <h2 class="value">{{ deliveredCount }}</h2>
         <p class="sub">
-          <span class="percent neutral">0%</span>
+          <span class="percent">{{ formatPercent(deliveredChangePercent) }}</span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="icon-circle green">
+        <div class="summary-icon summary-icon--green">
           <img src="/icons/dashboard/check.svg" alt="Delivered" />
         </div>
       </div>
     </div>
 
     <!-- Total Placed -->
-    <div class="summary-card purple">
+    <div class="summary-card">
       <div class="summary-left">
         <p class="label">Total Placed Orders</p>
-        <div class="value-row">
-          <h2>{{ totalPlacedCount }}</h2>
-        </div>
+        <h2 class="value">{{ totalPlacedCount }}</h2>
         <p class="sub">
-          <span class="percent neutral">0%</span>
+          <span class="percent">{{ formatPercent(totalPlacedChangePercent) }}</span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="icon-circle purple">
+        <div class="summary-icon summary-icon--purple">
           <img src="/icons/dashboard/order.svg" alt="Orders" />
         </div>
       </div>
     </div>
 
     <!-- Pending -->
-    <div class="summary-card orange">
+    <div class="summary-card">
       <div class="summary-left">
         <p class="label">Pending Orders</p>
-        <div class="value-row">
-          <h2>{{ pendingCount }}</h2>
-        </div>
+        <h2 class="value">{{ pendingCount }}</h2>
         <p class="sub">
-          <span class="percent down">0%</span>
+          <span class="percent">{{ formatPercent(pendingChangePercent) }}</span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="icon-circle orange">
+        <div class="summary-icon summary-icon--orange">
           <img src="/icons/dashboard/pending.svg" alt="Pending" />
         </div>
       </div>
     </div>
 
     <!-- Cancelled -->
-    <div class="summary-card pink">
+    <div class="summary-card">
       <div class="summary-left">
         <p class="label">Cancelled Orders</p>
-        <div class="value-row">
-          <h2>{{ cancelledCount }}</h2>
-        </div>
+        <h2 class="value">{{ cancelledCount }}</h2>
         <p class="sub">
-          <span class="percent down">0%</span>
+          <span class="percent">{{ formatPercent(cancelledChangePercent) }}</span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="icon-circle pink">
+        <div class="summary-icon summary-icon--pink">
           <img src="/icons/dashboard/wrong.svg" alt="Cancelled" />
         </div>
       </div>
@@ -121,7 +120,7 @@
           [grid]="totalOrdersChartOptions.grid"
         ></apx-chart>
 
-        <div class="chart-empty" *ngIf="!hasData">
+        <div class="chart-empty" *ngIf="!hasMonthlyStats">
           No data to show yet. Place some orders to see the trend here.
         </div>
       </div>
@@ -137,11 +136,15 @@
     <div class="panel">
       <div class="panel-header">
         <h3>Rising Demands</h3>
-        <button class="chip">View all</button>
+        <button class="chip" (click)="onViewAllDemands()">View all</button>
       </div>
 
-      <div class="panel-body" *ngIf="hasData; else risingEmpty">
-        <div class="demand-item" *ngFor="let item of risingDemands">
+      <div class="panel-body" *ngIf="hasRisingDemands; else risingEmpty">
+        <div
+          class="demand-item"
+          *ngFor="let item of risingDemands"
+          (click)="onDemandItemClick(item)"
+        >
           <p class="title">{{ item.productName }}</p>
           <p class="sub">In-Stock: {{ item.stock }}</p>
           <p class="hint">
@@ -167,28 +170,30 @@
   <!-- ===== BOTTOM ROW ===== -->
   <section class="bottom-row">
     <!-- Insights donut -->
-    <div class="panel">
+    <div class="panel panel--insights">
       <div class="panel-header">
         <h3>Insights</h3>
-        <button class="chip">
+        <button class="chip" (click)="openDatePicker(dateInput)">
           {{ todayLabel }}
           <img src="/icons/dashboard/downArrow.svg" alt="" />
         </button>
       </div>
 
-      <div class="panel-body">
-        <apx-chart
-          [series]="insightsDonutOptions.series"
-          [chart]="insightsDonutOptions.chart"
-          [labels]="insightsDonutOptions.labels"
-          [responsive]="insightsDonutOptions.responsive"
-          [legend]="insightsDonutOptions.legend"
-          [plotOptions]="insightsDonutOptions.plotOptions"
-          [colors]="insightsDonutOptions.colors"
-        ></apx-chart>
+      <div class="panel-body panel-body--insights">
+        <div class="insights-chart-wrapper">
+          <apx-chart
+            [series]="insightsDonutOptions.series"
+            [chart]="insightsDonutOptions.chart"
+            [labels]="insightsDonutOptions.labels"
+            [responsive]="insightsDonutOptions.responsive"
+            [legend]="insightsDonutOptions.legend"
+            [plotOptions]="insightsDonutOptions.plotOptions"
+            [colors]="insightsDonutOptions.colors"
+          ></apx-chart>
 
-        <div class="chart-empty chart-empty-insights">
-          No insights available yet. Once orders start flowing, you’ll see analytics here.
+          <div class="chart-empty chart-empty-insights" *ngIf="!hasInsightsData">
+            No insights available yet. Once orders start flowing, you’ll see analytics here.
+          </div>
         </div>
 
         <div class="insights-footer">
@@ -197,16 +202,16 @@
             <span>Defected Products / Production Line</span>
           </div>
 
-          <div class="progress-card">
+          <div class="progress-card" *ngFor="let line of productionLines">
             <div class="top">
-              <span class="name">Production Line 01</span>
-              <span class="percent">0%</span>
+              <span class="name">{{ line.name }}</span>
+              <span class="percent">{{ line.percent }}%</span>
             </div>
             <div class="bar">
-              <div class="fill"></div>
+              <div class="fill" [style.width.%]="line.percent"></div>
             </div>
             <div class="bottom">
-              <span>0 out of 0 Defected</span>
+              <span>{{ line.text }}</span>
             </div>
           </div>
         </div>
@@ -219,14 +224,14 @@
       </div>
     </div>
 
-    <!-- Recent Orders table -->
-    <div class="panel">
+    <!-- Recent Orders (DIV-based, زي الريفرنس) -->
+    <div class="panel panel--orders">
       <div class="panel-header">
         <h3>Recent Orders</h3>
         <button class="chip">View all</button>
       </div>
 
-      <!-- شريط السيرش + الفلتر فوق التابل -->
+      <!-- search + filter -->
       <div class="orders-toolbar">
         <div class="orders-search">
           <img src="/icons/dashboard/search.svg" alt="" />
@@ -238,66 +243,61 @@
         </button>
       </div>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th class="col-no">
-                <span>No.</span>
-              </th>
+      <div class="orders-table-card">
+        <!-- header row -->
+        <div class="orders-header-row">
+          <div class="orders-col orders-col--no">No.</div>
 
-              <th class="col-icon-text">
-                <img src="/icons/dashboard/order-id.svg" alt="" />
-                <span>Order ID</span>
-              </th>
+          <div class="orders-col">
+            <img src="/icons/dashboard/orderId.svg" alt="" />
+            <span>Order ID</span>
+          </div>
 
-              <th class="col-icon-text">
-                <img src="/icons/dashboard/public-code.svg" alt="" />
-                <span>Public Code</span>
-              </th>
+          <div class="orders-col">
+            <img src="/icons/dashboard/publicCode.svg" alt="" />
+            <span>Public Code</span>
+          </div>
 
-              <th class="col-icon-text">
-                <img src="/icons/dashboard/status.svg" alt="" />
-                <span>Status</span>
-              </th>
+          <div class="orders-col">
+            <img src="/icons/dashboard/order.svg" alt="" />
+            <span>Status</span>
+          </div>
 
-              <th class="col-icon-text">
-                <img src="/icons/dashboard/actions.svg" alt="" />
-                <span>Actions</span>
-              </th>
-            </tr>
-          </thead>
+          <div class="orders-col">
+            <img src="/icons/dashboard/settings.svg" alt="" />
+            <span>Actions</span>
+          </div>
+        </div>
 
-          <tbody>
-            <!-- no data -->
-            <tr *ngIf="!hasData">
-              <td colspan="5" class="no-data-cell">No data to show</td>
-            </tr>
+        <!-- empty state -->
+        <div class="orders-empty" *ngIf="!hasOrders">
+          No data to show
+        </div>
 
-            <!-- rows لما يبقى في أوردارات -->
-            <tr *ngFor="let o of orders; index as i">
-              <td>{{ i + 1 }}</td>
-              <td>{{ o.id }}</td>
-              <td>{{ o.publicCode }}</td>
-              <td>
-                <span
-                  class="status-chip"
-                  [class.pending]="o.status === 'Pending'"
-                  [class.delivered]="o.status === 'Delivered'"
-                  [class.cancelled]="o.status === 'Cancelled'"
-                >
-                  {{ o.status }}
-                </span>
-              </td>
-              <td>
-                <button class="icon-btn">⋮</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- rows when there is data -->
+        <div class="orders-rows" *ngIf="hasOrders">
+          <div class="orders-row" *ngFor="let o of orders; index as i">
+            <div class="orders-cell orders-col--no">{{ i + 1 }}</div>
+            <div class="orders-cell">{{ o.id }}</div>
+            <div class="orders-cell">{{ o.publicCode }}</div>
+            <div class="orders-cell">
+              <span
+                class="status-chip"
+                [class.pending]="o.status === 'Pending'"
+                [class.delivered]="o.status === 'Delivered'"
+                [class.cancelled]="o.status === 'Cancelled'"
+              >
+                {{ o.status }}
+              </span>
+            </div>
+            <div class="orders-cell">
+              <button class="icon-btn">⋮</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- dots أسفل البلوك -->
+      <!-- dots -->
       <div class="panel-footer dots">
         <span class="dot active"></span>
         <span class="dot"></span>
