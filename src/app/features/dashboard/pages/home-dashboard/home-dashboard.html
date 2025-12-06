@@ -1,14 +1,6 @@
 <div class="dashboard-layout">
   <!-- ===== TOP HEADER ===== -->
   <header class="dashboard-header">
-    <!-- hidden date input used by all date chips -->
-    <input
-      #dateInput
-      type="date"
-      class="hidden-date-input"
-      (change)="onDateChange(dateInput.value)"
-    />
-
     <div class="welcome-block">
       <div class="welcome-text">
         <p class="hello">Welcome Mr. {{ userName }},</p>
@@ -17,79 +9,153 @@
     </div>
 
     <div class="header-right">
-      <button class="date-chip" (click)="openDatePicker(dateInput)">
-        <img src="/icons/dashboard/calendar.svg" alt="" />
-        <span>{{ todayLabel }}</span>
-        <img src="/icons/dashboard/downArrow.svg" alt="" />
-      </button>
+      <!-- تاريخ الهيدر + الكاليندر بتاعه -->
+      <div class="date-picker-wrapper">
+        <button class="date-chip" (click)="toggleCalendar('header')">
+          <img src="/icons/dashboard/calendar.svg" alt="" />
+          <span>{{ todayLabel }}</span>
+          <img src="/icons/dashboard/downArrow.svg" alt="" />
+        </button>
+
+        <!-- CALENDAR DROPDOWN – HEADER -->
+        <div class="calendar-dropdown" *ngIf="isHeaderCalendarOpen">
+          <div class="calendar-header">
+            <button class="calendar-nav-btn" (click)="prevMonth()">‹</button>
+            <div class="calendar-title">
+              {{ calendarMonthName }} {{ calendarYearNum }}
+            </div>
+            <button class="calendar-nav-btn" (click)="nextMonth()">›</button>
+          </div>
+
+          <div class="calendar-weekdays">
+            <span *ngFor="let d of weekDaysShort">{{ d }}</span>
+          </div>
+
+          <div class="calendar-grid">
+            <ng-container *ngFor="let cell of calendarCells">
+              <ng-container *ngIf="cell; else emptyCell1">
+                <button
+                  class="calendar-day"
+                  [ngClass]="{
+                    today: isToday(cell.date),
+                    selected: isSelected(cell.date)
+                  }"
+                  (click)="selectCalendarDate(cell.date)"
+                >
+                  {{ cell.day }}
+                </button>
+              </ng-container>
+              <ng-template #emptyCell1>
+                <span class="calendar-day empty"></span>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- ===== TOP CARDS ===== -->
   <section class="summary-row">
     <!-- Delivered -->
-    <div class="summary-card">
+    <div class="summary-card green">
       <div class="summary-left">
         <p class="label">Delivered Orders</p>
-        <h2 class="value">{{ deliveredCount }}</h2>
+        <div class="value-row">
+          <h2>{{ deliveredCount }}</h2>
+        </div>
         <p class="sub">
-          <span class="percent">{{ formatPercent(deliveredChangePercent) }}</span>
+          <span
+            class="percent-text"
+            dir="ltr"
+            [ngClass]="getPercentClass(deliveredChangePercent)"
+          >
+            {{ renderPercentNumber(deliveredChangePercent) }}
+            <span class="percent-sign">%</span>
+          </span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="summary-icon summary-icon--green">
+        <div class="icon-square green">
           <img src="/icons/dashboard/check.svg" alt="Delivered" />
         </div>
       </div>
     </div>
 
     <!-- Total Placed -->
-    <div class="summary-card">
+    <div class="summary-card purple">
       <div class="summary-left">
         <p class="label">Total Placed Orders</p>
-        <h2 class="value">{{ totalPlacedCount }}</h2>
+        <div class="value-row">
+          <h2>{{ totalPlacedCount }}</h2>
+        </div>
         <p class="sub">
-          <span class="percent">{{ formatPercent(totalPlacedChangePercent) }}</span>
+          <span
+            class="percent-text"
+            dir="ltr"
+            [ngClass]="getPercentClass(totalPlacedChangePercent)"
+          >
+            {{ renderPercentNumber(totalPlacedChangePercent) }}
+            <span class="percent-sign">%</span>
+          </span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="summary-icon summary-icon--purple">
+        <div class="icon-square purple">
           <img src="/icons/dashboard/order.svg" alt="Orders" />
         </div>
       </div>
     </div>
 
     <!-- Pending -->
-    <div class="summary-card">
+    <div class="summary-card orange">
       <div class="summary-left">
         <p class="label">Pending Orders</p>
-        <h2 class="value">{{ pendingCount }}</h2>
+        <div class="value-row">
+          <h2>{{ pendingCount }}</h2>
+        </div>
         <p class="sub">
-          <span class="percent">{{ formatPercent(pendingChangePercent) }}</span>
+          <span
+            class="percent-text"
+            dir="ltr"
+            [ngClass]="getPercentClass(pendingChangePercent)"
+          >
+            {{ renderPercentNumber(pendingChangePercent) }}
+            <span class="percent-sign">%</span>
+          </span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="summary-icon summary-icon--orange">
+        <div class="icon-square orange">
           <img src="/icons/dashboard/pending.svg" alt="Pending" />
         </div>
       </div>
     </div>
 
     <!-- Cancelled -->
-    <div class="summary-card">
+    <div class="summary-card pink">
       <div class="summary-left">
         <p class="label">Cancelled Orders</p>
-        <h2 class="value">{{ cancelledCount }}</h2>
+        <div class="value-row">
+          <h2>{{ cancelledCount }}</h2>
+        </div>
         <p class="sub">
-          <span class="percent">{{ formatPercent(cancelledChangePercent) }}</span>
+          <span
+            class="percent-text"
+            dir="ltr"
+            [ngClass]="getPercentClass(cancelledChangePercent)"
+          >
+            {{ renderPercentNumber(cancelledChangePercent) }}
+            <span class="percent-sign">%</span>
+          </span>
           <span class="text">Last month</span>
         </p>
       </div>
       <div class="summary-right">
-        <div class="summary-icon summary-icon--pink">
+        <div class="icon-square pink">
           <img src="/icons/dashboard/wrong.svg" alt="Cancelled" />
         </div>
       </div>
@@ -98,17 +164,54 @@
 
   <!-- ===== MIDDLE ROW ===== -->
   <section class="middle-row">
-    <!-- Total Orders chart -->
-    <div class="panel">
+    <!-- Total Orders -->
+    <div class="panel total-orders-panel">
       <div class="panel-header">
         <h3>Total Orders</h3>
-        <button class="chip">
-          Last Year
-          <img src="/icons/dashboard/downArrow.svg" alt="" />
-        </button>
+
+        <div class="date-picker-wrapper">
+          <button class="chip" (click)="toggleCalendar('totalOrders')">
+            <span>{{ todayLabel }}</span>
+            <img src="/icons/dashboard/downArrow.svg" alt="" />
+          </button>
+
+          <div class="calendar-dropdown" *ngIf="isTotalOrdersCalendarOpen">
+            <div class="calendar-header">
+              <button class="calendar-nav-btn" (click)="prevMonth()">‹</button>
+              <div class="calendar-title">
+                {{ calendarMonthName }} {{ calendarYearNum }}
+              </div>
+              <button class="calendar-nav-btn" (click)="nextMonth()">›</button>
+            </div>
+
+            <div class="calendar-weekdays">
+              <span *ngFor="let d of weekDaysShort">{{ d }}</span>
+            </div>
+
+            <div class="calendar-grid">
+              <ng-container *ngFor="let cell of calendarCells">
+                <ng-container *ngIf="cell; else emptyCellTO">
+                  <button
+                    class="calendar-day"
+                    [ngClass]="{
+                      today: isToday(cell.date),
+                      selected: isSelected(cell.date)
+                    }"
+                    (click)="selectCalendarDate(cell.date)"
+                  >
+                    {{ cell.day }}
+                  </button>
+                </ng-container>
+                <ng-template #emptyCellTO>
+                  <span class="calendar-day empty"></span>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="panel-body">
+      <div class="panel-body panel-body-chart">
         <apx-chart
           [series]="totalOrdersChartOptions.series"
           [chart]="totalOrdersChartOptions.chart"
@@ -121,7 +224,7 @@
         ></apx-chart>
 
         <div class="chart-empty" *ngIf="!hasMonthlyStats">
-          No data to show yet. Place some orders to see the trend here.
+          No data to show
         </div>
       </div>
 
@@ -133,33 +236,38 @@
     </div>
 
     <!-- Rising Demands -->
-    <div class="panel">
+    <div class="panel rising-panel">
       <div class="panel-header">
         <h3>Rising Demands</h3>
         <button class="chip" (click)="onViewAllDemands()">View all</button>
       </div>
 
-      <div class="panel-body" *ngIf="hasRisingDemands; else risingEmpty">
+      <div
+        class="panel-body panel-body-list"
+        *ngIf="hasRisingDemands; else risingEmpty"
+      >
         <div
           class="demand-item"
           *ngFor="let item of risingDemands"
           (click)="onDemandItemClick(item)"
         >
           <p class="title">{{ item.productName }}</p>
-          <p class="sub">In-Stock: {{ item.stock }}</p>
+          <p class="sub">In-Stock: {{ item.stock || 0 }}</p>
           <p class="hint">
-            The demand is expected to increase by {{ item.increasePercent }}% tomorrow
+            The demand is expected to increase by
+            {{ renderPercent(item.increasePercent) }}
+            tomorrow
           </p>
         </div>
       </div>
 
       <ng-template #risingEmpty>
-        <div class="empty-state">
+        <div class="empty-state rising-empty">
           <p>No data to show</p>
         </div>
       </ng-template>
 
-      <div class="panel-footer dots">
+      <div class="panel-footer dots rising-dots">
         <span class="dot active"></span>
         <span class="dot"></span>
         <span class="dot"></span>
@@ -169,18 +277,55 @@
 
   <!-- ===== BOTTOM ROW ===== -->
   <section class="bottom-row">
-    <!-- Insights donut -->
-    <div class="panel panel--insights">
+    <!-- Insights -->
+    <div class="panel insights-panel">
       <div class="panel-header">
         <h3>Insights</h3>
-        <button class="chip" (click)="openDatePicker(dateInput)">
-          {{ todayLabel }}
-          <img src="/icons/dashboard/downArrow.svg" alt="" />
-        </button>
+
+        <div class="date-picker-wrapper">
+          <button class="chip" (click)="toggleCalendar('insights')">
+            {{ todayLabel }}
+            <img src="/icons/dashboard/downArrow.svg" alt="" />
+          </button>
+
+          <div class="calendar-dropdown" *ngIf="isInsightsCalendarOpen">
+            <div class="calendar-header">
+              <button class="calendar-nav-btn" (click)="prevMonth()">‹</button>
+              <div class="calendar-title">
+                {{ calendarMonthName }} {{ calendarYearNum }}
+              </div>
+              <button class="calendar-nav-btn" (click)="nextMonth()">›</button>
+            </div>
+
+            <div class="calendar-weekdays">
+              <span *ngFor="let d of weekDaysShort">{{ d }}</span>
+            </div>
+
+            <div class="calendar-grid">
+              <ng-container *ngFor="let cell of calendarCells">
+                <ng-container *ngIf="cell; else emptyCell2">
+                  <button
+                    class="calendar-day"
+                    [ngClass]="{
+                      today: isToday(cell.date),
+                      selected: isSelected(cell.date)
+                    }"
+                    (click)="selectCalendarDate(cell.date)"
+                  >
+                    {{ cell.day }}
+                  </button>
+                </ng-container>
+                <ng-template #emptyCell2>
+                  <span class="calendar-day empty"></span>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="panel-body panel-body--insights">
-        <div class="insights-chart-wrapper">
+      <div class="panel-body insights-body">
+        <div class="insights-donut-wrapper">
           <apx-chart
             [series]="insightsDonutOptions.series"
             [chart]="insightsDonutOptions.chart"
@@ -190,13 +335,9 @@
             [plotOptions]="insightsDonutOptions.plotOptions"
             [colors]="insightsDonutOptions.colors"
           ></apx-chart>
-
-          <div class="chart-empty chart-empty-insights" *ngIf="!hasInsightsData">
-            No insights available yet. Once orders start flowing, you’ll see analytics here.
-          </div>
         </div>
 
-        <div class="insights-footer">
+        <div class="insights-footer" *ngIf="hasInsightsData; else insightsEmpty">
           <div class="legend-line">
             <img src="/icons/dashboard/defect.svg" alt="" />
             <span>Defected Products / Production Line</span>
@@ -215,93 +356,158 @@
             </div>
           </div>
         </div>
+
+        <ng-template #insightsEmpty>
+          <div class="empty-state chart-empty-insights">
+            No data to show
+          </div>
+        </ng-template>
       </div>
 
-      <div class="panel-footer dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
+      <div class="panel-footer pager">
+        <button class="pager-arrow">&lt;</button>
+        <span class="pager-dot active"></span>
+        <span class="pager-dot"></span>
+        <span class="pager-dot"></span>
+        <button class="pager-arrow">&gt;</button>
       </div>
     </div>
 
-    <!-- Recent Orders (DIV-based, زي الريفرنس) -->
-    <div class="panel panel--orders">
+    <!-- ===== Recent Orders ===== -->
+    <div class="panel recent-panel">
       <div class="panel-header">
         <h3>Recent Orders</h3>
-        <button class="chip">View all</button>
+        <button class="chip view-all-btn">View all</button>
       </div>
 
-      <!-- search + filter -->
-      <div class="orders-toolbar">
-        <div class="orders-search">
-          <img src="/icons/dashboard/search.svg" alt="" />
-          <input type="text" placeholder="Search" />
-        </div>
+     <div class="orders-toolbar">
+  <!-- SEARCH -->
+  <div class="orders-search">
+    <img src="/icons/dashboard/search.svg" alt="Search" />
+    <input
+      type="text"
+      placeholder="Search by Order ID or Public Code"
+      [(ngModel)]="searchText"
+      (input)="onSearchChange()"
+    />
+  </div>
 
-        <button class="orders-filter-btn">
-          <img src="/icons/dashboard/filter.svg" alt="Filter" />
-        </button>
-      </div>
+  <!-- FILTER BUTTON -->
+  <button class="orders-filter-btn" (click)="toggleFilterPopup()">
+    <img src="/icons/dashboard/filter.svg" alt="Filter" />
+  </button>
 
-      <div class="orders-table-card">
-        <!-- header row -->
-        <div class="orders-header-row">
-          <div class="orders-col orders-col--no">No.</div>
+  <!-- === FILTER POPUP === -->
+  <div class="filter-popup" *ngIf="isFilterOpen">
+    <div class="filter-title">Filter by Status</div>
 
-          <div class="orders-col">
+    <div class="filter-options">
+      <label *ngFor="let s of allStatuses">
+        <input
+          type="checkbox"
+          [checked]="selectedStatuses.includes(s)"
+          (change)="onStatusToggle(s, $event)"
+        />
+        {{ s }}
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button class="apply-btn" (click)="applyFilters()">Apply</button>
+    </div>
+  </div>
+</div>
+
+
+      <div class="recent-card">
+        <div class="recent-header-row">
+          <div class="recent-header-col col-no">No.</div>
+
+          <div class="recent-header-col">
             <img src="/icons/dashboard/orderId.svg" alt="" />
             <span>Order ID</span>
           </div>
 
-          <div class="orders-col">
+          <div class="recent-header-col">
             <img src="/icons/dashboard/publicCode.svg" alt="" />
             <span>Public Code</span>
           </div>
 
-          <div class="orders-col">
+          <div class="recent-header-col">
             <img src="/icons/dashboard/order.svg" alt="" />
             <span>Status</span>
           </div>
 
-          <div class="orders-col">
+          <div class="recent-header-col">
             <img src="/icons/dashboard/settings.svg" alt="" />
             <span>Actions</span>
           </div>
         </div>
 
-        <!-- empty state -->
-        <div class="orders-empty" *ngIf="!hasOrders">
+        <!-- لو مفيش داتا -->
+        <div class="recent-body-empty" *ngIf="!hasOrders">
           No data to show
         </div>
 
-        <!-- rows when there is data -->
-        <div class="orders-rows" *ngIf="hasOrders">
-          <div class="orders-row" *ngFor="let o of orders; index as i">
-            <div class="orders-cell orders-col--no">{{ i + 1 }}</div>
-            <div class="orders-cell">{{ o.id }}</div>
-            <div class="orders-cell">{{ o.publicCode }}</div>
-            <div class="orders-cell">
+        <!-- لو في داتا -->
+        <div class="recent-body-list" *ngIf="hasOrders">
+          <div class="recent-body-row" *ngFor="let o of orders; index as i">
+            <!-- رقم الصف -->
+            <div class="recent-body-col col-no">
+              {{ (currentPage - 1) * pageSize + i + 1 }}
+            </div>
+
+            <!-- Order ID من الـ API => orderId -->
+            <div class="recent-body-col">
+              {{ o.orderId }}
+            </div>
+
+            <!-- Public Code من الـ API => code -->
+            <div class="recent-body-col">
+              {{ o.code }}
+            </div>
+
+            <!-- Status من lastStatus -->
+            <div class="recent-body-col">
               <span
                 class="status-chip"
-                [class.pending]="o.status === 'Pending'"
-                [class.delivered]="o.status === 'Delivered'"
-                [class.cancelled]="o.status === 'Cancelled'"
+                [ngClass]="getStatusClass(o.lastStatus)"
               >
-                {{ o.status }}
+                {{ getStatusLabel(o.lastStatus) }}
               </span>
             </div>
-            <div class="orders-cell">
+
+            <div class="recent-body-col">
               <button class="icon-btn">⋮</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- dots -->
-      <div class="panel-footer dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
+      <!-- Pagination -->
+      <div class="panel-footer orders-pager" *ngIf="totalPages > 1">
+        <button
+          class="pager-arrow"
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+        >
+          &lt;
+        </button>
+
+        <span
+          class="pager-dot"
+          *ngFor="let p of pagesArray"
+          [class.active]="p === currentPage"
+          (click)="goToPage(p)"
+        ></span>
+
+        <button
+          class="pager-arrow"
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+        >
+          &gt;
+        </button>
       </div>
     </div>
   </section>

@@ -1,4 +1,3 @@
-// src/app/core/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -40,7 +39,7 @@ export class AuthService {
     profilePicture: null,
   };
 
-  // جلسة المستخدم
+  // جلسة المستخدم الحالية
   private currentUser: AuthSession | null = null;
   private STORAGE_KEY = 'chainly-auth';
 
@@ -49,14 +48,6 @@ export class AuthService {
   }
 
   /* ============== session helpers ============== */
-
-  getCurrentUserAvatar(): string | null {
-  return this.currentUser?.avatarUrl ?? null;
-}
-
-getCurrentUserRole(): string | null {
-  return this.currentUser?.role ?? null;
-}
 
   private loadSessionFromStorage() {
     const raw = localStorage.getItem(this.STORAGE_KEY);
@@ -69,31 +60,30 @@ getCurrentUserRole(): string | null {
     }
   }
 
+  /** حفظ السيشن في الـ service + localStorage */
   setAuthSession(session: AuthSession) {
-  this.currentUser = session;
-  localStorage.setItem(this.STORAGE_KEY, JSON.stringify(session));
-}
-
-
-
-
-
-  /** تستخدم بعد نجاح الـ OTP – لسه معندناش توكن حقيقي من الـ API */
-  setAuthFromRegister() {
-    if (!this.registerData.email || !this.registerData.fullName) return;
-
-    const session: AuthSession = {
-      fullName: this.registerData.fullName,
-      email: this.registerData.email,
-      role: this.registerData.role,
-      token: 'REGISTER_VERIFIED', // أي سترينج يخلّي isLoggedIn = true
-    };
-
-    this.setAuthSession(session);
+    this.currentUser = session;
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(session));
   }
 
+  /** اسم المستخدم */
   getCurrentUserName(): string | null {
     return this.currentUser?.fullName ?? null;
+  }
+
+  /** صورة المستخدم */
+  getCurrentUserAvatar(): string | null {
+    return this.currentUser?.avatarUrl ?? null;
+  }
+
+  /** دور المستخدم */
+  getCurrentUserRole(): UserRole | null {
+    return this.currentUser?.role ?? null;
+  }
+
+  /** ⬅️ دي اللي كان محتاجها الـ dashboard */
+  getAccessToken(): string | null {
+    return this.currentUser?.token ?? null;
   }
 
   isLoggedIn(): boolean {
@@ -160,9 +150,25 @@ getCurrentUserRole(): string | null {
     };
   }
 
+  /** تستخدم بعد نجاح الـ OTP – لسه معندناش توكن حقيقي من الـ API */
+  setAuthFromRegister() {
+    if (!this.registerData.email || !this.registerData.fullName) return;
+
+    const session: AuthSession = {
+      fullName: this.registerData.fullName,
+      email: this.registerData.email,
+      role: this.registerData.role,
+      token: 'REGISTER_VERIFIED', // أي سترينج يخلّي isLoggedIn = true
+    };
+
+    this.setAuthSession(session);
+  }
+
   /* ============== auth APIs ============== */
 
   login(payload: { email: string; password: string }): Observable<any> {
+    // مفيش تغيير هنا – لسه بترجّع الـ response زي ما هو
+    // بعد الـ subscribe من الـ component تأكدي إنك بتعملي setAuthSession(...)
     return this.http.post(`${this.baseUrl}/login`, payload);
   }
 
