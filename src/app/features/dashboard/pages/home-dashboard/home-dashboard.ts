@@ -42,19 +42,29 @@ interface OrdersListResponse {
 
 interface OrdersSummaryResponse {
   deliveredOrders: number;
-  totalPlacedOrders: number;
+  deliveredOrdersChange: number;
+
   pendingOrders: number;
+  pendingOrdersChange: number;
+
   cancelledOrders: number;
-  deliveredChangePercent?: number;
-  totalPlacedChangePercent?: number;
-  pendingChangePercent?: number;
-  cancelledChangePercent?: number;
+  cancelledOrdersChange: number;
+
+  totalPlacedOrders: number;
+  totalPlacedOrdersChange: number;
 }
+
 
 interface OrdersMonthlyStat {
   month: number;
   totalOrders: number;
 }
+interface OrdersMonthlyStatsResponse {
+  year: number;
+  monthly: number[];
+  years: number[];
+}
+
 
 interface MonthlySummaryLine {
   lineName: string;
@@ -83,6 +93,7 @@ type LineChartOptions = {
   stroke: ApexStroke;
   fill: ApexFill;
   grid: ApexGrid;
+  colors: string[];
 };
 
 type DonutChartOptions = {
@@ -96,6 +107,16 @@ type DonutChartOptions = {
   dataLabels?: ApexDataLabels;
 };
 
+/** option للفلتر */
+interface StatusOption {
+  /** key موحّد نفلتر بيه في الفرونت: pending / intransit / ... */
+  key: string;
+  /** القيمة الحقيقية اللى بتتبعت للـ API (id / value / status...) */
+  apiValue: string;
+  /** النص اللى يظهر للمستخدم */
+  label: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -107,8 +128,18 @@ export class HomeDashboard implements OnInit, AfterViewInit {
   userName = '';
 
   // === Date picker state ===
-  selectedDate: Date | null = null;
-  todayLabel = '';
+// Header
+headerDate: Date | null = null;
+headerLabel = '';
+
+// Total Orders
+totalOrdersDate: Date | null = null;
+totalOrdersLabel = '';
+
+// Insights
+insightsDate: Date | null = null;
+insightsLabel = '';
+
 
   // dropdowns
   isHeaderCalendarOpen = false;
@@ -186,8 +217,12 @@ export class HomeDashboard implements OnInit, AfterViewInit {
   searchTimeout: any;
 
   isFilterOpen = false;
-  allStatuses: string[] = [];
-  selectedStatuses: string[] = [];
+
+  /** كل الستاتس من الـ API */
+  allStatuses: StatusOption[] = [];
+
+  /** الـ keys المختارة حالياً (pending / intransit / ...) */
+  selectedStatusKeys: string[] = [];
 
   toggleFilterPopup() {
     this.isFilterOpen = !this.isFilterOpen;
@@ -197,37 +232,71 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     }
   }
 
+  // نجلب الستاتس من الـ API ونحوّلها لـ {key, apiValue, label}
   private loadStatuses() {
     this.http
-      .get<string[]>(
+      .get<any[]>(
         'https://chainly.azurewebsites.net/api/Orders/statuses',
         this.getAuthOptions()
       )
       .subscribe({
         next: (res) => {
-          this.allStatuses = Array.isArray(res) ? res : [];
+          const list = Array.isArray(res) ? res : [];
+
+          const map = new Map<string, StatusOption>();
+
+          list.forEach((s) => {
+            const key = this.getStatusKeyFromAny(s); // pending / intransit ...
+            const label = this.getStatusLabel(s); // Pending / InTransit ...
+            const apiValue = this.getStatusApiValue(s);
+
+            if (!key || !label || !apiValue) return;
+
+            if (!map.has(key)) {
+              map.set(key, {
+                key,
+                apiValue,
+                label,
+              });
+            }
+          });
+
+          this.allStatuses = Array.from(map.values());
+        },
+        error: () => {
+          this.allStatuses = [];
         },
       });
   }
 
-  onStatusToggle(status: string, event: any) {
-    if (event.target.checked) {
-      this.selectedStatuses.push(status);
+  isStatusSelected(key: string): boolean {
+    return this.selectedStatusKeys.includes(key);
+  }
+
+  onStatusToggle(key: string, event: any) {
+    const checked = !!event.target?.checked;
+
+    if (checked) {
+      if (!this.selectedStatusKeys.includes(key)) {
+        this.selectedStatusKeys.push(key);
+      }
     } else {
-      this.selectedStatuses = this.selectedStatuses.filter((s) => s !== status);
+      this.selectedStatusKeys = this.selectedStatusKeys.filter(
+        (k) => k !== key
+      );
     }
   }
 
-  applyFilters() {
-    this.isFilterOpen = false;
-    this.loadOrdersList(1, this.searchText, this.selectedStatuses);
-  }
-
+ applyFilters() {
+  this.isFilterOpen = false;
+  this.currentPage = 1;
+  this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
+}
   onSearchChange() {
     clearTimeout(this.searchTimeout);
 
     this.searchTimeout = setTimeout(() => {
-      this.loadOrdersList(1, this.searchText, this.selectedStatuses);
+      this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
     }, 350);
   }
 
@@ -286,6 +355,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
       strokeDashArray: 0,
       xaxis: { lines: { show: false } },
     },
+    colors: ['#3EA397'],
   };
 
   insightsDonutOptions: DonutChartOptions = {
@@ -363,20 +433,32 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     }
   }
 
-  ngOnInit(): void {
-    this.userName = this.auth.getCurrentUserName() || 'User';
+ ngOnInit(): void {
+  this.userName = this.auth.getCurrentUserName() || 'User';
 
-    const today = new Date();
-    this.selectedDate = today;
-    this.todayLabel = this.formatDate(today);
-    this.buildCalendar(today.getFullYear(), today.getMonth());
+  const today = new Date();
 
-    this.loadOrdersList(this.currentPage);
-    this.loadOrdersSummary();
-    this.loadMonthlyStats();
-    this.loadMonthlySummary();
-    this.loadTopProducts();
-  }
+  // ⬆️ Header
+  this.headerDate = today;
+  this.headerLabel = this.formatDate(today);
+
+  // ⬆️ Total Orders
+  this.totalOrdersDate = today;
+  this.totalOrdersLabel = this.formatDate(today);
+
+  // ⬆️ Insights
+  this.insightsDate = today;
+  this.insightsLabel = this.formatDate(today);
+
+  this.buildCalendar(today.getFullYear(), today.getMonth());
+
+  this.loadOrdersList(this.currentPage);
+  this.loadOrdersSummary();
+  this.loadMonthlyStats();    // يعتمد على totalOrdersDate (هنعدّله تحت)
+  this.loadMonthlySummary();  // Insights
+  this.loadTopProducts();
+}
+
 
   private formatDate(date: Date): string {
     return date.toLocaleDateString('en-GB', {
@@ -408,28 +490,33 @@ export class HomeDashboard implements OnInit, AfterViewInit {
   }
 
   toggleCalendar(which: 'header' | 'insights' | 'totalOrders') {
-    const wasHeaderOpen = this.isHeaderCalendarOpen;
-    const wasInsightsOpen = this.isInsightsCalendarOpen;
-    const wasTotalOpen = this.isTotalOrdersCalendarOpen;
+  const wasHeaderOpen = this.isHeaderCalendarOpen;
+  const wasInsightsOpen = this.isInsightsCalendarOpen;
+  const wasTotalOpen = this.isTotalOrdersCalendarOpen;
 
-    this.isHeaderCalendarOpen = false;
-    this.isInsightsCalendarOpen = false;
-    this.isTotalOrdersCalendarOpen = false;
+  this.isHeaderCalendarOpen = false;
+  this.isInsightsCalendarOpen = false;
+  this.isTotalOrdersCalendarOpen = false;
 
-    if (which === 'header') this.isHeaderCalendarOpen = !wasHeaderOpen;
-    if (which === 'insights') this.isInsightsCalendarOpen = !wasInsightsOpen;
-    if (which === 'totalOrders')
-      this.isTotalOrdersCalendarOpen = !wasTotalOpen;
+  if (which === 'header') this.isHeaderCalendarOpen = !wasHeaderOpen;
+  if (which === 'insights') this.isInsightsCalendarOpen = !wasInsightsOpen;
+  if (which === 'totalOrders') this.isTotalOrdersCalendarOpen = !wasTotalOpen;
 
-    if (
-      this.isHeaderCalendarOpen ||
-      this.isInsightsCalendarOpen ||
-      this.isTotalOrdersCalendarOpen
-    ) {
-      const base = this.selectedDate || new Date();
-      this.buildCalendar(base.getFullYear(), base.getMonth());
+  if (this.isHeaderCalendarOpen || this.isInsightsCalendarOpen || this.isTotalOrdersCalendarOpen) {
+    let base: Date;
+
+    if (this.isHeaderCalendarOpen) {
+      base = this.headerDate || new Date();
+    } else if (this.isTotalOrdersCalendarOpen) {
+      base = this.totalOrdersDate || new Date();
+    } else {
+      base = this.insightsDate || new Date();
     }
+
+    this.buildCalendar(base.getFullYear(), base.getMonth());
   }
+}
+
 
   prevMonth() {
     let m = this.calendarMonthIndex - 1;
@@ -451,16 +538,50 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     this.buildCalendar(y, m);
   }
 
-  selectCalendarDate(date: Date) {
-    this.selectedDate = date;
-    this.todayLabel = this.formatDate(date);
+ // Header
+selectHeaderDate(date: Date) {
+  this.headerDate = date;
+  this.headerLabel = this.formatDate(date);
 
-    this.isHeaderCalendarOpen = false;
-    this.isInsightsCalendarOpen = false;
-    this.isTotalOrdersCalendarOpen = false;
+  this.isHeaderCalendarOpen = false;
+  this.removeWeirdCharactersInDom();
+}
 
-    this.removeWeirdCharactersInDom();
-  }
+// Total Orders
+selectTotalOrdersDate(date: Date) {
+  this.totalOrdersDate = date;
+  this.totalOrdersLabel = this.formatDate(date);
+
+  this.isTotalOrdersCalendarOpen = false;
+  this.removeWeirdCharactersInDom();
+
+  // الجراف يعتمد على سنة Total Orders بس
+  this.loadMonthlyStats(date.getFullYear());
+}
+
+// Insights (زي ما كتبناه قبل كده)
+selectInsightsDate(date: Date) {
+  this.insightsDate = date;
+  this.insightsLabel = this.formatDate(date);
+
+  this.isInsightsCalendarOpen = false;
+  this.removeWeirdCharactersInDom();
+}
+
+isHeaderSelected(date: Date): boolean {
+  return this.headerDate ? this.isSameDate(date, this.headerDate) : false;
+}
+
+isTotalOrdersSelected(date: Date): boolean {
+  return this.totalOrdersDate ? this.isSameDate(date, this.totalOrdersDate) : false;
+}
+
+isInsightsSelected(date: Date): boolean {
+  return this.insightsDate ? this.isSameDate(date, this.insightsDate) : false;
+}
+
+
+
 
   private isSameDate(a: Date, b: Date): boolean {
     return (
@@ -474,11 +595,9 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     return this.isSameDate(date, new Date());
   }
 
-  isSelected(date: Date): boolean {
-    return this.selectedDate
-      ? this.isSameDate(date, this.selectedDate)
-      : false;
-  }
+  // isSelected(date: Date): boolean {
+  //   return this.selectedDate ? this.isSameDate(date, this.selectedDate) : false;
+  // }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -509,157 +628,173 @@ export class HomeDashboard implements OnInit, AfterViewInit {
 
   // ===== ORDERS LIST (WITH FILTERS) =====
 
-  private loadOrdersList(
-    page: number,
-    search: string = '',
-    statuses: string[] = []
-  ) {
-    this.currentPage = page;
+ private loadOrdersList(
+  page: number = 1,
+  search: string = '',
+  statusKeys: string[] = []
+) {
+  this.currentPage = page;
 
-    const statusQuery = statuses.length ? statuses.join(',') : '';
+  const trimmedSearch = (search || '').trim();
+  const encodedSearch = encodeURIComponent(trimmedSearch);
 
-    const url =
-      `https://chainly.azurewebsites.net/api/Orders?pageNumber=${page}` +
-      `&pageSize=${this.pageSize}` +
-      `&status=${statusQuery}` +
-      `&search=${search}`;
+  // نجيب كل الأوردرات بدون أي فلتر status من الـ API عشان نضمن إن كل حاجة تيجي
+  let url = `https://chainly.azurewebsites.net/api/Orders?pageNumber=1&pageSize=1000&search=${encodedSearch}`;
 
-    this.http
-      .get<Order[] | OrdersListResponse>(url, this.getAuthOptions())
-      .subscribe({
-        next: (res) => {
-          let items: Order[] = [];
-          let totalPages = 1;
-          let totalCount = 0;
+  this.http.get<OrdersListResponse>(url, this.getAuthOptions()).subscribe({
+    next: (res) => {
+      let allItems: Order[] = res?.items || [];
 
-          if (Array.isArray(res)) {
-            items = res;
-          } else if (res && Array.isArray(res.items)) {
-            items = res.items;
-            totalPages = res.totalPages ?? 1;
-            totalCount = res.totalCount ?? items.length;
-          }
+      // 1. فلترة البحث
+      if (trimmedSearch) {
+        const lower = trimmedSearch.toLowerCase();
+        allItems = allItems.filter(item =>
+          String(item.orderId).includes(lower) ||
+          item.code?.toLowerCase().includes(lower)
+        );
+      }
 
-          if (!res || (res as OrdersListResponse).totalPages == null) {
-            totalPages = Math.max(
-              1,
-              Math.ceil(totalCount / this.pageSize)
-            );
-          }
+      // 2. فلترة الستاتس (الآن شغالة 100% بفضل الدالة الجديدة)
+      if (statusKeys.length > 0) {
+        const wanted = new Set(statusKeys);
+        allItems = allItems.filter(item => {
+          const key = this.getStatusKeyFromAny(item.lastStatus);
+          return wanted.has(key);
+        });
+      }
 
-          this.orders = items;
-          this.hasOrders = items.length > 0;
-          this.totalPages = Math.max(1, totalPages);
-        },
-        error: () => {
-          this.orders = [];
-          this.hasOrders = false;
-          this.totalPages = 1;
-        },
-      });
-  }
+      // 3. Pagination يدوي بعد الفلترة
+      const start = (page - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      this.orders = allItems.slice(start, end);
 
-  goToPage(page: number) {
-    if (page < 1 || page > this.totalPages || page === this.currentPage)
-      return;
+      this.totalPages = Math.ceil(allItems.length / this.pageSize) || 1;
+      this.hasOrders = this.orders.length > 0;
 
-    this.loadOrdersList(page, this.searchText, this.selectedStatuses);
-  }
+      // لو الصفحة الحالية أكبر من المتاح → نروح للصفحة الأخيرة
+      if (page > this.totalPages && this.totalPages > 0) {
+        this.currentPage = this.totalPages;
+        this.loadOrdersList(this.currentPage, this.searchText, this.selectedStatusKeys);
+      }
+    },
+    error: (err) => {
+      console.error('Error:', err);
+      this.orders = [];
+      this.hasOrders = false;
+      this.totalPages = 1;
+    }
+  });
+}
+ goToPage(page: number) {
+  if (page < 1 || page > this.totalPages || page === this.currentPage) return;
+  this.loadOrdersList(page, this.searchText, this.selectedStatusKeys);
+}
 
   // ===== SUMMARY =====
 
   private loadOrdersSummary() {
-    this.http
-      .get<OrdersSummaryResponse>(
-        'https://chainly.azurewebsites.net/api/Orders/summary',
-        this.getAuthOptions()
-      )
-      .subscribe({
-        next: (res) => {
-          if (!res) return;
+  this.http
+    .get<OrdersSummaryResponse>(
+      'https://chainly.azurewebsites.net/api/Orders/summary',
+      this.getAuthOptions()
+    )
+    .subscribe({
+      next: (res) => {
+        if (!res) return;
 
-          this.deliveredCount = res.deliveredOrders ?? 0;
-          this.totalPlacedCount = res.totalPlacedOrders ?? 0;
-          this.pendingCount = res.pendingOrders ?? 0;
-          this.cancelledCount = res.cancelledOrders ?? 0;
+        // الأعداد
+        this.deliveredCount     = res.deliveredOrders        ?? 0;
+        this.totalPlacedCount   = res.totalPlacedOrders      ?? 0;
+        this.pendingCount       = res.pendingOrders          ?? 0;
+        this.cancelledCount     = res.cancelledOrders        ?? 0;
 
-          this.deliveredChangePercent =
-            res.deliveredChangePercent ?? 0;
+        // النِسَب (Changes)
+        this.deliveredChangePercent   = res.deliveredOrdersChange      ?? 0;
+        this.totalPlacedChangePercent = res.totalPlacedOrdersChange    ?? 0;
+        this.pendingChangePercent     = res.pendingOrdersChange        ?? 0;
+        this.cancelledChangePercent   = res.cancelledOrdersChange      ?? 0;
+      },
+      error: () => {
+        this.deliveredCount =
+          this.totalPlacedCount =
+          this.pendingCount =
+          this.cancelledCount =
+            0;
+
+        this.deliveredChangePercent =
           this.totalPlacedChangePercent =
-            res.totalPlacedChangePercent ?? 0;
           this.pendingChangePercent =
-            res.pendingChangePercent ?? 0;
           this.cancelledChangePercent =
-            res.cancelledChangePercent ?? 0;
-        },
-        error: () => {
-          this.deliveredCount =
-            this.totalPlacedCount =
-            this.pendingCount =
-            this.cancelledCount =
-              0;
-
-          this.deliveredChangePercent =
-            this.totalPlacedChangePercent =
-            this.pendingChangePercent =
-            this.cancelledChangePercent =
-              0;
-        },
-      });
-  }
+            0;
+      },
+    });
+}
 
   // ===== MONTHLY STATS =====
 
-  private loadMonthlyStats() {
-    const currentYear = new Date().getFullYear();
+ // ===== MONTHLY STATS =====
+private loadMonthlyStats(year?: number) {
+  // لو مبعوتش سنة استخدم:
+  // 1) selectedDate لو موجودة
+  // 2) أو السنة الحالية
+  const targetYear =
+    year ?? this.totalOrdersDate?.getFullYear() ?? new Date().getFullYear();
 
-    this.http
-      .get<OrdersMonthlyStat[]>(
-        `https://chainly.azurewebsites.net/api/Orders/monthly-stats?year=${currentYear}`,
-        this.getAuthOptions()
-      )
-      .subscribe({
-        next: (res) => {
-          const stats = Array.isArray(res) ? res : [];
-          const data = new Array(12).fill(0);
+  const url = `https://chainly.azurewebsites.net/api/Orders/monthly-stats?year=${targetYear}`;
 
-          stats.forEach((s) => {
-            const idx = (s.month ?? 1) - 1;
-            if (idx >= 0 && idx < 12)
-              data[idx] = s.totalOrders ?? 0;
-          });
+  this.http
+    .get<OrdersMonthlyStatsResponse>(url, this.getAuthOptions())
+    .subscribe({
+      next: (res) => {
+        const data = new Array(12).fill(0);
+        const monthly = Array.isArray(res?.monthly) ? res.monthly : [];
 
-          this.totalOrdersChartOptions = {
-            ...this.totalOrdersChartOptions,
-            series: [{ name: 'Total Orders', data }],
-          };
+        monthly.forEach((value, index) => {
+          if (index >= 0 && index < 12) {
+            data[index] = this.normalizeNumber(value);
+          }
+        });
 
-          this.hasMonthlyStats = data.some((v) => v > 0);
-        },
-        error: () => {
-          const zeros = new Array(12).fill(0);
+        this.totalOrdersChartOptions = {
+          ...this.totalOrdersChartOptions,
+          series: [
+            {
+              name: 'Total Orders',
+              data,
+            },
+          ],
+        };
 
-          this.totalOrdersChartOptions = {
-            ...this.totalOrdersChartOptions,
-            series: [{ name: 'Total Orders', data: zeros }],
-          };
+        this.hasMonthlyStats = data.some((v) => v > 0);
+      },
+      error: (err) => {
+        console.error('monthly-stats error', err);
+        const zeros = new Array(12).fill(0);
+        this.totalOrdersChartOptions = {
+          ...this.totalOrdersChartOptions,
+          series: [{ name: 'Total Orders', data: zeros }],
+        };
+        this.hasMonthlyStats = false;
+      },
+    });
+}
 
-          this.hasMonthlyStats = false;
-        },
-      });
-  }
+
+
 
   // ===== INSIGHTS =====
 
   private loadMonthlySummary() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
+  // ✅ دايماً الشهر الحالي
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
 
-    const url =
-      `https://chainly.azurewebsites.net/api/Reports/monthly-summary?month=${month}&year=${year}&pageNumber=1&pageSize=10`;
+  const url =
+    `https://chainly.azurewebsites.net/api/Reports/monthly-summary?month=${month}&year=${year}&pageNumber=1&pageSize=10`;
 
-    this.http.get<MonthlySummaryResponse>(url, this.getAuthOptions()).subscribe({
+  this.http.get<MonthlySummaryResponse>(url, this.getAuthOptions())
+    .subscribe({
       next: (res) => {
         if (!res) {
           this.setInsightsEmpty();
@@ -708,17 +843,14 @@ export class HomeDashboard implements OnInit, AfterViewInit {
             percent: this.normalizeNumber(l.defectedPercentage),
             text: `${this.normalizeNumber(
               l.defectedCount
-            )} out of ${this.normalizeNumber(
-              l.totalCount
-            )} Defected`,
+            )} out of ${this.normalizeNumber(l.totalCount)} Defected`,
           }));
         }
       },
-      error: () => {
-        this.setInsightsEmpty();
-      },
+      error: () => this.setInsightsEmpty(),
     });
-  }
+}
+
 
   private setInsightsEmpty() {
     this.overallDefectedPercent = 0;
@@ -764,65 +896,68 @@ export class HomeDashboard implements OnInit, AfterViewInit {
 
   // ===== RISING DEMANDS =====
 
-  private loadTopProducts() {
-    this.http
-      .get<TopProductResponseItem[] | { items?: TopProductResponseItem[] }>(
-        'https://chainly.azurewebsites.net/api/Products/top/1',
-        this.getAuthOptions()
-      )
-      .subscribe({
-        next: (res) => {
-          let items: TopProductResponseItem[] = [];
+ // تحميل الـ top products مرة واحدة عند فتح الصفحة (زي ما هو)
+private loadTopProducts() {
+  this.http
+    .get<TopProductResponseItem[] | { items?: TopProductResponseItem[] }>(
+      'https://chainly.azurewebsites.net/api/Products/top/1',
+      this.getAuthOptions()
+    )
+    .subscribe({
+      next: (res) => {
+        let items: TopProductResponseItem[] = [];
 
-          if (Array.isArray(res)) items = res;
-          else if (res && Array.isArray(res.items))
-            items = res.items;
+        if (Array.isArray(res)) items = res;
+        else if (res && Array.isArray(res.items)) items = res.items;
 
-          this.risingDemands = items.map((p) => ({
-            productName: String(p.productName || '').replace(
-              /[\u061C\u200E\u200F\u202A-\u202E]/g,
-              ''
-            ),
-            stock: this.normalizeNumber(p.inStock),
-            increasePercent: this.normalizeNumber(
-              p.increasePercent
-            ),
-          }));
+        this.risingDemands = items.map((p) => ({
+          productName: String(p.productName || '').replace(
+            /[\u061C\u200E\u200F\u202A-\u202E]/g,
+            ''
+          ),
+          stock: this.normalizeNumber(p.inStock),
+          increasePercent: this.normalizeNumber(p.increasePercent),
+        }));
 
-          this.hasRisingDemands =
-            this.risingDemands.length > 0;
-        },
-        error: () => {
-          this.risingDemands = [];
-          this.hasRisingDemands = false;
-        },
-      });
-  }
+        this.hasRisingDemands = this.risingDemands.length > 0;
+      },
+      error: () => {
+        this.risingDemands = [];
+        this.hasRisingDemands = false;
+      },
+    });
+}
 
-  onViewAllDemands() {
-    this.http
-      .get(
-        'https://demandforecasting.ambitioussky-2e6e4c68.eastus.azurecontainerapps.io/predict'
-      )
-      .subscribe();
-  }
+// الزرار "View all" → يعيد نداء نفس الـ API ويلمّ التحديثات
+onViewAllDemands() {
+  this.loadTopProducts();
+}
 
-  onDemandItemClick(item: { productName: string }) {
-    this.http
-      .post(
-        'https://demandforecasting.ambitioussky-2e6e4c68.eastus.azurecontainerapps.io/predict',
-        { productName: item.productName }
-      )
-      .subscribe();
-  }
+// كليك على البرودكت → نداء demand forecasting
+onDemandItemClick(item: { productName: string }) {
+  this.http
+    .post(
+      'https://demandforecasting.ambitioussky-2e6e4c68.eastus.azurecontainerapps.io/predict',
+      { productName: item.productName }
+    )
+    .subscribe({
+      next: (res) => {
+        // هنا لو حابة تعملي console.log أو popup بالنتيجة
+        console.log('Demand forecast result:', res);
+      },
+      error: (err) => {
+        console.error('Demand forecast error:', err);
+      },
+    });
+}
+
 
   // ===== PERCENT HELPERS =====
 
   getPercentClass(value: number | string | null | undefined): string {
     const num = this.normalizeNumber(value);
 
-    if (!this.hasOrders && !this.hasMonthlyStats)
-      return 'neutral';
+    if (!this.hasOrders && !this.hasMonthlyStats) return 'neutral';
     if (num > 0) return 'up';
     if (num < 0) return 'down';
     return 'neutral';
@@ -846,15 +981,17 @@ export class HomeDashboard implements OnInit, AfterViewInit {
 
   // ===== STATUS HELPERS =====
 
+  /** string موحدة من أي شكل للستاتس */
   private normalizeStatus(status: any): string {
     if (status === null || status === undefined) return '';
 
     if (typeof status === 'object') {
       return String(
-        status.name ??
+        status.label ??
+          status.name ??
           status.statusName ??
-          status.value ??
           status.text ??
+          status.title ??
           ''
       ).trim();
     }
@@ -862,12 +999,67 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     return String(status).trim();
   }
 
+  /** key ثابت نستخدمه في الفلتر: pending / shipped / intransit / delivered / cancelled */
+ private getStatusKeyFromAny(status: any): string {
+  if (!status) return 'unknown';
+
+  let text = '';
+
+  if (typeof status === 'object') {
+    text = (
+      status.label ||
+      status.name ||
+      status.text ||
+      status.title ||
+      status.status ||
+      status.statusName ||
+      ''
+    ).toString().trim();
+  } else {
+    text = String(status).trim();
+  }
+
+  const clean = text.toLowerCase().replace(/[^a-z]/g, '').trim();
+
+  // ✅ IMPORTANT: InTransit must come BEFORE shipped
+  if (clean.includes('intransit') || clean.includes('transit')) return 'intransit';
+  if (clean.includes('pending')) return 'pending';
+  if (clean.includes('deliver')) return 'delivered';
+  if (clean.includes('cancel')) return 'cancelled';
+  if (clean.includes('ship')) return 'shipped';
+
+  return 'pending';
+}
+
+  /** القيمة الحقيقية للـ API من كائن الستاتس */
+ private getStatusApiValue(status: any): string {
+  if (!status) return '';
+
+  if (typeof status === 'object') {
+    // جرب كل الحقول الممكنة
+    return String(
+      status.value ??
+      status.id ??
+      status.key ??
+      status.code ??
+      status.statusId ??
+      status.status ??
+      status.name ??
+      status.label ??
+      ''
+    ).trim();
+  }
+
+  return String(status).trim();
+}
+
   getStatusLabel(status: any): string {
     const raw = this.normalizeStatus(status);
     const lower = raw.toLowerCase();
 
     if (lower.includes('pending')) return 'Pending';
-    if (lower.includes('intransit')) return 'In Transit';
+    if (lower.includes('intransit')) return 'InTransit';
+    if (lower.includes('shipped')) return 'Shipped';
     if (lower.includes('delivered')) return 'Delivered';
     if (lower.includes('cancelled') || lower.includes('canceled'))
       return 'Cancelled';
@@ -875,16 +1067,18 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     return raw || 'Pending';
   }
 
-  getStatusClass(status: any): string {
-    const label = this.getStatusLabel(status).toLowerCase();
+ getStatusClass(status: any): string {
+  const key = this.getStatusKeyFromAny(status);
 
-    if (label === 'pending') return 'pending';
-    if (label === 'in transit') return 'shipped';
-    if (label === 'delivered') return 'delivered';
-    if (label === 'cancelled') return 'cancelled';
+  if (key === 'pending')   return 'pending';
+  if (key === 'intransit') return 'intransit';   // 👈 لوحدها
+  if (key === 'shipped')   return 'shipped';     // 👈 لوحدها
+  if (key === 'delivered') return 'delivered';
+  if (key === 'cancelled') return 'cancelled';
 
-    return 'pending';
-  }
+  return 'pending';
+}
+
 
   // ===== NORMALIZE NUMBER =====
 

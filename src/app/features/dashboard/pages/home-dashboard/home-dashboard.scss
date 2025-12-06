@@ -1,5 +1,5 @@
 .dashboard-layout {
-  padding: 0 18px 4px;
+  padding: 0 24px 16px;
   background: #f5f7fb;
   min-height: 100vh;
   font-family: 'Urbanist', sans-serif;
@@ -11,21 +11,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-top: 22px;
+  margin-bottom: 22px;
+}
+
+.welcome-block {
+  margin-top: -5px;      /* لمسة بسيطة عشان النص ينزل سنة صغيرة */
 }
 
 .welcome-text {
   .hello {
     margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #111827;
+    font-family: 'lufga', 'Urbanist', sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: #2E2E2E;
   }
 
   .hint {
-    margin: 2px 0 0;
-    font-size: 11px;
-    color: #9ca3af;
+    margin: -3px 0 0;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #999999;
   }
 }
 
@@ -33,6 +41,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 6px;
 }
 
 .date-picker-wrapper {
@@ -41,11 +50,13 @@
 }
 
 .date-chip {
-  border-radius: 999px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   padding: 6px 12px;
-  font-size: 11px;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
   color: #6b7280;
   display: inline-flex;
   align-items: center;
@@ -59,82 +70,44 @@
 
 /* ===== SUMMARY CARDS ===== */
 
-.summary-row {
+/* ===== TOP SUMMARY CARDS – like Figma design ===== */
+
+.summary-row.fancy-cards {
+  margin-top: 12px;
+  margin-bottom: 8px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 4px;
+  gap: 18px;
 }
 
-.summary-card {
+.summary-row.fancy-cards .summary-card {
+  position: relative;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 12px 16px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
-  border-top: 3px solid transparent;
+  border-radius: 18px;
+  padding: 16px 18px 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f3f4f6;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: space-between;
-
-  .summary-left {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .label {
-    font-size: 11px;
-    color: #9ca3af;
-    margin: 0;
-  }
-
-  .value-row {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-
-    h2 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 700;
-      color: #111827;
-    }
-  }
-
-  .sub {
-    margin: 0;
-    font-size: 10px;
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    direction: ltr;
-    unicode-bidi: bidi-override;
-
-    .percent-text {
-      font-weight: 600;
-      direction: ltr;
-      unicode-bidi: isolate;
-    }
-
-    .percent-sign {
-      margin-left: 1px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-        sans-serif !important;
-      font-feature-settings: 'liga' 0;
-    }
-
-    .text {
-      color: #9ca3af;
-    }
-  }
+  min-height: 110px;
 }
 
-.summary-right {
+/* أعلى الكارت */
+.summary-row.fancy-cards .card-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
-.icon-square {
+.summary-row.fancy-cards .card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* الأيقونة الدائرية ناحية اليمين */
+.summary-row.fancy-cards .card-icon {
   width: 32px;
   height: 32px;
   border-radius: 10px;
@@ -146,36 +119,100 @@
   img {
     width: 16px;
     height: 16px;
-  }
-
-  &.green {
-    background: #d1fae5;
-  }
-
-  &.purple {
-    background: #ede9fe;
-  }
-
-  &.orange {
-    background: #ffedd5;
-  }
-
-  &.pink {
-    background: #fee2f2;
+    filter: brightness(0) invert(1);
   }
 }
 
-.summary-card.green {
-  border-top-color: #22c55e;
+/* ألوان الخلفية حوالين الأيقونات لكل كارت */
+
+.summary-row.fancy-cards .summary-card.delivered .card-icon {
+  background: #8DDFD5;   /* أخضر فاتح */
+  color: #16a34a;
 }
-.summary-card.purple {
-  border-top-color: #a855f7;
+
+.summary-row.fancy-cards .summary-card.total .card-icon {
+  background: #B4B0FF;   /* بنفسجي فاتح */
+  color: #7c3aed;
 }
-.summary-card.orange {
-  border-top-color: #fb923c;
+
+.summary-row.fancy-cards .summary-card.pending .card-icon {
+  background: #FFC297;   /* أورنج فاتح */
+  color: #ea580c;
 }
-.summary-card.pink {
-  border-top-color: #f973c5;
+
+.summary-row.fancy-cards .summary-card.cancelled .card-icon {
+  background: #FD9FD6;   /* بينك فاتح */
+  color: #e11d48;
+}
+
+
+/* الرقم الكبير */
+.summary-row.fancy-cards .card-value {
+  margin-top: 8px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* السطر اللي تحت: النسبة + Last month */
+.summary-row.fancy-cards .card-bottom {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.summary-row.fancy-cards .card-percent {
+  font-weight: 600;
+}
+
+/* الألوان حسب الـ getPercentClass */
+.summary-row.fancy-cards .card-percent.up {
+  color: #16a34a;   /* أخضر */
+}
+
+.summary-row.fancy-cards .card-percent.down {
+  color: #ef4444;   /* أحمر */
+}
+
+.summary-row.fancy-cards .card-percent.neutral {
+  color: #9ca3af;   /* رمادي */
+}
+
+.summary-row.fancy-cards .card-sub {
+  color: #9ca3af;
+}
+
+/* ألوان البوردر حسب نوع الكارت – زي الديزاين */
+
+// .summary-row.fancy-cards .summary-card.delivered {
+//   border-color: #bbf7d0;
+// }
+
+// .summary-row.fancy-cards .summary-card.total {
+//   border-color: #e9d5ff;
+// }
+
+// .summary-row.fancy-cards .summary-card.pending {
+//   border-color: #fed7aa;
+// }
+
+// .summary-row.fancy-cards .summary-card.cancelled {
+//   border-color: #fecdd3;
+// }
+
+/* موبايل / تابلت */
+@media (max-width: 1024px) {
+  .summary-row.fancy-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-row.fancy-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ===== PANELS LAYOUT ===== */
@@ -233,10 +270,11 @@
   margin-bottom: 6px;
 
   h3 {
-    font-size: 13px;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 16px;
     font-weight: 600;
     margin: 0;
-    color: #111827;
+    color: #2E2E2E;
   }
 }
 
@@ -257,9 +295,13 @@
   }
 }
 
+
 .recent-panel .panel-header .chip {
   padding: 5px 14px;
-  font-size: 11px;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #4D4D4D;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
@@ -564,7 +606,7 @@
 .recent-header-row {
   display: flex;
   align-items: center;
-  background: #fbfbfb;
+  background: #F9F9F9;
 }
 
 .recent-header-col {
@@ -574,12 +616,14 @@
   gap: 6px;
   padding: 12px 18px;
   font-size: 11px;
-  color: #9ca3af;
+  font-weight: 600;
+  color: #999999;
   white-space: nowrap;
 
   img {
     width: 14px;
     height: 14px;
+    filter: brightness(0) saturate(0) opacity(0.55);
   }
 }
 
@@ -612,6 +656,29 @@
   font-size: 11px;
   color: #6b7280;
 }
+/* ICON BTN داخل جدول الأوردرز */
+.recent-body-col .icon-btn {
+  border: none;
+  background: #F7F7F7;      /* خلفية فاتحة شبه الريفرنس */
+  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;          /* حجم الثلاث نقاط */
+  color: #4D4D4D;
+  padding: 0;
+  margin-left: 8px;
+}
+
+
+
+.recent-body-col .icon-btn:hover {
+  background: #ECECEC;      /* هوفر خفيف */
+}
+
 
 .recent-body-col.col-no {
   flex: 0 0 60px;
@@ -631,24 +698,28 @@
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
+  gap: -2px;
+  padding: 2px 6px;
   border-radius: 10px;
   background: #ffffff;
   border: 1px solid #eceff3;
   box-shadow: none;
 
   img {
-    width: 13px;
-    height: 13px;
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
   }
 
   input {
     border: none;
     outline: none;
     background: transparent;
+    font-family: 'Urbanist', sans-serif;
     font-size: 12px;
+    font-weight: 500;
     width: 100%;
+    color: #4D4D4D;
 
     &:hover,
     &:focus,
@@ -663,7 +734,7 @@
 .orders-filter-btn {
   width: 34px;
   height: 34px;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   display: flex;
@@ -672,8 +743,9 @@
   cursor: pointer;
 
   img {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
+    color: #4D4D4D;
   }
 }
 .filter-popup {
@@ -706,8 +778,9 @@
       gap: 6px;
       cursor: pointer;
 
-      input {
+      input[type='checkbox'] {
         cursor: pointer;
+        accent-color: #3EA397;
       }
     }
   }
@@ -720,7 +793,7 @@
     .apply-btn {
       padding: 4px 10px;
       font-size: 11px;
-      background: #3ccfcf;
+      background: #3EA397;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -783,8 +856,8 @@
 /* STATUS CHIP */
 
 .status-chip {
-  padding: 3px 10px;
-  border-radius: 999px;
+  padding: 5px 5px;
+  border-radius: 10px;
   font-size: 10px;
   font-weight: 600;
   background: #e5e7eb;
@@ -796,23 +869,26 @@
   text-align: center;
 
   &.delivered {
-    background: #dcfce7;
-    color: #16a34a;
+    background: #DAF1EE;
+    color: #2E2E2E;
   }
 
   &.pending {
-    background: #fef3c7;
-    color: #d97706;
+    background: #FFC297;
+    color: #2E2E2E;
   }
-
   &.cancelled {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: #FFC6C6;
+    color: #2E2E2E;
   }
 
   &.shipped {
-    background: #ffedd5;
-    color: #ea580c;
+    background: #FFE69B;
+    color: #2E2E2E;
+  }
+  &.intransit {
+    background: #D6EFF9;
+    color: #2E2E2E;
   }
 }
 
@@ -848,7 +924,8 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
+
 }
 
 /* RESPONSIVE */

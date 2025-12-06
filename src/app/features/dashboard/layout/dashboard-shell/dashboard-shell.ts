@@ -15,14 +15,14 @@ export class DashboardShell {
 
   userName = '';
   userRole = '';
-  userAvatarUrl = '/images/dashboard/user-placeholder.png';
+  userAvatarUrl = '/icons/dashboard/user.svg';
 
   constructor(private auth: AuthService) {
     this.userName = this.auth.getCurrentUserName() || 'User';
     this.userRole = this.auth.getCurrentUserRole() || 'Manager';
     this.userAvatarUrl =
       this.auth.getCurrentUserAvatar() ||
-      '/images/dashboard/user-placeholder.png';
+      '/icons/dashboard/user.svg';
   }
 
   toggleSidebar() {

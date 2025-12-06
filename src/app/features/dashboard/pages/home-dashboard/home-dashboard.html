@@ -13,7 +13,7 @@
       <div class="date-picker-wrapper">
         <button class="date-chip" (click)="toggleCalendar('header')">
           <img src="/icons/dashboard/calendar.svg" alt="" />
-          <span>{{ todayLabel }}</span>
+          <span>{{ headerLabel }}</span>
           <img src="/icons/dashboard/downArrow.svg" alt="" />
         </button>
 
@@ -38,9 +38,9 @@
                   class="calendar-day"
                   [ngClass]="{
                     today: isToday(cell.date),
-                    selected: isSelected(cell.date)
+                    selected: isHeaderSelected(cell.date)
                   }"
-                  (click)="selectCalendarDate(cell.date)"
+                  (click)="selectHeaderDate(cell.date)"
                 >
                   {{ cell.day }}
                 </button>
@@ -56,111 +56,96 @@
   </header>
 
   <!-- ===== TOP CARDS ===== -->
-  <section class="summary-row">
-    <!-- Delivered -->
-    <div class="summary-card green">
-      <div class="summary-left">
-        <p class="label">Delivered Orders</p>
-        <div class="value-row">
-          <h2>{{ deliveredCount }}</h2>
-        </div>
-        <p class="sub">
-          <span
-            class="percent-text"
-            dir="ltr"
-            [ngClass]="getPercentClass(deliveredChangePercent)"
-          >
-            {{ renderPercentNumber(deliveredChangePercent) }}
-            <span class="percent-sign">%</span>
-          </span>
-          <span class="text">Last month</span>
-        </p>
-      </div>
-      <div class="summary-right">
-        <div class="icon-square green">
-          <img src="/icons/dashboard/check.svg" alt="Delivered" />
-        </div>
-      </div>
+<section class="summary-row fancy-cards">
+  <!-- Delivered -->
+  <div class="summary-card delivered">
+    <div class="card-top">
+      <span class="card-title">Delivered Orders</span>
+      <span class="card-icon">
+        <img src="/icons/dashboard/check.svg" alt="Delivered" />
+      </span>
     </div>
 
-    <!-- Total Placed -->
-    <div class="summary-card purple">
-      <div class="summary-left">
-        <p class="label">Total Placed Orders</p>
-        <div class="value-row">
-          <h2>{{ totalPlacedCount }}</h2>
-        </div>
-        <p class="sub">
-          <span
-            class="percent-text"
-            dir="ltr"
-            [ngClass]="getPercentClass(totalPlacedChangePercent)"
-          >
-            {{ renderPercentNumber(totalPlacedChangePercent) }}
-            <span class="percent-sign">%</span>
-          </span>
-          <span class="text">Last month</span>
-        </p>
-      </div>
-      <div class="summary-right">
-        <div class="icon-square purple">
-          <img src="/icons/dashboard/order.svg" alt="Orders" />
-        </div>
-      </div>
+    <div class="card-value">{{ deliveredCount }}</div>
+
+    <div class="card-bottom">
+      <span
+        class="card-percent"
+        [ngClass]="getPercentClass(deliveredChangePercent)"
+      >
+        {{ renderPercentNumber(deliveredChangePercent) }}%
+      </span>
+      <span class="card-sub">Last month</span>
+    </div>
+  </div>
+
+  <!-- Total Placed -->
+  <div class="summary-card total">
+    <div class="card-top">
+      <span class="card-title">Total Placed Orders</span>
+      <span class="card-icon">
+        <img src="/icons/dashboard/order.svg" alt="Orders" />
+      </span>
     </div>
 
-    <!-- Pending -->
-    <div class="summary-card orange">
-      <div class="summary-left">
-        <p class="label">Pending Orders</p>
-        <div class="value-row">
-          <h2>{{ pendingCount }}</h2>
-        </div>
-        <p class="sub">
-          <span
-            class="percent-text"
-            dir="ltr"
-            [ngClass]="getPercentClass(pendingChangePercent)"
-          >
-            {{ renderPercentNumber(pendingChangePercent) }}
-            <span class="percent-sign">%</span>
-          </span>
-          <span class="text">Last month</span>
-        </p>
-      </div>
-      <div class="summary-right">
-        <div class="icon-square orange">
-          <img src="/icons/dashboard/pending.svg" alt="Pending" />
-        </div>
-      </div>
+    <div class="card-value">{{ totalPlacedCount }}</div>
+
+    <div class="card-bottom">
+      <span
+        class="card-percent"
+        [ngClass]="getPercentClass(totalPlacedChangePercent)"
+      >
+        {{ renderPercentNumber(totalPlacedChangePercent) }}%
+      </span>
+      <span class="card-sub">Last month</span>
+    </div>
+  </div>
+
+  <!-- Pending -->
+  <div class="summary-card pending">
+    <div class="card-top">
+      <span class="card-title">Pending Orders</span>
+      <span class="card-icon">
+        <img src="/icons/dashboard/pending.svg" alt="Pending" />
+      </span>
     </div>
 
-    <!-- Cancelled -->
-    <div class="summary-card pink">
-      <div class="summary-left">
-        <p class="label">Cancelled Orders</p>
-        <div class="value-row">
-          <h2>{{ cancelledCount }}</h2>
-        </div>
-        <p class="sub">
-          <span
-            class="percent-text"
-            dir="ltr"
-            [ngClass]="getPercentClass(cancelledChangePercent)"
-          >
-            {{ renderPercentNumber(cancelledChangePercent) }}
-            <span class="percent-sign">%</span>
-          </span>
-          <span class="text">Last month</span>
-        </p>
-      </div>
-      <div class="summary-right">
-        <div class="icon-square pink">
-          <img src="/icons/dashboard/wrong.svg" alt="Cancelled" />
-        </div>
-      </div>
+    <div class="card-value">{{ pendingCount }}</div>
+
+    <div class="card-bottom">
+      <span
+        class="card-percent"
+        [ngClass]="getPercentClass(pendingChangePercent)"
+      >
+        {{ renderPercentNumber(pendingChangePercent) }}%
+      </span>
+      <span class="card-sub">Last month</span>
     </div>
-  </section>
+  </div>
+
+  <!-- Cancelled -->
+  <div class="summary-card cancelled">
+    <div class="card-top">
+      <span class="card-title">Cancelled Orders</span>
+      <span class="card-icon">
+        <img src="/icons/dashboard/wrong.svg" alt="Cancelled" />
+      </span>
+    </div>
+
+    <div class="card-value">{{ cancelledCount }}</div>
+
+    <div class="card-bottom">
+      <span
+        class="card-percent"
+        [ngClass]="getPercentClass(cancelledChangePercent)"
+      >
+        {{ renderPercentNumber(cancelledChangePercent) }}%
+      </span>
+      <span class="card-sub">Last month</span>
+    </div>
+  </div>
+</section>
+
 
   <!-- ===== MIDDLE ROW ===== -->
   <section class="middle-row">
@@ -171,7 +156,7 @@
 
         <div class="date-picker-wrapper">
           <button class="chip" (click)="toggleCalendar('totalOrders')">
-            <span>{{ todayLabel }}</span>
+            <span>{{ totalOrdersLabel }}</span>
             <img src="/icons/dashboard/downArrow.svg" alt="" />
           </button>
 
@@ -195,9 +180,9 @@
                     class="calendar-day"
                     [ngClass]="{
                       today: isToday(cell.date),
-                      selected: isSelected(cell.date)
+                      selected: isTotalOrdersSelected(cell.date)
                     }"
-                    (click)="selectCalendarDate(cell.date)"
+                    (click)="selectTotalOrdersDate(cell.date)"
                   >
                     {{ cell.day }}
                   </button>
@@ -221,6 +206,7 @@
           [stroke]="totalOrdersChartOptions.stroke"
           [fill]="totalOrdersChartOptions.fill"
           [grid]="totalOrdersChartOptions.grid"
+          [colors]="totalOrdersChartOptions.colors"
         ></apx-chart>
 
         <div class="chart-empty" *ngIf="!hasMonthlyStats">
@@ -228,11 +214,11 @@
         </div>
       </div>
 
-      <div class="panel-footer dots">
+      <!-- <div class="panel-footer dots">
         <span class="dot active"></span>
         <span class="dot"></span>
         <span class="dot"></span>
-      </div>
+      </div> -->
     </div>
 
     <!-- Rising Demands -->
@@ -284,7 +270,7 @@
 
         <div class="date-picker-wrapper">
           <button class="chip" (click)="toggleCalendar('insights')">
-            {{ todayLabel }}
+            {{ insightsLabel }}
             <img src="/icons/dashboard/downArrow.svg" alt="" />
           </button>
 
@@ -308,9 +294,9 @@
                     class="calendar-day"
                     [ngClass]="{
                       today: isToday(cell.date),
-                      selected: isSelected(cell.date)
+                      selected: isInsightsSelected(cell.date)
                     }"
-                    (click)="selectCalendarDate(cell.date)"
+                    (click)="selectInsightsDate(cell.date)"
                   >
                     {{ cell.day }}
                   </button>
@@ -380,44 +366,43 @@
         <button class="chip view-all-btn">View all</button>
       </div>
 
-     <div class="orders-toolbar">
-  <!-- SEARCH -->
-  <div class="orders-search">
-    <img src="/icons/dashboard/search.svg" alt="Search" />
-    <input
-      type="text"
-      placeholder="Search by Order ID or Public Code"
-      [(ngModel)]="searchText"
-      (input)="onSearchChange()"
-    />
-  </div>
+      <div class="orders-toolbar">
+        <!-- SEARCH -->
+        <div class="orders-search">
+          <img src="/icons/dashboard/search.svg" alt="Search" />
+          <input
+            type="text"
+            placeholder="Search by Order ID or Public Code"
+            [(ngModel)]="searchText"
+            (input)="onSearchChange()"
+          />
+        </div>
 
-  <!-- FILTER BUTTON -->
-  <button class="orders-filter-btn" (click)="toggleFilterPopup()">
-    <img src="/icons/dashboard/filter.svg" alt="Filter" />
-  </button>
+        <!-- FILTER BUTTON -->
+        <button class="orders-filter-btn" (click)="toggleFilterPopup()">
+          <img src="/icons/dashboard/filter.svg" alt="Filter" />
+        </button>
 
-  <!-- === FILTER POPUP === -->
-  <div class="filter-popup" *ngIf="isFilterOpen">
-    <div class="filter-title">Filter by Status</div>
+        <!-- === FILTER POPUP === -->
+        <div class="filter-popup" *ngIf="isFilterOpen">
+          <div class="filter-title">Filter by Status</div>
 
-    <div class="filter-options">
-      <label *ngFor="let s of allStatuses">
-        <input
-          type="checkbox"
-          [checked]="selectedStatuses.includes(s)"
-          (change)="onStatusToggle(s, $event)"
-        />
-        {{ s }}
-      </label>
-    </div>
+          <div class="filter-options">
+            <label *ngFor="let s of allStatuses">
+              <input
+                type="checkbox"
+                [checked]="isStatusSelected(s.key)"
+                (change)="onStatusToggle(s.key, $event)"
+              />
+              {{ s.label }}
+            </label>
+          </div>
 
-    <div class="filter-actions">
-      <button class="apply-btn" (click)="applyFilters()">Apply</button>
-    </div>
-  </div>
-</div>
-
+          <div class="filter-actions">
+            <button class="apply-btn" (click)="applyFilters()">Apply</button>
+          </div>
+        </div>
+      </div>
 
       <div class="recent-card">
         <div class="recent-header-row">
@@ -457,17 +442,17 @@
               {{ (currentPage - 1) * pageSize + i + 1 }}
             </div>
 
-            <!-- Order ID من الـ API => orderId -->
+            <!-- Order ID -->
             <div class="recent-body-col">
               {{ o.orderId }}
             </div>
 
-            <!-- Public Code من الـ API => code -->
+            <!-- Public Code -->
             <div class="recent-body-col">
               {{ o.code }}
             </div>
 
-            <!-- Status من lastStatus -->
+            <!-- Status -->
             <div class="recent-body-col">
               <span
                 class="status-chip"
