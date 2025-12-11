@@ -34,14 +34,10 @@
           <div class="calendar-grid">
             <ng-container *ngFor="let cell of calendarCells">
               <ng-container *ngIf="cell; else emptyCell1">
-                <button
-                  class="calendar-day"
-                  [ngClass]="{
+                <button class="calendar-day" [ngClass]="{
                     today: isToday(cell.date),
                     selected: isHeaderSelected(cell.date)
-                  }"
-                  (click)="selectHeaderDate(cell.date)"
-                >
+                  }" (click)="selectHeaderDate(cell.date)">
                   {{ cell.day }}
                 </button>
               </ng-container>
@@ -56,96 +52,83 @@
   </header>
 
   <!-- ===== TOP CARDS ===== -->
-<section class="summary-row fancy-cards">
-  <!-- Delivered -->
-  <div class="summary-card delivered">
-    <div class="card-top">
-      <span class="card-title">Delivered Orders</span>
-      <span class="card-icon">
-        <img src="/icons/dashboard/check.svg" alt="Delivered" />
-      </span>
+  <section class="summary-row fancy-cards">
+    <!-- Delivered -->
+    <div class="summary-card delivered">
+      <div class="card-top">
+        <span class="card-title">Delivered Orders</span>
+        <span class="card-icon">
+          <img src="/icons/dashboard/check.svg" alt="Delivered" />
+        </span>
+      </div>
+
+      <div class="card-value">{{ deliveredCount }}</div>
+
+      <div class="card-bottom">
+        <span class="card-percent" [ngClass]="getPercentClass(deliveredChangePercent)">
+          {{ renderPercentNumber(deliveredChangePercent) }}%
+        </span>
+        <span class="card-sub">Last month</span>
+      </div>
     </div>
 
-    <div class="card-value">{{ deliveredCount }}</div>
+    <!-- Total Placed -->
+    <div class="summary-card total">
+      <div class="card-top">
+        <span class="card-title">Total Placed Orders</span>
+        <span class="card-icon">
+          <img src="/icons/dashboard/order.svg" alt="Orders" />
+        </span>
+      </div>
 
-    <div class="card-bottom">
-      <span
-        class="card-percent"
-        [ngClass]="getPercentClass(deliveredChangePercent)"
-      >
-        {{ renderPercentNumber(deliveredChangePercent) }}%
-      </span>
-      <span class="card-sub">Last month</span>
-    </div>
-  </div>
+      <div class="card-value">{{ totalPlacedCount }}</div>
 
-  <!-- Total Placed -->
-  <div class="summary-card total">
-    <div class="card-top">
-      <span class="card-title">Total Placed Orders</span>
-      <span class="card-icon">
-        <img src="/icons/dashboard/order.svg" alt="Orders" />
-      </span>
+      <div class="card-bottom">
+        <span class="card-percent" [ngClass]="getPercentClass(totalPlacedChangePercent)">
+          {{ renderPercentNumber(totalPlacedChangePercent) }}%
+        </span>
+        <span class="card-sub">Last month</span>
+      </div>
     </div>
 
-    <div class="card-value">{{ totalPlacedCount }}</div>
+    <!-- Pending -->
+    <div class="summary-card pending">
+      <div class="card-top">
+        <span class="card-title">Pending Orders</span>
+        <span class="card-icon">
+          <img src="/icons/dashboard/pending.svg" alt="Pending" />
+        </span>
+      </div>
 
-    <div class="card-bottom">
-      <span
-        class="card-percent"
-        [ngClass]="getPercentClass(totalPlacedChangePercent)"
-      >
-        {{ renderPercentNumber(totalPlacedChangePercent) }}%
-      </span>
-      <span class="card-sub">Last month</span>
-    </div>
-  </div>
+      <div class="card-value">{{ pendingCount }}</div>
 
-  <!-- Pending -->
-  <div class="summary-card pending">
-    <div class="card-top">
-      <span class="card-title">Pending Orders</span>
-      <span class="card-icon">
-        <img src="/icons/dashboard/pending.svg" alt="Pending" />
-      </span>
+      <div class="card-bottom">
+        <span class="card-percent" [ngClass]="getPercentClass(pendingChangePercent)">
+          {{ renderPercentNumber(pendingChangePercent) }}%
+        </span>
+        <span class="card-sub">Last month</span>
+      </div>
     </div>
 
-    <div class="card-value">{{ pendingCount }}</div>
+    <!-- Cancelled -->
+    <div class="summary-card cancelled">
+      <div class="card-top">
+        <span class="card-title">Cancelled Orders</span>
+        <span class="card-icon">
+          <img src="/icons/dashboard/wrong.svg" alt="Cancelled" />
+        </span>
+      </div>
 
-    <div class="card-bottom">
-      <span
-        class="card-percent"
-        [ngClass]="getPercentClass(pendingChangePercent)"
-      >
-        {{ renderPercentNumber(pendingChangePercent) }}%
-      </span>
-      <span class="card-sub">Last month</span>
+      <div class="card-value">{{ cancelledCount }}</div>
+
+      <div class="card-bottom">
+        <span class="card-percent" [ngClass]="getPercentClass(cancelledChangePercent)">
+          {{ renderPercentNumber(cancelledChangePercent) }}%
+        </span>
+        <span class="card-sub">Last month</span>
+      </div>
     </div>
-  </div>
-
-  <!-- Cancelled -->
-  <div class="summary-card cancelled">
-    <div class="card-top">
-      <span class="card-title">Cancelled Orders</span>
-      <span class="card-icon">
-        <img src="/icons/dashboard/wrong.svg" alt="Cancelled" />
-      </span>
-    </div>
-
-    <div class="card-value">{{ cancelledCount }}</div>
-
-    <div class="card-bottom">
-      <span
-        class="card-percent"
-        [ngClass]="getPercentClass(cancelledChangePercent)"
-      >
-        {{ renderPercentNumber(cancelledChangePercent) }}%
-      </span>
-      <span class="card-sub">Last month</span>
-    </div>
-  </div>
-</section>
-
+  </section>
 
   <!-- ===== MIDDLE ROW ===== -->
   <section class="middle-row">
@@ -176,14 +159,10 @@
             <div class="calendar-grid">
               <ng-container *ngFor="let cell of calendarCells">
                 <ng-container *ngIf="cell; else emptyCellTO">
-                  <button
-                    class="calendar-day"
-                    [ngClass]="{
+                  <button class="calendar-day" [ngClass]="{
                       today: isToday(cell.date),
                       selected: isTotalOrdersSelected(cell.date)
-                    }"
-                    (click)="selectTotalOrdersDate(cell.date)"
-                  >
+                    }" (click)="selectTotalOrdersDate(cell.date)">
                     {{ cell.day }}
                   </button>
                 </ng-container>
@@ -197,28 +176,16 @@
       </div>
 
       <div class="panel-body panel-body-chart">
-        <apx-chart
-          [series]="totalOrdersChartOptions.series"
-          [chart]="totalOrdersChartOptions.chart"
-          [xaxis]="totalOrdersChartOptions.xaxis"
-          [yaxis]="totalOrdersChartOptions.yaxis"
-          [dataLabels]="totalOrdersChartOptions.dataLabels"
-          [stroke]="totalOrdersChartOptions.stroke"
-          [fill]="totalOrdersChartOptions.fill"
-          [grid]="totalOrdersChartOptions.grid"
-          [colors]="totalOrdersChartOptions.colors"
-        ></apx-chart>
+        <apx-chart [series]="totalOrdersChartOptions.series" [chart]="totalOrdersChartOptions.chart"
+          [xaxis]="totalOrdersChartOptions.xaxis" [yaxis]="totalOrdersChartOptions.yaxis"
+          [dataLabels]="totalOrdersChartOptions.dataLabels" [stroke]="totalOrdersChartOptions.stroke"
+          [fill]="totalOrdersChartOptions.fill" [grid]="totalOrdersChartOptions.grid"
+          [colors]="totalOrdersChartOptions.colors"></apx-chart>
 
         <div class="chart-empty" *ngIf="!hasMonthlyStats">
           No data to show
         </div>
       </div>
-
-      <!-- <div class="panel-footer dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-      </div> -->
     </div>
 
     <!-- Rising Demands -->
@@ -228,21 +195,34 @@
         <button class="chip" (click)="onViewAllDemands()">View all</button>
       </div>
 
-      <div
-        class="panel-body panel-body-list"
-        *ngIf="hasRisingDemands; else risingEmpty"
-      >
-        <div
-          class="demand-item"
-          *ngFor="let item of risingDemands"
-          (click)="onDemandItemClick(item)"
-        >
+      <div class="panel-body panel-body-list" *ngIf="hasRisingDemands; else risingEmpty">
+        <div class="demand-item" *ngFor="let item of getCurrentRisingSlice(); let i = index"
+          (click)="onDemandItemClick(item)">
           <p class="title">{{ item.productName }}</p>
           <p class="sub">In-Stock: {{ item.stock || 0 }}</p>
-          <p class="hint">
-            The demand is expected to increase by
-            {{ renderPercent(item.increasePercent) }}
-            tomorrow
+
+          <!-- التريند: أيقونة + لون + نص من غير علامة السالب -->
+          <p class="hint demand-change" [ngClass]="getDemandTrendClass(item.increasePercent)">
+            <!-- الأيقونة حسب الاتجاه -->
+            <img *ngIf="getDemandDirection(item.increasePercent) === 'increase'" src="/icons/dashboard/increase.svg"
+              alt="Rising" />
+            <img *ngIf="getDemandDirection(item.increasePercent) === 'decrease'" src="/icons/dashboard/trend-down.svg"
+              alt="Falling" />
+
+            <!-- النص -->
+            <span *ngIf="getDemandDirection(item.increasePercent) === 'increase'">
+              The demand is expected to increase by
+              {{ getDemandAbsPercent(item.increasePercent) }}% tomorrow
+            </span>
+
+            <span *ngIf="getDemandDirection(item.increasePercent) === 'decrease'">
+              The demand is expected to decrease by
+              {{ getDemandAbsPercent(item.increasePercent) }}% tomorrow
+            </span>
+
+            <span *ngIf="getDemandDirection(item.increasePercent) === 'stable'">
+              The demand is expected to remain stable tomorrow
+            </span>
           </p>
         </div>
       </div>
@@ -253,10 +233,18 @@
         </div>
       </ng-template>
 
-      <div class="panel-footer dots rising-dots">
-        <span class="dot active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
+      <!-- pager زي ما هو -->
+      <div class="panel-footer pager rising-pager" *ngIf="hasRisingDemands && risingPagesTotal > 1">
+        <button class="pager-arrow" (click)="prevRisingPage()" [disabled]="risingPageIndex === 0">
+          &lt;
+        </button>
+
+        <span class="pager-dot" *ngFor="let p of risingPagesArray; index as i" [class.active]="i === risingPageIndex"
+          (click)="goToRisingPage(i)"></span>
+
+        <button class="pager-arrow" (click)="nextRisingPage()" [disabled]="risingPageIndex === risingPagesTotal - 1">
+          &gt;
+        </button>
       </div>
     </div>
   </section>
@@ -290,14 +278,10 @@
             <div class="calendar-grid">
               <ng-container *ngFor="let cell of calendarCells">
                 <ng-container *ngIf="cell; else emptyCell2">
-                  <button
-                    class="calendar-day"
-                    [ngClass]="{
+                  <button class="calendar-day" [ngClass]="{
                       today: isToday(cell.date),
                       selected: isInsightsSelected(cell.date)
-                    }"
-                    (click)="selectInsightsDate(cell.date)"
-                  >
+                    }" (click)="selectInsightsDate(cell.date)">
                     {{ cell.day }}
                   </button>
                 </ng-container>
@@ -312,15 +296,10 @@
 
       <div class="panel-body insights-body">
         <div class="insights-donut-wrapper">
-          <apx-chart
-            [series]="insightsDonutOptions.series"
-            [chart]="insightsDonutOptions.chart"
-            [labels]="insightsDonutOptions.labels"
-            [responsive]="insightsDonutOptions.responsive"
-            [legend]="insightsDonutOptions.legend"
-            [plotOptions]="insightsDonutOptions.plotOptions"
-            [colors]="insightsDonutOptions.colors"
-          ></apx-chart>
+          <apx-chart [series]="insightsDonutOptions.series" [chart]="insightsDonutOptions.chart"
+            [labels]="insightsDonutOptions.labels" [responsive]="insightsDonutOptions.responsive"
+            [legend]="insightsDonutOptions.legend" [plotOptions]="insightsDonutOptions.plotOptions"
+            [colors]="insightsDonutOptions.colors"></apx-chart>
         </div>
 
         <div class="insights-footer" *ngIf="hasInsightsData; else insightsEmpty">
@@ -363,19 +342,17 @@
     <div class="panel recent-panel">
       <div class="panel-header">
         <h3>Recent Orders</h3>
-        <button class="chip view-all-btn">View all</button>
+        <button class="chip view-all-btn" (click)="onViewAllOrders()">
+          View all
+        </button>
       </div>
 
       <div class="orders-toolbar">
         <!-- SEARCH -->
         <div class="orders-search">
           <img src="/icons/dashboard/search.svg" alt="Search" />
-          <input
-            type="text"
-            placeholder="Search by Order ID or Public Code"
-            [(ngModel)]="searchText"
-            (input)="onSearchChange()"
-          />
+          <input type="text" placeholder="Search by Order ID or Public Code" [(ngModel)]="searchText"
+            (input)="onSearchChange()" />
         </div>
 
         <!-- FILTER BUTTON -->
@@ -389,11 +366,7 @@
 
           <div class="filter-options">
             <label *ngFor="let s of allStatuses">
-              <input
-                type="checkbox"
-                [checked]="isStatusSelected(s.key)"
-                (change)="onStatusToggle(s.key, $event)"
-              />
+              <input type="checkbox" [checked]="isStatusSelected(s.key)" (change)="onStatusToggle(s.key, $event)" />
               {{ s.label }}
             </label>
           </div>
@@ -454,43 +427,61 @@
 
             <!-- Status -->
             <div class="recent-body-col">
-              <span
-                class="status-chip"
-                [ngClass]="getStatusClass(o.lastStatus)"
-              >
+              <span class="status-chip" [ngClass]="getStatusClass(o.lastStatus)">
                 {{ getStatusLabel(o.lastStatus) }}
               </span>
             </div>
 
-            <div class="recent-body-col">
-              <button class="icon-btn">⋮</button>
+            <!-- Actions -->
+            <div class="recent-body-col actions-col">
+              <button class="action-btn view" (click)="onViewOrder(o)">
+                <img src="/icons/dashboard/eye.svg" alt="View" />
+              </button>
+
+              <button class="action-btn edit" (click)="onEditOrder(o)">
+                <img src="/icons/dashboard/pen.svg" alt="Edit" />
+              </button>
+
+              <button class="action-btn delete" (click)="openDeleteModal(o)">
+                <img src="/icons/dashboard/delete.svg" alt="Delete" />
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Confirm Modal -->
+      <div class="modal-backdrop" *ngIf="isDeleteModalOpen">
+        <div class="modal-card">
+          <div class="modal-icon">
+            <span>!</span>
+          </div>
+          <h4>Delete Order</h4>
+          <p>
+            Are you sure you want to delete Order
+            <strong>#{{ orderToDelete?.orderId }}</strong>?
+            This action cannot be undone.
+          </p>
+
+          <div class="modal-actions">
+            <button class="btn-secondary" (click)="closeDeleteModal()">
+              Cancel
+            </button>
+            <button class="btn-danger" (click)="confirmDelete()">Delete</button>
           </div>
         </div>
       </div>
 
       <!-- Pagination -->
       <div class="panel-footer orders-pager" *ngIf="totalPages > 1">
-        <button
-          class="pager-arrow"
-          (click)="goToPage(currentPage - 1)"
-          [disabled]="currentPage === 1"
-        >
+        <button class="pager-arrow" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
           &lt;
         </button>
 
-        <span
-          class="pager-dot"
-          *ngFor="let p of pagesArray"
-          [class.active]="p === currentPage"
-          (click)="goToPage(p)"
-        ></span>
+        <span class="pager-dot" *ngFor="let p of pagesArray" [class.active]="p === currentPage"
+          (click)="goToPage(p)"></span>
 
-        <button
-          class="pager-arrow"
-          (click)="goToPage(currentPage + 1)"
-          [disabled]="currentPage === totalPages"
-        >
+        <button class="pager-arrow" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
           &gt;
         </button>
       </div>

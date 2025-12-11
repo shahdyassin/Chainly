@@ -1,6 +1,6 @@
 .dashboard-layout {
   padding: 0 24px 16px;
-  background: #f5f7fb;
+  background: #f9f9f9;
   min-height: 100vh;
   font-family: 'Urbanist', sans-serif;
 }
@@ -12,11 +12,11 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 22px;
-  margin-bottom: 22px;
+  margin-bottom: -30px;
 }
 
 .welcome-block {
-  margin-top: -5px;      /* لمسة بسيطة عشان النص ينزل سنة صغيرة */
+  margin-top: -5px; /* لمسة بسيطة عشان النص ينزل سنة صغيرة */
 }
 
 .welcome-text {
@@ -25,7 +25,7 @@
     font-family: 'lufga', 'Urbanist', sans-serif;
     font-size: 24px;
     font-weight: 500;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
 
   .hint {
@@ -47,10 +47,11 @@
 .date-picker-wrapper {
   position: relative;
   display: inline-block;
+
 }
 
 .date-chip {
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   padding: 6px 12px;
@@ -74,7 +75,7 @@
 
 .summary-row.fancy-cards {
   margin-top: 12px;
-  margin-bottom: 8px;
+  margin-bottom: -70px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
@@ -85,8 +86,8 @@
   background: #ffffff;
   border-radius: 18px;
   padding: 16px 18px 14px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f3f4f6;
+  //box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -101,7 +102,7 @@
 }
 
 .summary-row.fancy-cards .card-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #4b5563;
 }
@@ -126,30 +127,29 @@
 /* ألوان الخلفية حوالين الأيقونات لكل كارت */
 
 .summary-row.fancy-cards .summary-card.delivered .card-icon {
-  background: #8DDFD5;   /* أخضر فاتح */
+  background: #8ddfd5; /* أخضر فاتح */
   color: #16a34a;
 }
 
 .summary-row.fancy-cards .summary-card.total .card-icon {
-  background: #B4B0FF;   /* بنفسجي فاتح */
+  background: #b4b0ff; /* بنفسجي فاتح */
   color: #7c3aed;
 }
 
 .summary-row.fancy-cards .summary-card.pending .card-icon {
-  background: #FFC297;   /* أورنج فاتح */
+  background: #ffc297; /* أورنج فاتح */
   color: #ea580c;
 }
 
 .summary-row.fancy-cards .summary-card.cancelled .card-icon {
-  background: #FD9FD6;   /* بينك فاتح */
+  background: #fd9fd6; /* بينك فاتح */
   color: #e11d48;
 }
-
 
 /* الرقم الكبير */
 .summary-row.fancy-cards .card-value {
   margin-top: 8px;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: #111827;
 }
@@ -160,7 +160,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .summary-row.fancy-cards .card-percent {
@@ -169,38 +169,20 @@
 
 /* الألوان حسب الـ getPercentClass */
 .summary-row.fancy-cards .card-percent.up {
-  color: #16a34a;   /* أخضر */
+  color: #16a34a; /* أخضر */
 }
 
 .summary-row.fancy-cards .card-percent.down {
-  color: #ef4444;   /* أحمر */
+  color: #ef4444; /* أحمر */
 }
 
 .summary-row.fancy-cards .card-percent.neutral {
-  color: #9ca3af;   /* رمادي */
+  color: #9ca3af; /* رمادي */
 }
 
 .summary-row.fancy-cards .card-sub {
   color: #9ca3af;
 }
-
-/* ألوان البوردر حسب نوع الكارت – زي الديزاين */
-
-// .summary-row.fancy-cards .summary-card.delivered {
-//   border-color: #bbf7d0;
-// }
-
-// .summary-row.fancy-cards .summary-card.total {
-//   border-color: #e9d5ff;
-// }
-
-// .summary-row.fancy-cards .summary-card.pending {
-//   border-color: #fed7aa;
-// }
-
-// .summary-row.fancy-cards .summary-card.cancelled {
-//   border-color: #fecdd3;
-// }
 
 /* موبايل / تابلت */
 @media (max-width: 1024px) {
@@ -216,6 +198,8 @@
 }
 
 /* ===== PANELS LAYOUT ===== */
+
+
 
 .middle-row,
 .bottom-row {
@@ -251,6 +235,12 @@
   flex-direction: column;
 }
 
+/* Rising Demands panel border like design */
+.panel.rising-panel {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.04);
+}
+
 .panel-body {
   flex: 1 1 auto;
 }
@@ -271,10 +261,10 @@
 
   h3 {
     font-family: 'Urbanist', sans-serif;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     margin: 0;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
 }
 
@@ -295,28 +285,65 @@
   }
 }
 
+/* View all button style داخل Rising Demands */
+.rising-panel .panel-header .chip {
+  padding: 5px 14px;
+    font-family: "Urbanist", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #4d4d4d;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    box-shadow: none;
+}
 
 .recent-panel .panel-header .chip {
   padding: 5px 14px;
   font-family: 'Urbanist', sans-serif;
   font-weight: 500;
   font-size: 14px;
-  color: #4D4D4D;
+  color: #4d4d4d;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   box-shadow: none;
 }
 
+/* كارت الـ Total Orders كله عليه بوردر */
+.total-orders-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;           /* نفس اللي في .panel عشان ما يبوظش الشكل */
+}
+
 /* Total Orders calendar chip */
 .total-orders-panel .panel-header .date-picker-wrapper {
   position: relative;
+
 }
 
 .total-orders-panel .panel-header .chip {
   min-width: 90px;
   justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 6px 12px;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  img {
+    width: 14px;
+    height: 14px;
+  }
+
 }
+
 
 /* ===== CALENDAR ===== */
 
@@ -403,6 +430,8 @@
   min-height: 220px;
 }
 
+
+
 .panel-body apx-chart {
   display: block;
   width: 100%;
@@ -419,10 +448,33 @@
 
 .insights-panel {
   padding: 10px 16px 12px;
+  border: 1px solid #e5e7eb;
 }
 
 .insights-panel .panel-header {
   margin-bottom: 4px;
+}
+
+.insights-panel .panel-header .chip {
+  min-width: 90px;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 6px 12px;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  img {
+    width: 14px;
+    height: 14px;
+  }
+
 }
 
 .insights-panel .insights-body {
@@ -524,7 +576,7 @@
 
 /* Rising Demands specific */
 .rising-panel .panel-body.panel-body-list {
-  padding-top: 4px;
+  padding-top: 6px;
 }
 
 .rising-panel .empty-state {
@@ -532,8 +584,6 @@
 }
 
 /* ===== FOOTERS ===== */
-
-/* ===== FOOTERS (dots / pager) ===== */
 
 .panel-footer.dots,
 .panel-footer.pager {
@@ -593,20 +643,22 @@
 
 .recent-panel {
   padding-bottom: 10px;
+  border: 1px solid #e5e7eb;
+  position: relative;
 }
 
 .recent-card {
   margin-top: 8px;
   border-radius: 18px;
   background: #ffffff;
-  border: 1px solid #f3f4f6;
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
 .recent-header-row {
   display: flex;
   align-items: center;
-  background: #F9F9F9;
+  background: #f9f9f9;
 }
 
 .recent-header-col {
@@ -656,32 +708,66 @@
   font-size: 11px;
   color: #6b7280;
 }
-/* ICON BTN داخل جدول الأوردرز */
-.recent-body-col .icon-btn {
+
+.recent-body-col.col-no {
+  flex: 0 0 60px;
+}
+
+/* ===== ACTIONS COLUMN (VIEW / EDIT / DELETE) ===== */
+
+.recent-body-col.actions-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
   border: none;
-  background: #F7F7F7;      /* خلفية فاتحة شبه الريفرنس */
+  outline: none;
+  width: 32px;
+  height: 32px;
   border-radius: 10px;
-  width: 30px;
-  height: 30px;
+  background: #f7f7f7;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 16px;          /* حجم الثلاث نقاط */
-  color: #4D4D4D;
   padding: 0;
-  margin-left: 8px;
-}
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
 
+  img {
+    width: 16px;
+    height: 16px;
+  }
 
+  &.view {
+    background: #F9F9F9; /* أزرق فاتح */
+  }
 
-.recent-body-col .icon-btn:hover {
-  background: #ECECEC;      /* هوفر خفيف */
-}
+  &.edit {
+    background: #F9F9F9; /* أصفر فاتح */
+  }
 
+  &.delete {
+    background: #F9F9F9; /* أحمر فاتح */
+  }
 
-.recent-body-col.col-no {
-  flex: 0 0 60px;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  &.view:hover {
+    background: #bfdbfe;
+  }
+
+  &.edit:hover {
+    background: #fde68a;
+  }
+
+  &.delete:hover {
+    background: #fecaca;
+  }
 }
 
 /* SEARCH + FILTER */
@@ -719,7 +805,7 @@
     font-size: 12px;
     font-weight: 500;
     width: 100%;
-    color: #4D4D4D;
+    color: #4d4d4d;
 
     &:hover,
     &:focus,
@@ -745,9 +831,10 @@
   img {
     width: 16px;
     height: 16px;
-    color: #4D4D4D;
+    color: #4d4d4d;
   }
 }
+
 .filter-popup {
   position: absolute;
   top: 58px;
@@ -755,7 +842,7 @@
   width: 180px;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
   padding: 10px 14px;
   z-index: 300;
 
@@ -780,7 +867,7 @@
 
       input[type='checkbox'] {
         cursor: pointer;
-        accent-color: #3EA397;
+        accent-color: #3ea397;
       }
     }
   }
@@ -793,7 +880,7 @@
     .apply-btn {
       padding: 4px 10px;
       font-size: 11px;
-      background: #3EA397;
+      background: #3ea397;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -815,9 +902,9 @@
 
 /* السهمين */
 .recent-panel .orders-pager .pager-arrow {
-  font-size: 14px;          /* أكبر */
-  font-weight: 600;         /* تخين */
-  color: #7a7a7a;           /* أوضح */
+  font-size: 14px; /* أكبر */
+  font-weight: 600; /* تخين */
+  color: #7a7a7a; /* أوضح */
   cursor: pointer;
   background: transparent;
   border: none;
@@ -827,8 +914,8 @@
 
 /* تأثير الهوفر */
 .recent-panel .orders-pager .pager-arrow:hover:not(:disabled) {
-  color: #444;              /* أغمق */
-  transform: scale(1.25);   /* تكبير بسيط */
+  color: #444; /* أغمق */
+  transform: scale(1.25); /* تكبير بسيط */
 }
 
 /* لما يبقى disabled */
@@ -852,7 +939,6 @@
   background: #6b7280;
 }
 
-
 /* STATUS CHIP */
 
 .status-chip {
@@ -870,62 +956,241 @@
 
   &.delivered {
     background: #DAF1EE;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
 
   &.pending {
     background: #FFC297;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
+
   &.cancelled {
     background: #FFC6C6;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
 
   &.shipped {
     background: #FFE69B;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
+
   &.intransit {
     background: #D6EFF9;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
 }
 
-/* RISING DEMANDS */
+/* ===== RISING DEMANDS ===== */
 
+
+
+/* الكارت الداخلي للبرودكت – خلفية أغمق وبوردر */
 .demand-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #f3f4f6;
+  background: #F9F9F9;
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  //box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  }
 
   .title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
-    margin: 0 0 2px;
-    color: #111827;
+    margin: 0 0 4px;
+    color: #2E2E2E;
   }
 
   .sub {
-    font-size: 11px;
-    margin: 0 0 2px;
-    color: #6b7280;
-  }
-
-  .hint {
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: 400;
     margin: 0;
-    color: #9ca3af;
+    color: #666666;
   }
 }
 
-/* ICON BTN */
+/* الجملة البيضاء البيضاويّة – نفس الديزاين اللي بعتّيهولي */
+.demand-change {
+  margin: 18px 0 0;          /* مسافة من فوق فقط */
+  width: 100%;               /* ياخد عرض الكارد من جوّه */
+  align-self: stretch;       /* يتمدد على قد المتاح */
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 14px 32px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  //box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  gap: 5px;
+
+  img {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+}
+
+/* لون النص حسب الاتجاه */
+.demand-change.demand-up {
+  color: #16a34a;
+}
+.demand-change.demand-down {
+  color: #ef4444;
+}
+.demand-change.demand-neutral {
+  color: #9ca3af;
+}
+
+/* pager الخاص بـ Rising Demands */
+.rising-pager {
+  margin-top: 10px;
+}
+
+.rising-pager .pager-arrow {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7a7a7a;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 2px 8px;
+  transition: 0.2s ease;
+}
+
+.rising-pager .pager-arrow:hover:not(:disabled) {
+  color: #444;
+  transform: scale(1.15);
+}
+
+.rising-pager .pager-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.rising-pager .pager-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #d1d5db;
+  transition: 0.2s ease;
+}
+
+.rising-pager .pager-dot.active {
+  width: 9px;
+  height: 9px;
+  background: #6b7280;
+}
+
+/* ICON BTN (لو حبيتي تستخدمينه في حتة تانية) */
 
 .icon-btn {
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 15px;
+}
 
+/* ===== DELETE MODAL ===== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.modal-card {
+  width: 320px;
+  max-width: 90%;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px 20px 16px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+  text-align: center;
+}
+
+.modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  margin: 0 auto 10px;
+  background: #fee2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.modal-card h4 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.modal-card p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: #4b5563;
+
+  strong {
+    font-weight: 700;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-secondary,
+.btn-danger {
+  border-radius: 999px;
+  font-size: 13px;
+  padding: 6px 16px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: #731414;
 }
 
 /* RESPONSIVE */

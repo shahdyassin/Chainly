@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   Component,
   OnInit,
@@ -54,7 +55,6 @@ interface OrdersSummaryResponse {
   totalPlacedOrdersChange: number;
 }
 
-
 interface OrdersMonthlyStat {
   month: number;
   totalOrders: number;
@@ -64,7 +64,6 @@ interface OrdersMonthlyStatsResponse {
   monthly: number[];
   years: number[];
 }
-
 
 interface MonthlySummaryLine {
   lineName: string;
@@ -79,9 +78,19 @@ interface MonthlySummaryResponse {
 }
 
 interface TopProductResponseItem {
+  id?: number;
+  productId?: number;
+  product_id?: number;
   productName: string;
   inStock: number;
   increasePercent: number;
+}
+
+/** شكل ريسبونس الـ /predict */
+interface PredictionResponse {
+  product_id: number;
+  predicted_change_percentage: number;
+  prediction_date: string;
 }
 
 type LineChartOptions = {
@@ -109,11 +118,8 @@ type DonutChartOptions = {
 
 /** option للفلتر */
 interface StatusOption {
-  /** key موحّد نفلتر بيه في الفرونت: pending / intransit / ... */
   key: string;
-  /** القيمة الحقيقية اللى بتتبعت للـ API (id / value / status...) */
   apiValue: string;
-  /** النص اللى يظهر للمستخدم */
   label: string;
 }
 
@@ -128,23 +134,29 @@ export class HomeDashboard implements OnInit, AfterViewInit {
   userName = '';
 
   // === Date picker state ===
-// Header
-headerDate: Date | null = null;
-headerLabel = '';
+  // Header
+  headerDate: Date | null = null;
+  headerLabel = '';
 
-// Total Orders
-totalOrdersDate: Date | null = null;
-totalOrdersLabel = '';
+  // Total Orders
+  totalOrdersDate: Date | null = null;
+  totalOrdersLabel = '';
 
-// Insights
-insightsDate: Date | null = null;
-insightsLabel = '';
+  // Insights
+  insightsDate: Date | null = null;
+  insightsLabel = '';
 
+  isDeleteModalOpen = false;
+  orderToDelete: Order | null = null;
 
   // dropdowns
   isHeaderCalendarOpen = false;
   isInsightsCalendarOpen = false;
   isTotalOrdersCalendarOpen = false;
+
+  /** base URL بتاع demand forecasting */
+  private demandApiBase =
+    'https://demandforecasting.ambitioussky-2e6e4c68.eastus.azurecontainerapps.io';
 
   calendarYearNum = 0;
   calendarMonthIndex = 0;
@@ -187,11 +199,17 @@ insightsLabel = '';
   pendingChangePercent = 0;
   cancelledChangePercent = 0;
 
+  // Rising Demands items (مع productId علشان /predict)
   risingDemands: Array<{
+    productId: number | string;
     productName: string;
     stock: number;
     increasePercent: number;
   }> = [];
+
+  // Rising Demands slider
+  itemsPerRisingSlide = 2;
+  risingPageIndex = 0;
 
   overallDefectedPercent = 0;
   productionLines: Array<{
@@ -209,6 +227,39 @@ insightsLabel = '';
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
+  get risingPagesTotal(): number {
+    return this.risingDemands.length
+      ? Math.ceil(this.risingDemands.length / this.itemsPerRisingSlide)
+      : 0;
+  }
+
+  get risingPagesArray(): number[] {
+    return Array.from({ length: this.risingPagesTotal }, (_, i) => i);
+  }
+
+  getCurrentRisingSlice() {
+    const start = this.risingPageIndex * this.itemsPerRisingSlide;
+    const end = start + this.itemsPerRisingSlide;
+    return this.risingDemands.slice(start, end);
+  }
+
+  prevRisingPage() {
+    if (this.risingPageIndex > 0) {
+      this.risingPageIndex--;
+    }
+  }
+
+  nextRisingPage() {
+    if (this.risingPageIndex < this.risingPagesTotal - 1) {
+      this.risingPageIndex++;
+    }
+  }
+
+  goToRisingPage(index: number) {
+    if (index < 0 || index >= this.risingPagesTotal) return;
+    this.risingPageIndex = index;
+  }
+
   // ===============================
   //       SEARCH + FILTER
   // ===============================
@@ -218,10 +269,7 @@ insightsLabel = '';
 
   isFilterOpen = false;
 
-  /** كل الستاتس من الـ API */
   allStatuses: StatusOption[] = [];
-
-  /** الـ keys المختارة حالياً (pending / intransit / ...) */
   selectedStatusKeys: string[] = [];
 
   toggleFilterPopup() {
@@ -232,7 +280,6 @@ insightsLabel = '';
     }
   }
 
-  // نجلب الستاتس من الـ API ونحوّلها لـ {key, apiValue, label}
   private loadStatuses() {
     this.http
       .get<any[]>(
@@ -246,8 +293,8 @@ insightsLabel = '';
           const map = new Map<string, StatusOption>();
 
           list.forEach((s) => {
-            const key = this.getStatusKeyFromAny(s); // pending / intransit ...
-            const label = this.getStatusLabel(s); // Pending / InTransit ...
+            const key = this.getStatusKeyFromAny(s);
+            const label = this.getStatusLabel(s);
             const apiValue = this.getStatusApiValue(s);
 
             if (!key || !label || !apiValue) return;
@@ -287,11 +334,11 @@ insightsLabel = '';
     }
   }
 
- applyFilters() {
-  this.isFilterOpen = false;
-  this.currentPage = 1;
-  this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
-}
+  applyFilters() {
+    this.isFilterOpen = false;
+    this.currentPage = 1;
+    this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
+  }
   onSearchChange() {
     clearTimeout(this.searchTimeout);
 
@@ -308,7 +355,7 @@ insightsLabel = '';
     series: [{ name: 'Total Orders', data: [] }],
     chart: {
       type: 'bar',
-      height: 240,
+      height: 350,
       toolbar: { show: false },
       zoom: { enabled: false },
     },
@@ -330,7 +377,8 @@ insightsLabel = '';
       labels: {
         style: {
           colors: '#9ca3af',
-          fontSize: '11px',
+          fontSize: '13px',
+          fontFamily:'Urbanist',
         },
       },
       axisBorder: { show: false },
@@ -343,7 +391,8 @@ insightsLabel = '';
       labels: {
         style: {
           colors: '#d1d5db',
-          fontSize: '11px',
+          fontSize: '13px',
+          fontFamily:'Urbanist',
         },
       },
     },
@@ -409,7 +458,8 @@ insightsLabel = '';
   constructor(
     private http: HttpClient,
     private auth: AuthService,
-    private elRef: ElementRef
+    private elRef: ElementRef,
+    private router: Router
   ) {}
 
   ngAfterViewInit(): void {
@@ -433,32 +483,28 @@ insightsLabel = '';
     }
   }
 
- ngOnInit(): void {
-  this.userName = this.auth.getCurrentUserName() || 'User';
+  ngOnInit(): void {
+    this.userName = this.auth.getCurrentUserName() || 'User';
 
-  const today = new Date();
+    const today = new Date();
 
-  // ⬆️ Header
-  this.headerDate = today;
-  this.headerLabel = this.formatDate(today);
+    this.headerDate = today;
+    this.headerLabel = this.formatDate(today);
 
-  // ⬆️ Total Orders
-  this.totalOrdersDate = today;
-  this.totalOrdersLabel = this.formatDate(today);
+    this.totalOrdersDate = today;
+    this.totalOrdersLabel = this.formatDate(today);
 
-  // ⬆️ Insights
-  this.insightsDate = today;
-  this.insightsLabel = this.formatDate(today);
+    this.insightsDate = today;
+    this.insightsLabel = this.formatDate(today);
 
-  this.buildCalendar(today.getFullYear(), today.getMonth());
+    this.buildCalendar(today.getFullYear(), today.getMonth());
 
-  this.loadOrdersList(this.currentPage);
-  this.loadOrdersSummary();
-  this.loadMonthlyStats();    // يعتمد على totalOrdersDate (هنعدّله تحت)
-  this.loadMonthlySummary();  // Insights
-  this.loadTopProducts();
-}
-
+    this.loadOrdersList(this.currentPage);
+    this.loadOrdersSummary();
+    this.loadMonthlyStats();
+    this.loadMonthlySummary();
+    this.loadTopProducts(2);
+  }
 
   private formatDate(date: Date): string {
     return date.toLocaleDateString('en-GB', {
@@ -490,33 +536,36 @@ insightsLabel = '';
   }
 
   toggleCalendar(which: 'header' | 'insights' | 'totalOrders') {
-  const wasHeaderOpen = this.isHeaderCalendarOpen;
-  const wasInsightsOpen = this.isInsightsCalendarOpen;
-  const wasTotalOpen = this.isTotalOrdersCalendarOpen;
+    const wasHeaderOpen = this.isHeaderCalendarOpen;
+    const wasInsightsOpen = this.isInsightsCalendarOpen;
+    const wasTotalOpen = this.isTotalOrdersCalendarOpen;
 
-  this.isHeaderCalendarOpen = false;
-  this.isInsightsCalendarOpen = false;
-  this.isTotalOrdersCalendarOpen = false;
+    this.isHeaderCalendarOpen = false;
+    this.isInsightsCalendarOpen = false;
+    this.isTotalOrdersCalendarOpen = false;
 
-  if (which === 'header') this.isHeaderCalendarOpen = !wasHeaderOpen;
-  if (which === 'insights') this.isInsightsCalendarOpen = !wasInsightsOpen;
-  if (which === 'totalOrders') this.isTotalOrdersCalendarOpen = !wasTotalOpen;
+    if (which === 'header') this.isHeaderCalendarOpen = !wasHeaderOpen;
+    if (which === 'insights') this.isInsightsCalendarOpen = !wasInsightsOpen;
+    if (which === 'totalOrders') this.isTotalOrdersCalendarOpen = !wasTotalOpen;
 
-  if (this.isHeaderCalendarOpen || this.isInsightsCalendarOpen || this.isTotalOrdersCalendarOpen) {
-    let base: Date;
+    if (
+      this.isHeaderCalendarOpen ||
+      this.isInsightsCalendarOpen ||
+      this.isTotalOrdersCalendarOpen
+    ) {
+      let base: Date;
 
-    if (this.isHeaderCalendarOpen) {
-      base = this.headerDate || new Date();
-    } else if (this.isTotalOrdersCalendarOpen) {
-      base = this.totalOrdersDate || new Date();
-    } else {
-      base = this.insightsDate || new Date();
+      if (this.isHeaderCalendarOpen) {
+        base = this.headerDate || new Date();
+      } else if (this.isTotalOrdersCalendarOpen) {
+        base = this.totalOrdersDate || new Date();
+      } else {
+        base = this.insightsDate || new Date();
+      }
+
+      this.buildCalendar(base.getFullYear(), base.getMonth());
     }
-
-    this.buildCalendar(base.getFullYear(), base.getMonth());
   }
-}
-
 
   prevMonth() {
     let m = this.calendarMonthIndex - 1;
@@ -538,50 +587,50 @@ insightsLabel = '';
     this.buildCalendar(y, m);
   }
 
- // Header
-selectHeaderDate(date: Date) {
-  this.headerDate = date;
-  this.headerLabel = this.formatDate(date);
+  // Header
+  selectHeaderDate(date: Date) {
+    this.headerDate = date;
+    this.headerLabel = this.formatDate(date);
 
-  this.isHeaderCalendarOpen = false;
-  this.removeWeirdCharactersInDom();
-}
+    this.isHeaderCalendarOpen = false;
+    this.removeWeirdCharactersInDom();
+  }
 
-// Total Orders
-selectTotalOrdersDate(date: Date) {
-  this.totalOrdersDate = date;
-  this.totalOrdersLabel = this.formatDate(date);
+  // Total Orders
+  selectTotalOrdersDate(date: Date) {
+    this.totalOrdersDate = date;
+    this.totalOrdersLabel = this.formatDate(date);
 
-  this.isTotalOrdersCalendarOpen = false;
-  this.removeWeirdCharactersInDom();
+    this.isTotalOrdersCalendarOpen = false;
+    this.removeWeirdCharactersInDom();
 
-  // الجراف يعتمد على سنة Total Orders بس
-  this.loadMonthlyStats(date.getFullYear());
-}
+    this.loadMonthlyStats(date.getFullYear());
+  }
 
-// Insights (زي ما كتبناه قبل كده)
-selectInsightsDate(date: Date) {
-  this.insightsDate = date;
-  this.insightsLabel = this.formatDate(date);
+  // Insights
+  selectInsightsDate(date: Date) {
+    this.insightsDate = date;
+    this.insightsLabel = this.formatDate(date);
 
-  this.isInsightsCalendarOpen = false;
-  this.removeWeirdCharactersInDom();
-}
+    this.isInsightsCalendarOpen = false;
+    this.removeWeirdCharactersInDom();
+  }
 
-isHeaderSelected(date: Date): boolean {
-  return this.headerDate ? this.isSameDate(date, this.headerDate) : false;
-}
+  isHeaderSelected(date: Date): boolean {
+    return this.headerDate ? this.isSameDate(date, this.headerDate) : false;
+  }
 
-isTotalOrdersSelected(date: Date): boolean {
-  return this.totalOrdersDate ? this.isSameDate(date, this.totalOrdersDate) : false;
-}
+  isTotalOrdersSelected(date: Date): boolean {
+    return this.totalOrdersDate
+      ? this.isSameDate(date, this.totalOrdersDate)
+      : false;
+  }
 
-isInsightsSelected(date: Date): boolean {
-  return this.insightsDate ? this.isSameDate(date, this.insightsDate) : false;
-}
-
-
-
+  isInsightsSelected(date: Date): boolean {
+    return this.insightsDate
+      ? this.isSameDate(date, this.insightsDate)
+      : false;
+  }
 
   private isSameDate(a: Date, b: Date): boolean {
     return (
@@ -594,10 +643,6 @@ isInsightsSelected(date: Date): boolean {
   isToday(date: Date): boolean {
     return this.isSameDate(date, new Date());
   }
-
-  // isSelected(date: Date): boolean {
-  //   return this.selectedDate ? this.isSameDate(date, this.selectedDate) : false;
-  // }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -628,229 +673,221 @@ isInsightsSelected(date: Date): boolean {
 
   // ===== ORDERS LIST (WITH FILTERS) =====
 
- private loadOrdersList(
-  page: number = 1,
-  search: string = '',
-  statusKeys: string[] = []
-) {
-  this.currentPage = page;
+  private loadOrdersList(
+    page: number = 1,
+    search: string = '',
+    statusKeys: string[] = []
+  ) {
+    this.currentPage = page;
 
-  const trimmedSearch = (search || '').trim();
-  const encodedSearch = encodeURIComponent(trimmedSearch);
+    const trimmedSearch = (search || '').trim();
+    const encodedSearch = encodeURIComponent(trimmedSearch);
 
-  // نجيب كل الأوردرات بدون أي فلتر status من الـ API عشان نضمن إن كل حاجة تيجي
-  let url = `https://chainly.azurewebsites.net/api/Orders?pageNumber=1&pageSize=1000&search=${encodedSearch}`;
+    let url = `https://chainly.azurewebsites.net/api/Orders?pageNumber=1&pageSize=1000&search=${encodedSearch}`;
 
-  this.http.get<OrdersListResponse>(url, this.getAuthOptions()).subscribe({
-    next: (res) => {
-      let allItems: Order[] = res?.items || [];
+    this.http
+      .get<OrdersListResponse>(url, this.getAuthOptions())
+      .subscribe({
+        next: (res) => {
+          let allItems: Order[] = res?.items || [];
 
-      // 1. فلترة البحث
-      if (trimmedSearch) {
-        const lower = trimmedSearch.toLowerCase();
-        allItems = allItems.filter(item =>
-          String(item.orderId).includes(lower) ||
-          item.code?.toLowerCase().includes(lower)
-        );
-      }
+          if (trimmedSearch) {
+            const lower = trimmedSearch.toLowerCase();
+            allItems = allItems.filter(
+              (item) =>
+                String(item.orderId).includes(lower) ||
+                item.code?.toLowerCase().includes(lower)
+            );
+          }
 
-      // 2. فلترة الستاتس (الآن شغالة 100% بفضل الدالة الجديدة)
-      if (statusKeys.length > 0) {
-        const wanted = new Set(statusKeys);
-        allItems = allItems.filter(item => {
-          const key = this.getStatusKeyFromAny(item.lastStatus);
-          return wanted.has(key);
-        });
-      }
+          if (statusKeys.length > 0) {
+            const wanted = new Set(statusKeys);
+            allItems = allItems.filter((item) => {
+              const key = this.getStatusKeyFromAny(item.lastStatus);
+              return wanted.has(key);
+            });
+          }
 
-      // 3. Pagination يدوي بعد الفلترة
-      const start = (page - 1) * this.pageSize;
-      const end = start + this.pageSize;
-      this.orders = allItems.slice(start, end);
+          const start = (page - 1) * this.pageSize;
+          const end = start + this.pageSize;
+          this.orders = allItems.slice(start, end);
 
-      this.totalPages = Math.ceil(allItems.length / this.pageSize) || 1;
-      this.hasOrders = this.orders.length > 0;
+          this.totalPages = Math.ceil(allItems.length / this.pageSize) || 1;
+          this.hasOrders = this.orders.length > 0;
 
-      // لو الصفحة الحالية أكبر من المتاح → نروح للصفحة الأخيرة
-      if (page > this.totalPages && this.totalPages > 0) {
-        this.currentPage = this.totalPages;
-        this.loadOrdersList(this.currentPage, this.searchText, this.selectedStatusKeys);
-      }
-    },
-    error: (err) => {
-      console.error('Error:', err);
-      this.orders = [];
-      this.hasOrders = false;
-      this.totalPages = 1;
-    }
-  });
-}
- goToPage(page: number) {
-  if (page < 1 || page > this.totalPages || page === this.currentPage) return;
-  this.loadOrdersList(page, this.searchText, this.selectedStatusKeys);
-}
+          if (page > this.totalPages && this.totalPages > 0) {
+            this.currentPage = this.totalPages;
+            this.loadOrdersList(
+              this.currentPage,
+              this.searchText,
+              this.selectedStatusKeys
+            );
+          }
+        },
+        error: (err) => {
+          console.error('Error:', err);
+          this.orders = [];
+          this.hasOrders = false;
+          this.totalPages = 1;
+        },
+      });
+  }
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages || page === this.currentPage)
+      return;
+    this.loadOrdersList(page, this.searchText, this.selectedStatusKeys);
+  }
 
   // ===== SUMMARY =====
 
   private loadOrdersSummary() {
-  this.http
-    .get<OrdersSummaryResponse>(
-      'https://chainly.azurewebsites.net/api/Orders/summary',
-      this.getAuthOptions()
-    )
-    .subscribe({
-      next: (res) => {
-        if (!res) return;
+    this.http
+      .get<OrdersSummaryResponse>(
+        'https://chainly.azurewebsites.net/api/Orders/summary',
+        this.getAuthOptions()
+      )
+      .subscribe({
+        next: (res) => {
+          if (!res) return;
 
-        // الأعداد
-        this.deliveredCount     = res.deliveredOrders        ?? 0;
-        this.totalPlacedCount   = res.totalPlacedOrders      ?? 0;
-        this.pendingCount       = res.pendingOrders          ?? 0;
-        this.cancelledCount     = res.cancelledOrders        ?? 0;
+          this.deliveredCount = res.deliveredOrders ?? 0;
+          this.totalPlacedCount = res.totalPlacedOrders ?? 0;
+          this.pendingCount = res.pendingOrders ?? 0;
+          this.cancelledCount = res.cancelledOrders ?? 0;
 
-        // النِسَب (Changes)
-        this.deliveredChangePercent   = res.deliveredOrdersChange      ?? 0;
-        this.totalPlacedChangePercent = res.totalPlacedOrdersChange    ?? 0;
-        this.pendingChangePercent     = res.pendingOrdersChange        ?? 0;
-        this.cancelledChangePercent   = res.cancelledOrdersChange      ?? 0;
-      },
-      error: () => {
-        this.deliveredCount =
-          this.totalPlacedCount =
-          this.pendingCount =
-          this.cancelledCount =
-            0;
+          this.deliveredChangePercent = res.deliveredOrdersChange ?? 0;
+          this.totalPlacedChangePercent = res.totalPlacedOrdersChange ?? 0;
+          this.pendingChangePercent = res.pendingOrdersChange ?? 0;
+          this.cancelledChangePercent = res.cancelledOrdersChange ?? 0;
+        },
+        error: () => {
+          this.deliveredCount =
+            this.totalPlacedCount =
+            this.pendingCount =
+            this.cancelledCount =
+              0;
 
-        this.deliveredChangePercent =
-          this.totalPlacedChangePercent =
-          this.pendingChangePercent =
-          this.cancelledChangePercent =
-            0;
-      },
-    });
-}
+          this.deliveredChangePercent =
+            this.totalPlacedChangePercent =
+            this.pendingChangePercent =
+            this.cancelledChangePercent =
+              0;
+        },
+      });
+  }
 
   // ===== MONTHLY STATS =====
 
- // ===== MONTHLY STATS =====
-private loadMonthlyStats(year?: number) {
-  // لو مبعوتش سنة استخدم:
-  // 1) selectedDate لو موجودة
-  // 2) أو السنة الحالية
-  const targetYear =
-    year ?? this.totalOrdersDate?.getFullYear() ?? new Date().getFullYear();
+  private loadMonthlyStats(year?: number) {
+    const targetYear =
+      year ?? this.totalOrdersDate?.getFullYear() ?? new Date().getFullYear();
 
-  const url = `https://chainly.azurewebsites.net/api/Orders/monthly-stats?year=${targetYear}`;
+    const url = `https://chainly.azurewebsites.net/api/Orders/monthly-stats?year=${targetYear}`;
 
-  this.http
-    .get<OrdersMonthlyStatsResponse>(url, this.getAuthOptions())
-    .subscribe({
-      next: (res) => {
-        const data = new Array(12).fill(0);
-        const monthly = Array.isArray(res?.monthly) ? res.monthly : [];
+    this.http
+      .get<OrdersMonthlyStatsResponse>(url, this.getAuthOptions())
+      .subscribe({
+        next: (res) => {
+          const data = new Array(12).fill(0);
+          const monthly = Array.isArray(res?.monthly) ? res.monthly : [];
 
-        monthly.forEach((value, index) => {
-          if (index >= 0 && index < 12) {
-            data[index] = this.normalizeNumber(value);
-          }
-        });
+          monthly.forEach((value, index) => {
+            if (index >= 0 && index < 12) {
+              data[index] = this.normalizeNumber(value);
+            }
+          });
 
-        this.totalOrdersChartOptions = {
-          ...this.totalOrdersChartOptions,
-          series: [
-            {
-              name: 'Total Orders',
-              data,
-            },
-          ],
-        };
+          this.totalOrdersChartOptions = {
+            ...this.totalOrdersChartOptions,
+            series: [
+              {
+                name: 'Total Orders',
+                data,
+              },
+            ],
+          };
 
-        this.hasMonthlyStats = data.some((v) => v > 0);
-      },
-      error: (err) => {
-        console.error('monthly-stats error', err);
-        const zeros = new Array(12).fill(0);
-        this.totalOrdersChartOptions = {
-          ...this.totalOrdersChartOptions,
-          series: [{ name: 'Total Orders', data: zeros }],
-        };
-        this.hasMonthlyStats = false;
-      },
-    });
-}
-
-
-
+          this.hasMonthlyStats = data.some((v) => v > 0);
+        },
+        error: (err) => {
+          console.error('monthly-stats error', err);
+          const zeros = new Array(12).fill(0);
+          this.totalOrdersChartOptions = {
+            ...this.totalOrdersChartOptions,
+            series: [{ name: 'Total Orders', data: zeros }],
+          };
+          this.hasMonthlyStats = false;
+        },
+      });
+  }
 
   // ===== INSIGHTS =====
 
   private loadMonthlySummary() {
-  // ✅ دايماً الشهر الحالي
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
 
-  const url =
-    `https://chainly.azurewebsites.net/api/Reports/monthly-summary?month=${month}&year=${year}&pageNumber=1&pageSize=10`;
+    const url = `https://chainly.azurewebsites.net/api/Reports/monthly-summary?month=${month}&year=${year}&pageNumber=1&pageSize=10`;
 
-  this.http.get<MonthlySummaryResponse>(url, this.getAuthOptions())
-    .subscribe({
-      next: (res) => {
-        if (!res) {
-          this.setInsightsEmpty();
-          return;
-        }
+    this.http
+      .get<MonthlySummaryResponse>(url, this.getAuthOptions())
+      .subscribe({
+        next: (res) => {
+          if (!res) {
+            this.setInsightsEmpty();
+            return;
+          }
 
-        const overall = this.normalizeNumber(res.defectedPercentage);
-        this.overallDefectedPercent = overall;
-        this.hasInsightsData = overall > 0;
+          const overall = this.normalizeNumber(res.defectedPercentage);
+          this.overallDefectedPercent = overall;
+          this.hasInsightsData = overall > 0;
 
-        this.insightsDonutOptions = {
-          ...this.insightsDonutOptions,
-          series: [100],
-          plotOptions: {
-            pie: {
-              donut: {
-                size: '75%',
-                labels: {
-                  show: true,
-                  name: {
+          this.insightsDonutOptions = {
+            ...this.insightsDonutOptions,
+            series: [100],
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '75%',
+                  labels: {
                     show: true,
-                    formatter: () => 'Defected Products',
-                    fontSize: '12px',
-                    color: '#111827',
+                    name: {
+                      show: true,
+                      formatter: () => 'Defected Products',
+                      fontSize: '12px',
+                      color: '#111827',
+                    },
+                    value: {
+                      show: true,
+                      formatter: () => `${overall}%`,
+                      fontSize: '16px',
+                      fontWeight: 600,
+                      color: '#ef4444',
+                    },
+                    total: { show: false },
                   },
-                  value: {
-                    show: true,
-                    formatter: () => `${overall}%`,
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    color: '#ef4444',
-                  },
-                  total: { show: false },
                 },
               },
             },
-          },
-        };
+          };
 
-        const lines = (res.lines ?? []).slice(0, 2);
-        if (!lines.length) {
-          this.setInsightsEmpty();
-        } else {
-          this.productionLines = lines.map((l) => ({
-            name: l.lineName,
-            percent: this.normalizeNumber(l.defectedPercentage),
-            text: `${this.normalizeNumber(
-              l.defectedCount
-            )} out of ${this.normalizeNumber(l.totalCount)} Defected`,
-          }));
-        }
-      },
-      error: () => this.setInsightsEmpty(),
-    });
-}
-
+          const lines = (res.lines ?? []).slice(0, 2);
+          if (!lines.length) {
+            this.setInsightsEmpty();
+          } else {
+            this.productionLines = lines.map((l) => ({
+              name: l.lineName,
+              percent: this.normalizeNumber(l.defectedPercentage),
+              text: `${this.normalizeNumber(
+                l.defectedCount
+              )} out of ${this.normalizeNumber(l.totalCount)} Defected`,
+            }));
+          }
+        },
+        error: () => this.setInsightsEmpty(),
+      });
+  }
 
   private setInsightsEmpty() {
     this.overallDefectedPercent = 0;
@@ -896,65 +933,88 @@ private loadMonthlyStats(year?: number) {
 
   // ===== RISING DEMANDS =====
 
- // تحميل الـ top products مرة واحدة عند فتح الصفحة (زي ما هو)
-private loadTopProducts() {
-  this.http
-    .get<TopProductResponseItem[] | { items?: TopProductResponseItem[] }>(
-      'https://chainly.azurewebsites.net/api/Products/top/1',
-      this.getAuthOptions()
-    )
-    .subscribe({
-      next: (res) => {
-        let items: TopProductResponseItem[] = [];
+  // تحميل أول N برودكت في البداية
+  private loadTopProducts(count: number = 2) {
+    const url = `https://chainly.azurewebsites.net/api/Products/top/${count}`;
 
-        if (Array.isArray(res)) items = res;
-        else if (res && Array.isArray(res.items)) items = res.items;
+    this.http
+      .get<TopProductResponseItem[] | { items?: TopProductResponseItem[] }>(
+        url,
+        this.getAuthOptions()
+      )
+      .subscribe({
+        next: (res) => {
+          let rawList: any[] = [];
 
-        this.risingDemands = items.map((p) => ({
-          productName: String(p.productName || '').replace(
-            /[\u061C\u200E\u200F\u202A-\u202E]/g,
-            ''
-          ),
-          stock: this.normalizeNumber(p.inStock),
-          increasePercent: this.normalizeNumber(p.increasePercent),
-        }));
+          if (Array.isArray(res)) rawList = res;
+          else if (res && Array.isArray(res.items)) rawList = res.items;
 
-        this.hasRisingDemands = this.risingDemands.length > 0;
-      },
-      error: () => {
-        this.risingDemands = [];
-        this.hasRisingDemands = false;
-      },
-    });
-}
+          this.risingDemands = this.mapProductsToRising(rawList);
+          this.hasRisingDemands = this.risingDemands.length > 0;
+          this.risingPageIndex = 0;
+        },
+        error: () => {
+          this.risingDemands = [];
+          this.hasRisingDemands = false;
+          this.risingPageIndex = 0;
+        },
+      });
+  }
 
-// الزرار "View all" → يعيد نداء نفس الـ API ويلمّ التحديثات
-onViewAllDemands() {
-  this.loadTopProducts();
-}
+  // "View all" → يجيب أول 10 products من الـ Products
+  onViewAllDemands() {
+    const url =
+      'https://chainly.azurewebsites.net/api/Products?pageNumber=1&pageSize=10&search=';
 
-// كليك على البرودكت → نداء demand forecasting
-onDemandItemClick(item: { productName: string }) {
-  this.http
-    .post(
-      'https://demandforecasting.ambitioussky-2e6e4c68.eastus.azurecontainerapps.io/predict',
-      { productName: item.productName }
-    )
-    .subscribe({
-      next: (res) => {
-        // هنا لو حابة تعملي console.log أو popup بالنتيجة
-        console.log('Demand forecast result:', res);
-      },
-      error: (err) => {
-        console.error('Demand forecast error:', err);
-      },
-    });
-}
+    this.http
+      .get<{ items?: any[] } | any[]>(url, this.getAuthOptions())
+      .subscribe({
+        next: (res) => {
+          let list: any[] = [];
 
+          if (Array.isArray(res)) list = res;
+          else if (res && Array.isArray(res.items)) list = res.items;
+
+          this.risingDemands = this.mapProductsToRising(list);
+          this.hasRisingDemands = this.risingDemands.length > 0;
+          this.risingPageIndex = 0;
+        },
+        error: (err) => {
+          console.error('load products for rising demands error', err);
+        },
+      });
+  }
+
+  // كليك على البرودكت → نداء demand forecasting
+  onDemandItemClick(item: { productId: number | string; productName: string }) {
+    const body = { product_id: item.productId };
+
+    this.http
+      .post<PredictionResponse>(`${this.demandApiBase}/predict`, body)
+      .subscribe({
+        next: (res) => {
+          console.log('Demand forecast result:', res);
+
+          const newPercent = this.normalizeNumber(
+            res?.predicted_change_percentage
+          );
+
+          // نحدّث نفس العنصر في الـ UI مباشرة
+          this.risingDemands = this.risingDemands.map((p) =>
+            p.productId === item.productId
+              ? { ...p, increasePercent: newPercent }
+              : p
+          );
+        },
+        error: (err) => {
+          console.error('Demand forecast error:', err);
+        },
+      });
+  }
 
   // ===== PERCENT HELPERS =====
 
-  getPercentClass(value: number | string | null | undefined): string {
+   getPercentClass(value: number | string | null | undefined): string {
     const num = this.normalizeNumber(value);
 
     if (!this.hasOrders && !this.hasMonthlyStats) return 'neutral';
@@ -971,7 +1031,7 @@ onDemandItemClick(item: { productName: string }) {
     return `${sign}${Math.abs(num).toFixed(1)}`;
   }
 
-  renderPercent(value: number | string | null | undefined): string {
+   renderPercent(value: number | string | null | undefined): string {
     const num = this.normalizeNumber(value);
     if (!num) return '0%';
 
@@ -979,9 +1039,40 @@ onDemandItemClick(item: { productName: string }) {
     return `${sign}${Math.abs(num).toFixed(1)}%`;
   }
 
+  /** هيلبر مخصوص لرزينج ديماندز عشان الأيقونة واللون */
+   getDemandTrendClass(value: number | string | null | undefined): string {
+    const num = this.normalizeNumber(value);
+    if (num > 0) return 'demand-up'; // أخضر + أيقونة up
+    if (num < 0) return 'demand-down'; // أحمر + أيقونة down
+    return 'demand-neutral'; // رمادي
+  }
+
+   getDemandDirection(value: number | string | null | undefined): 'increase' | 'decrease' | 'stable' {
+    const num = this.normalizeNumber(value);
+    if (num > 0) return 'increase';
+    if (num < 0) return 'decrease';
+    return 'stable';
+  }
+
+   getDemandAbsPercent(value: number | string | null | undefined): string {
+    const num = this.normalizeNumber(value);
+    return Math.abs(num).toFixed(1);
+  }
+
+  /** ✅ الجملة الكاملة اللي تحت التريند من غير إشارة السالب */
+  getDemandSentence(value: number | string | null | undefined): string {
+    const direction = this.getDemandDirection(value);
+
+    if (direction === 'stable') {
+      return 'The demand is expected to remain stable tomorrow';
+    }
+
+    const percent = this.getDemandAbsPercent(value); // دايمًا رقم موجب
+    return `The demand is expected to ${direction} by ${percent}% tomorrow`;
+  }
+
   // ===== STATUS HELPERS =====
 
-  /** string موحدة من أي شكل للستاتس */
   private normalizeStatus(status: any): string {
     if (status === null || status === undefined) return '';
 
@@ -999,59 +1090,58 @@ onDemandItemClick(item: { productName: string }) {
     return String(status).trim();
   }
 
-  /** key ثابت نستخدمه في الفلتر: pending / shipped / intransit / delivered / cancelled */
- private getStatusKeyFromAny(status: any): string {
-  if (!status) return 'unknown';
+  private getStatusKeyFromAny(status: any): string {
+    if (!status) return 'unknown';
 
-  let text = '';
+    let text = '';
 
-  if (typeof status === 'object') {
-    text = (
-      status.label ||
-      status.name ||
-      status.text ||
-      status.title ||
-      status.status ||
-      status.statusName ||
-      ''
-    ).toString().trim();
-  } else {
-    text = String(status).trim();
+    if (typeof status === 'object') {
+      text = (
+        status.label ||
+        status.name ||
+        status.text ||
+        status.title ||
+        status.status ||
+        status.statusName ||
+        ''
+      )
+        .toString()
+        .trim();
+    } else {
+      text = String(status).trim();
+    }
+
+    const clean = text.toLowerCase().replace(/[^a-z]/g, '').trim();
+
+    if (clean.includes('intransit') || clean.includes('transit'))
+      return 'intransit';
+    if (clean.includes('pending')) return 'pending';
+    if (clean.includes('deliver')) return 'delivered';
+    if (clean.includes('cancel')) return 'cancelled';
+    if (clean.includes('ship')) return 'shipped';
+
+    return 'pending';
   }
 
-  const clean = text.toLowerCase().replace(/[^a-z]/g, '').trim();
+  private getStatusApiValue(status: any): string {
+    if (!status) return '';
 
-  // ✅ IMPORTANT: InTransit must come BEFORE shipped
-  if (clean.includes('intransit') || clean.includes('transit')) return 'intransit';
-  if (clean.includes('pending')) return 'pending';
-  if (clean.includes('deliver')) return 'delivered';
-  if (clean.includes('cancel')) return 'cancelled';
-  if (clean.includes('ship')) return 'shipped';
+    if (typeof status === 'object') {
+      return String(
+        status.value ??
+          status.id ??
+          status.key ??
+          status.code ??
+          status.statusId ??
+          status.status ??
+          status.name ??
+          status.label ??
+          ''
+      ).trim();
+    }
 
-  return 'pending';
-}
-
-  /** القيمة الحقيقية للـ API من كائن الستاتس */
- private getStatusApiValue(status: any): string {
-  if (!status) return '';
-
-  if (typeof status === 'object') {
-    // جرب كل الحقول الممكنة
-    return String(
-      status.value ??
-      status.id ??
-      status.key ??
-      status.code ??
-      status.statusId ??
-      status.status ??
-      status.name ??
-      status.label ??
-      ''
-    ).trim();
+    return String(status).trim();
   }
-
-  return String(status).trim();
-}
 
   getStatusLabel(status: any): string {
     const raw = this.normalizeStatus(status);
@@ -1067,18 +1157,17 @@ onDemandItemClick(item: { productName: string }) {
     return raw || 'Pending';
   }
 
- getStatusClass(status: any): string {
-  const key = this.getStatusKeyFromAny(status);
+  getStatusClass(status: any): string {
+    const key = this.getStatusKeyFromAny(status);
 
-  if (key === 'pending')   return 'pending';
-  if (key === 'intransit') return 'intransit';   // 👈 لوحدها
-  if (key === 'shipped')   return 'shipped';     // 👈 لوحدها
-  if (key === 'delivered') return 'delivered';
-  if (key === 'cancelled') return 'cancelled';
+    if (key === 'pending') return 'pending';
+    if (key === 'intransit') return 'intransit';
+    if (key === 'shipped') return 'shipped';
+    if (key === 'delivered') return 'delivered';
+    if (key === 'cancelled') return 'cancelled';
 
-  return 'pending';
-}
-
+    return 'pending';
+  }
 
   // ===== NORMALIZE NUMBER =====
 
@@ -1091,5 +1180,101 @@ onDemandItemClick(item: { productName: string }) {
     const parsed = parseFloat(cleaned);
 
     return isNaN(parsed) ? 0 : parsed;
+  }
+
+  private mapProductsToRising(
+    list: any[]
+  ): {
+    productId: number | string;
+    productName: string;
+    stock: number;
+    increasePercent: number;
+  }[] {
+    const badCharRegex = /[\u061C\u200E\u200F\u202A-\u202E]/g;
+
+    return (list || []).map((p) => {
+      const name = (p.productName ?? p.name ?? p.title ?? '') as string;
+
+      const inStock =
+        p.inStock ?? p.stock ?? p.quantityInStock ?? p.currentStock ?? 0;
+
+      const inc =
+        p.increasePercent ??
+        p.predicted_change_percentage ?? // لو جاية من الـ predict ومخزنة في الـ API
+        p.expectedIncreasePercent ??
+        p.forecastIncrease ??
+        0;
+
+      const id = p.product_id ?? p.productId ?? p.id ?? p.code ?? name;
+
+      return {
+        productId: id,
+        productName: String(name || '').replace(badCharRegex, ''),
+        stock: this.normalizeNumber(inStock),
+        increasePercent: this.normalizeNumber(inc),
+      };
+    });
+  }
+
+  // ===== NAVIGATION TO ORDERS TAB =====
+
+  onViewAllOrders() {
+    this.router.navigate(['/orders']);
+  }
+
+  onViewOrder(order: Order) {
+    this.router.navigate(['/orders'], {
+      queryParams: { orderId: order.orderId, mode: 'view' },
+    });
+  }
+
+  onEditOrder(order: Order) {
+    this.router.navigate(['/orders'], {
+      queryParams: { orderId: order.orderId, mode: 'edit' },
+    });
+  }
+
+  openDeleteModal(order: Order) {
+    this.orderToDelete = order;
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+    this.orderToDelete = null;
+  }
+
+  confirmDelete() {
+    if (!this.orderToDelete) {
+      return;
+    }
+
+    const orderKey = this.orderToDelete.id;
+
+    this.http
+      .delete(`https://chainly.azurewebsites.net/api/Orders/${orderKey}`, {
+        ...this.getAuthOptions(),
+        responseType: 'text' as 'json',
+      })
+      .subscribe({
+        next: () => {
+          this.isDeleteModalOpen = false;
+          this.orderToDelete = null;
+
+          this.loadOrdersList(
+            this.currentPage,
+            this.searchText,
+            this.selectedStatusKeys
+          );
+          this.loadOrdersSummary();
+          this.loadMonthlyStats();
+        },
+        error: (err) => {
+          console.error('delete order error', err);
+          this.isDeleteModalOpen = false;
+          this.orderToDelete = null;
+        },
+      });
+    console.log('orderToDelete', this.orderToDelete);
   }
 }
