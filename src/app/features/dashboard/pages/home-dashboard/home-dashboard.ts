@@ -447,25 +447,47 @@ insightsDonutOptions: DonutChartOptions = {
     }
   }
 
-  prevMonth() {
-    let m = this.calendarMonthIndex - 1;
-    let y = this.calendarYearNum;
-    if (m < 0) {
-      m = 11;
-      y--;
-    }
-    this.buildCalendar(y, m);
+ prevMonth() {
+  let m = this.calendarMonthIndex - 1;
+  let y = this.calendarYearNum;
+
+  if (m < 0) {
+    m = 11;
+    y--;
   }
 
-  nextMonth() {
-    let m = this.calendarMonthIndex + 1;
-    let y = this.calendarYearNum;
-    if (m > 11) {
-      m = 0;
-      y++;
-    }
-    this.buildCalendar(y, m);
+  this.buildCalendar(y, m);
+
+
+  if (this.isInsightsCalendarOpen) {
+    const newDate = new Date(y, m, 1);
+    this.insightsDate = newDate;
+    this.insightsLabel = this.formatDate(newDate);
+    this.loadMonthlySummary(newDate, 1);
   }
+}
+
+
+ nextMonth() {
+  let m = this.calendarMonthIndex + 1;
+  let y = this.calendarYearNum;
+
+  if (m > 11) {
+    m = 0;
+    y++;
+  }
+
+  this.buildCalendar(y, m);
+
+
+  if (this.isInsightsCalendarOpen) {
+    const newDate = new Date(y, m, 1);
+    this.insightsDate = newDate;
+    this.insightsLabel = this.formatDate(newDate);
+    this.loadMonthlySummary(newDate, 1);
+  }
+}
+
 
   selectHeaderDate(date: Date) {
     this.headerDate = date;
@@ -1204,7 +1226,7 @@ goToInsightsPage(page: number) {
     });
   }
 
-  
+
 
   onViewAllOrders() {
     this.router.navigate(['/orders']);
