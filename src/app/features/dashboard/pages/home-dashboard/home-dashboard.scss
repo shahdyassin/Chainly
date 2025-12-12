@@ -1,27 +1,27 @@
 .dashboard-layout {
-  padding: 0 24px 16px;
+  padding: 0 24px 1px;
   background: #f9f9f9;
-  min-height: 100vh;
+  //min-height: 100vh;
   font-family: 'Urbanist', sans-serif;
 }
 
-/* ===== TOP HEADER ===== */
+
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 22px;
+  margin-top: 0;
   margin-bottom: -30px;
 }
 
 .welcome-block {
-  margin-top: -5px; /* لمسة بسيطة عشان النص ينزل سنة صغيرة */
+  margin-top: -5px;
 }
 
 .welcome-text {
   .hello {
-    margin: 0;
+    margin-top: 20px;
     font-family: 'lufga', 'Urbanist', sans-serif;
     font-size: 24px;
     font-weight: 500;
@@ -29,7 +29,7 @@
   }
 
   .hint {
-    margin: -3px 0 0;
+    margin: -20px 0 0;
     font-family: 'Urbanist', sans-serif;
     font-size: 16px;
     font-weight: 500;
@@ -47,7 +47,6 @@
 .date-picker-wrapper {
   position: relative;
   display: inline-block;
-
 }
 
 .date-chip {
@@ -69,9 +68,7 @@
   }
 }
 
-/* ===== SUMMARY CARDS ===== */
 
-/* ===== TOP SUMMARY CARDS – like Figma design ===== */
 
 .summary-row.fancy-cards {
   margin-top: 12px;
@@ -86,7 +83,6 @@
   background: #ffffff;
   border-radius: 18px;
   padding: 16px 18px 14px;
-  //box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
   border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
@@ -94,7 +90,6 @@
   min-height: 110px;
 }
 
-/* أعلى الكارت */
 .summary-row.fancy-cards .card-top {
   display: flex;
   align-items: flex-start;
@@ -107,7 +102,6 @@
   color: #4b5563;
 }
 
-/* الأيقونة الدائرية ناحية اليمين */
 .summary-row.fancy-cards .card-icon {
   width: 32px;
   height: 32px;
@@ -124,29 +118,24 @@
   }
 }
 
-/* ألوان الخلفية حوالين الأيقونات لكل كارت */
+
 
 .summary-row.fancy-cards .summary-card.delivered .card-icon {
-  background: #8ddfd5; /* أخضر فاتح */
-  color: #16a34a;
+  background: #8ddfd5;
 }
 
 .summary-row.fancy-cards .summary-card.total .card-icon {
-  background: #b4b0ff; /* بنفسجي فاتح */
-  color: #7c3aed;
+  background: #b4b0ff;
 }
 
 .summary-row.fancy-cards .summary-card.pending .card-icon {
-  background: #ffc297; /* أورنج فاتح */
-  color: #ea580c;
+  background: #ffc297;
 }
 
 .summary-row.fancy-cards .summary-card.cancelled .card-icon {
-  background: #fd9fd6; /* بينك فاتح */
-  color: #e11d48;
+  background: #fd9fd6;
 }
 
-/* الرقم الكبير */
 .summary-row.fancy-cards .card-value {
   margin-top: 8px;
   font-size: 30px;
@@ -154,7 +143,6 @@
   color: #111827;
 }
 
-/* السطر اللي تحت: النسبة + Last month */
 .summary-row.fancy-cards .card-bottom {
   margin-top: 6px;
   display: flex;
@@ -167,24 +155,22 @@
   font-weight: 600;
 }
 
-/* الألوان حسب الـ getPercentClass */
 .summary-row.fancy-cards .card-percent.up {
-  color: #16a34a; /* أخضر */
+  color: #16a34a;
 }
 
 .summary-row.fancy-cards .card-percent.down {
-  color: #ef4444; /* أحمر */
+  color: #ef4444;
 }
 
 .summary-row.fancy-cards .card-percent.neutral {
-  color: #9ca3af; /* رمادي */
+  color: #9ca3af;
 }
 
 .summary-row.fancy-cards .card-sub {
   color: #9ca3af;
 }
 
-/* موبايل / تابلت */
 @media (max-width: 1024px) {
   .summary-row.fancy-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -196,8 +182,6 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* ===== PANELS LAYOUT ===== */
 
 
 
@@ -224,7 +208,7 @@
   grid-template-columns: 0.8fr 1.2fr;
 }
 
-/* ===== PANELS ===== */
+
 
 .panel {
   background: #ffffff;
@@ -235,7 +219,6 @@
   flex-direction: column;
 }
 
-/* Rising Demands panel border like design */
 .panel.rising-panel {
   border: 1px solid #e5e7eb;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.04);
@@ -246,12 +229,12 @@
 }
 
 .bottom-row .panel {
-  min-height: 400px;
+  min-height: 320px;
   padding-top: 12px;
   padding-bottom: 14px;
 }
 
-/* ===== PANEL HEADER ===== */
+
 
 .panel-header {
   display: flex;
@@ -285,19 +268,7 @@
   }
 }
 
-/* View all button style داخل Rising Demands */
-.rising-panel .panel-header .chip {
-  padding: 5px 14px;
-    font-family: "Urbanist", sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    color: #4d4d4d;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
-    box-shadow: none;
-}
-
+.rising-panel .panel-header .chip,
 .recent-panel .panel-header .chip {
   padding: 5px 14px;
   font-family: 'Urbanist', sans-serif;
@@ -310,16 +281,11 @@
   box-shadow: none;
 }
 
-/* كارت الـ Total Orders كله عليه بوردر */
+
+
 .total-orders-panel {
   border: 1px solid #e5e7eb;
-  border-radius: 16px;           /* نفس اللي في .panel عشان ما يبوظش الشكل */
-}
-
-/* Total Orders calendar chip */
-.total-orders-panel .panel-header .date-picker-wrapper {
-  position: relative;
-
+  border-radius: 16px;
 }
 
 .total-orders-panel .panel-header .chip {
@@ -341,11 +307,9 @@
     width: 14px;
     height: 14px;
   }
-
 }
 
 
-/* ===== CALENDAR ===== */
 
 .calendar-dropdown {
   position: absolute;
@@ -424,13 +388,11 @@
   color: #ffffff;
 }
 
-/* ===== CHART AREA ===== */
+
 
 .panel-body-chart {
   min-height: 220px;
 }
-
-
 
 .panel-body apx-chart {
   display: block;
@@ -444,7 +406,7 @@
   text-align: center;
 }
 
-/* ===== INSIGHTS ===== */
+
 
 .insights-panel {
   padding: 10px 16px 12px;
@@ -474,27 +436,58 @@
     width: 14px;
     height: 14px;
   }
-
 }
 
 .insights-panel .insights-body {
   display: grid;
   grid-template-rows: auto auto;
-  row-gap: 6px;
+  row-gap: 10px;
+  align-content: flex-start;
+  padding-top: 50px;
+}
+
+.insights-footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .insights-donut-wrapper {
-  max-width: 220px;
-  height: 220px;
-  margin: 0 auto;
+  max-width: 260px;
+  position: relative;
+  height: 260px;
+  margin: 0 auto 10px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .insights-donut-wrapper apx-chart {
-  width: 220px !important;
-  height: 220px !important;
+  width: 260px !important;
+  height: 260px !important;
+}
+
+.donut-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-center-label .percent {
+  font-size: 22px;
+  font-weight: 600;
+  color: #F29090;
+  line-height: 1.1;
+}
+
+.donut-center-label .caption {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #F29090;
 }
 
 .chart-empty-insights {
@@ -502,14 +495,17 @@
 }
 
 .insights-footer {
-  margin-top: 0;
+  margin-top: 150px;
   font-size: 10px;
 
   .legend-line {
     display: flex;
     align-items: center;
     gap: 4px;
-    color: #6b7280;
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: #666666;
     margin-bottom: 4px;
 
     img {
@@ -521,48 +517,109 @@
   .progress-card {
     border-radius: 14px;
     background: #f9fafb;
-    padding: 6px 8px;
+    padding: 8px 10px;
+    margin-top: -2px;
 
     .top {
       display: flex;
       justify-content: space-between;
-      font-size: 10px;
-      margin-bottom: 3px;
+      font-size: 12px;
+      margin-bottom: 4px;
 
       .name {
-        color: #4b5563;
+        font-family: 'Urbanist', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #2E2E2E;
       }
 
       .percent {
-        color: #22c55e;
-        font-weight: 600;
+        color: #F29090;
+        font-family: 'Urbanist', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
       }
     }
 
     .bar {
       position: relative;
-      height: 6px;
+      height: 10px;
       border-radius: 999px;
       background: #e5e7eb;
       overflow: hidden;
+      --split: 0%;
+    }
 
-      .fill {
-        height: 100%;
-        background: linear-gradient(90deg, #34d399, #22c55e);
-        width: 0%;
-      }
+    .bar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        #F29090 0,
+        #ff9aa2 var(--split),
+        #6BC7BC var(--split),
+        #6BC7BC 100%
+      );
     }
 
     .bottom {
-      margin-top: 3px;
-      font-size: 9px;
+      margin-top: 4px;
+      font-size: 10px;
+      font-weight: 500;
       color: #9ca3af;
       text-align: right;
     }
   }
 }
 
-/* ===== EMPTY STATE ===== */
+
+
+.insights-panel .insights-pager {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  font-size: 0;
+}
+
+.insights-panel .insights-pager .pager-arrow {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7a7a7a;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 2px 8px;
+  transition: 0.25s ease;
+}
+
+.insights-panel .insights-pager .pager-arrow:hover:not(:disabled) {
+  color: #444;
+  transform: scale(1.25);
+}
+
+.insights-panel .insights-pager .pager-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.insights-panel .insights-pager .pager-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: #d1d5db;
+  transition: 0.2s ease;
+}
+
+.insights-panel .insights-pager .pager-dot.active {
+  width: 9px;
+  height: 9px;
+  background: #6b7280;
+}
+
+
 
 .empty-state {
   height: 220px;
@@ -574,7 +631,6 @@
   text-align: center;
 }
 
-/* Rising Demands specific */
 .rising-panel .panel-body.panel-body-list {
   padding-top: 6px;
 }
@@ -583,7 +639,7 @@
   height: 220px;
 }
 
-/* ===== FOOTERS ===== */
+
 
 .panel-footer.dots,
 .panel-footer.pager {
@@ -628,18 +684,52 @@
   cursor: pointer;
 }
 
-/* Recent Orders pager – شوية تمييز زيادة */
+
+
+.recent-panel .orders-pager {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  font-size: 0;
+}
+
+.recent-panel .orders-pager .pager-arrow {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7a7a7a;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 2px 8px;
+  transition: 0.25s ease;
+}
+
+.recent-panel .orders-pager .pager-arrow:hover:not(:disabled) {
+  color: #444;
+  transform: scale(1.25);
+}
+
+.recent-panel .orders-pager .pager-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .recent-panel .orders-pager .pager-dot {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: #d1d5db;
+  transition: 0.2s ease;
 }
 
 .recent-panel .orders-pager .pager-dot.active {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
+  background: #6b7280;
 }
 
-/* ===== Recent Orders ===== */
 
 .recent-panel {
   padding-bottom: 10px;
@@ -648,11 +738,13 @@
 }
 
 .recent-card {
+  min-height: 500px;
   margin-top: 8px;
   border-radius: 18px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   overflow: hidden;
+  justify-content: center;
 }
 
 .recent-header-row {
@@ -688,6 +780,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 40px 0;
   font-size: 12px;
   color: #c4c4c4;
 }
@@ -713,7 +807,7 @@
   flex: 0 0 60px;
 }
 
-/* ===== ACTIONS COLUMN (VIEW / EDIT / DELETE) ===== */
+
 
 .recent-body-col.actions-col {
   display: flex;
@@ -741,15 +835,15 @@
   }
 
   &.view {
-    background: #F9F9F9; /* أزرق فاتح */
+    background: #f9f9f9;
   }
 
   &.edit {
-    background: #F9F9F9; /* أصفر فاتح */
+    background: #f9f9f9;
   }
 
   &.delete {
-    background: #F9F9F9; /* أحمر فاتح */
+    background: #f9f9f9;
   }
 
   &:hover {
@@ -770,7 +864,7 @@
   }
 }
 
-/* SEARCH + FILTER */
+
 
 .recent-panel .orders-toolbar {
   display: flex;
@@ -889,7 +983,7 @@
   }
 }
 
-/* ===== Recent Orders Pagination (Enhanced Arrows) ===== */
+
 
 .recent-panel .orders-pager {
   margin-top: 8px;
@@ -900,11 +994,11 @@
   font-size: 0;
 }
 
-/* السهمين */
+
 .recent-panel .orders-pager .pager-arrow {
-  font-size: 14px; /* أكبر */
-  font-weight: 600; /* تخين */
-  color: #7a7a7a; /* أوضح */
+  font-size: 14px;
+  font-weight: 600;
+  color: #7a7a7a;
   cursor: pointer;
   background: transparent;
   border: none;
@@ -912,19 +1006,19 @@
   transition: 0.25s ease;
 }
 
-/* تأثير الهوفر */
+
 .recent-panel .orders-pager .pager-arrow:hover:not(:disabled) {
-  color: #444; /* أغمق */
-  transform: scale(1.25); /* تكبير بسيط */
+  color: #444;
+  transform: scale(1.25);
 }
 
-/* لما يبقى disabled */
+
 .recent-panel .orders-pager .pager-arrow:disabled {
   opacity: 0.3;
   cursor: not-allowed;
 }
 
-/* النقاط */
+
 .recent-panel .orders-pager .pager-dot {
   width: 4px;
   height: 4px;
@@ -939,7 +1033,7 @@
   background: #6b7280;
 }
 
-/* STATUS CHIP */
+
 
 .status-chip {
   padding: 5px 5px;
@@ -955,43 +1049,39 @@
   text-align: center;
 
   &.delivered {
-    background: #DAF1EE;
+    background: #daf1ee;
     color: #2e2e2e;
   }
 
   &.pending {
-    background: #FFC297;
+    background: #ffc297;
     color: #2e2e2e;
   }
 
   &.cancelled {
-    background: #FFC6C6;
+    background: #ffc6c6;
     color: #2e2e2e;
   }
 
   &.shipped {
-    background: #FFE69B;
+    background: #ffe69b;
     color: #2e2e2e;
   }
 
   &.intransit {
-    background: #D6EFF9;
+    background: #d6eff9;
     color: #2e2e2e;
   }
 }
 
-/* ===== RISING DEMANDS ===== */
 
 
-
-/* الكارت الداخلي للبرودكت – خلفية أغمق وبوردر */
 .demand-item {
-  background: #F9F9F9;
+  background: #f9f9f9;
   border-radius: 18px;
   padding: 18px 20px;
   margin-bottom: 16px;
   border: 1px solid #e5e7eb;
-  //box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 
@@ -1008,7 +1098,7 @@
     font-size: 14px;
     font-weight: 600;
     margin: 0 0 4px;
-    color: #2E2E2E;
+    color: #2e2e2e;
   }
 
   .sub {
@@ -1019,11 +1109,11 @@
   }
 }
 
-/* الجملة البيضاء البيضاويّة – نفس الديزاين اللي بعتّيهولي */
+
 .demand-change {
-  margin: 18px 0 0;          /* مسافة من فوق فقط */
-  width: 100%;               /* ياخد عرض الكارد من جوّه */
-  align-self: stretch;       /* يتمدد على قد المتاح */
+  margin: 18px 0 0;
+  width: 100%;
+  align-self: stretch;
   box-sizing: border-box;
 
   background: #ffffff;
@@ -1037,7 +1127,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  //box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
   gap: 5px;
 
   img {
@@ -1047,7 +1136,7 @@
   }
 }
 
-/* لون النص حسب الاتجاه */
+
 .demand-change.demand-up {
   color: #16a34a;
 }
@@ -1058,7 +1147,7 @@
   color: #9ca3af;
 }
 
-/* pager الخاص بـ Rising Demands */
+
 .rising-pager {
   margin-top: 10px;
 }
@@ -1098,7 +1187,7 @@
   background: #6b7280;
 }
 
-/* ICON BTN (لو حبيتي تستخدمينه في حتة تانية) */
+
 
 .icon-btn {
   border: none;
@@ -1107,7 +1196,7 @@
   font-size: 15px;
 }
 
-/* ===== DELETE MODAL ===== */
+
 
 .modal-backdrop {
   position: fixed;
@@ -1193,7 +1282,7 @@
   background: #731414;
 }
 
-/* RESPONSIVE */
+
 
 @media (max-width: 1024px) {
   .middle-row,

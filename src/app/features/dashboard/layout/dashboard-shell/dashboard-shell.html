@@ -1,19 +1,17 @@
 <div class="shell" [class.sidebar-collapsed]="isSidebarCollapsed">
-  <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar">
-    <!-- Logo -->
     <div class="logo-row">
       <div class="logo">
         <img src="/images/logo.png" alt="Chainly" />
       </div>
       <span class="logo-text">Chainly</span>
 
+
       <button class="logo-mini-btn" (click)="toggleSidebar()">
         <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
       </button>
     </div>
 
-    <!-- Nav groups -->
     <nav class="nav">
       <div class="nav-group">
         <p class="group-title">Main</p>
@@ -114,7 +112,6 @@
       </div>
     </nav>
 
-    <!-- User mini card bottom -->
     <div class="user-card">
       <div class="avatar">
         <img [src]="userAvatarUrl" alt="User" />
@@ -127,11 +124,22 @@
     </div>
   </aside>
 
-  <!-- ========== MAIN AREA (TOPBAR + CONTENT) ========== -->
+
+  <div
+    class="sidebar-backdrop"
+    [class.visible]="isSidebarCollapsed"
+    (click)="toggleSidebar()"
+  ></div>
+
+
   <div class="main">
-    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
+
+        <button class="mobile-menu-btn" (click)="toggleSidebar()">
+          <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
+        </button>
+
         <span class="topbar-title">Dashboard</span>
 
         <div class="search-wrapper">
@@ -150,7 +158,6 @@
       </div>
     </header>
 
-    <!-- Content -->
     <main class="content">
       <router-outlet></router-outlet>
     </main>

@@ -28,7 +28,7 @@ interface AuthSession {
 export class AuthService {
   private baseUrl = 'https://chainly.azurewebsites.net/api/Authentication';
 
-  // بيانات الريجستر لحد ما يكمّل كل الستيبس
+
   private registerData: RegisterData = {
     role: null,
     fullName: null,
@@ -39,7 +39,7 @@ export class AuthService {
     profilePicture: null,
   };
 
-  // جلسة المستخدم الحالية
+
   private currentUser: AuthSession | null = null;
   private STORAGE_KEY = 'chainly-auth';
 
@@ -47,7 +47,7 @@ export class AuthService {
     this.loadSessionFromStorage();
   }
 
-  /* ============== session helpers ============== */
+
 
   private loadSessionFromStorage() {
     const raw = localStorage.getItem(this.STORAGE_KEY);
@@ -60,28 +60,27 @@ export class AuthService {
     }
   }
 
-  /** حفظ السيشن في الـ service + localStorage */
+
   setAuthSession(session: AuthSession) {
     this.currentUser = session;
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(session));
   }
 
-  /** اسم المستخدم */
+
   getCurrentUserName(): string | null {
     return this.currentUser?.fullName ?? null;
   }
 
-  /** صورة المستخدم */
+
   getCurrentUserAvatar(): string | null {
     return this.currentUser?.avatarUrl ?? null;
   }
 
-  /** دور المستخدم */
+
   getCurrentUserRole(): UserRole | null {
     return this.currentUser?.role ?? null;
   }
 
-  /** ⬅️ دي اللي كان محتاجها الـ dashboard */
   getAccessToken(): string | null {
     return this.currentUser?.token ?? null;
   }
@@ -95,7 +94,7 @@ export class AuthService {
     localStorage.removeItem(this.STORAGE_KEY);
   }
 
-  /* ============== register flow data ============== */
+  
 
   setRegisterRole(role: UserRole) {
     this.registerData.role = role;
@@ -150,7 +149,7 @@ export class AuthService {
     };
   }
 
-  /** تستخدم بعد نجاح الـ OTP – لسه معندناش توكن حقيقي من الـ API */
+
   setAuthFromRegister() {
     if (!this.registerData.email || !this.registerData.fullName) return;
 
@@ -158,17 +157,16 @@ export class AuthService {
       fullName: this.registerData.fullName,
       email: this.registerData.email,
       role: this.registerData.role,
-      token: 'REGISTER_VERIFIED', // أي سترينج يخلّي isLoggedIn = true
+      token: 'REGISTER_VERIFIED',
     };
 
     this.setAuthSession(session);
   }
 
-  /* ============== auth APIs ============== */
+
 
   login(payload: { email: string; password: string }): Observable<any> {
-    // مفيش تغيير هنا – لسه بترجّع الـ response زي ما هو
-    // بعد الـ subscribe من الـ component تأكدي إنك بتعملي setAuthSession(...)
+
     return this.http.post(`${this.baseUrl}/login`, payload);
   }
 

@@ -24,6 +24,7 @@ import {
   ApexYAxis,
   ApexGrid,
   ApexPlotOptions,
+  ApexTooltip,
 } from 'ng-apexcharts';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -55,10 +56,6 @@ interface OrdersSummaryResponse {
   totalPlacedOrdersChange: number;
 }
 
-interface OrdersMonthlyStat {
-  month: number;
-  totalOrders: number;
-}
 interface OrdersMonthlyStatsResponse {
   year: number;
   monthly: number[];
@@ -66,15 +63,24 @@ interface OrdersMonthlyStatsResponse {
 }
 
 interface MonthlySummaryLine {
-  lineName: string;
-  defectedPercentage: number;
-  defectedCount: number;
-  totalCount: number;
+  productionLineId: number;
+  productionLineName: string;
+  totalProducts: number;
+  defectiveProductsCount: number;
+  nonDefectiveProductsCount: number;
 }
 
 interface MonthlySummaryResponse {
-  defectedPercentage: number;
-  lines: MonthlySummaryLine[];
+  totalProducts: number;
+  defectiveProducts: number;
+  nonDefectiveProducts: number;
+  month: number;
+  year: number;
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  items: MonthlySummaryLine[];
 }
 
 interface TopProductResponseItem {
@@ -86,7 +92,6 @@ interface TopProductResponseItem {
   increasePercent: number;
 }
 
-/** شكل ريسبونس الـ /predict */
 interface PredictionResponse {
   product_id: number;
   predicted_change_percentage: number;
@@ -113,10 +118,10 @@ type DonutChartOptions = {
   legend: ApexLegend;
   plotOptions: ApexPlotOptions;
   colors: string[];
-  dataLabels?: ApexDataLabels;
+  dataLabels: ApexDataLabels;
+  tooltip: ApexTooltip;
 };
 
-/** option للفلتر */
 interface StatusOption {
   key: string;
   apiValue: string;
@@ -133,28 +138,24 @@ interface StatusOption {
 export class HomeDashboard implements OnInit, AfterViewInit {
   userName = '';
 
-  // === Date picker state ===
-  // Header
+
   headerDate: Date | null = null;
   headerLabel = '';
 
-  // Total Orders
   totalOrdersDate: Date | null = null;
   totalOrdersLabel = '';
 
-  // Insights
   insightsDate: Date | null = null;
   insightsLabel = '';
 
   isDeleteModalOpen = false;
   orderToDelete: Order | null = null;
 
-  // dropdowns
+
   isHeaderCalendarOpen = false;
   isInsightsCalendarOpen = false;
   isTotalOrdersCalendarOpen = false;
 
-  /** base URL بتاع demand forecasting */
   private demandApiBase =
     'https://demandforecasting.ambitioussky-2e6e4c68.eastus.azurecontainerapps.io';
 
@@ -180,13 +181,13 @@ export class HomeDashboard implements OnInit, AfterViewInit {
 
   weekDaysShort = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-  // ===== FLAGS =====
+
   hasOrders = false;
   hasMonthlyStats = false;
   hasRisingDemands = false;
   hasInsightsData = false;
 
-  // ===== DATA =====
+
   orders: Order[] = [];
 
   deliveredCount = 0;
@@ -199,7 +200,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
   pendingChangePercent = 0;
   cancelledChangePercent = 0;
 
-  // Rising Demands items (مع productId علشان /predict)
+
   risingDemands: Array<{
     productId: number | string;
     productName: string;
@@ -207,7 +208,6 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     increasePercent: number;
   }> = [];
 
-  // Rising Demands slider
   itemsPerRisingSlide = 2;
   risingPageIndex = 0;
 
@@ -218,138 +218,23 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     text: string;
   }> = [];
 
-  // ===== pagination =====
+
   currentPage = 1;
   pageSize = 10;
   totalPages = 1;
 
-  get pagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
 
-  get risingPagesTotal(): number {
-    return this.risingDemands.length
-      ? Math.ceil(this.risingDemands.length / this.itemsPerRisingSlide)
-      : 0;
-  }
+  insightsPageIndex = 1;
+  insightsTotalPages = 1;
 
-  get risingPagesArray(): number[] {
-    return Array.from({ length: this.risingPagesTotal }, (_, i) => i);
-  }
 
-  getCurrentRisingSlice() {
-    const start = this.risingPageIndex * this.itemsPerRisingSlide;
-    const end = start + this.itemsPerRisingSlide;
-    return this.risingDemands.slice(start, end);
-  }
-
-  prevRisingPage() {
-    if (this.risingPageIndex > 0) {
-      this.risingPageIndex--;
-    }
-  }
-
-  nextRisingPage() {
-    if (this.risingPageIndex < this.risingPagesTotal - 1) {
-      this.risingPageIndex++;
-    }
-  }
-
-  goToRisingPage(index: number) {
-    if (index < 0 || index >= this.risingPagesTotal) return;
-    this.risingPageIndex = index;
-  }
-
-  // ===============================
-  //       SEARCH + FILTER
-  // ===============================
-
-  searchText: string = '';
+  searchText = '';
   searchTimeout: any;
-
   isFilterOpen = false;
-
   allStatuses: StatusOption[] = [];
   selectedStatusKeys: string[] = [];
 
-  toggleFilterPopup() {
-    this.isFilterOpen = !this.isFilterOpen;
 
-    if (this.isFilterOpen && this.allStatuses.length === 0) {
-      this.loadStatuses();
-    }
-  }
-
-  private loadStatuses() {
-    this.http
-      .get<any[]>(
-        'https://chainly.azurewebsites.net/api/Orders/statuses',
-        this.getAuthOptions()
-      )
-      .subscribe({
-        next: (res) => {
-          const list = Array.isArray(res) ? res : [];
-
-          const map = new Map<string, StatusOption>();
-
-          list.forEach((s) => {
-            const key = this.getStatusKeyFromAny(s);
-            const label = this.getStatusLabel(s);
-            const apiValue = this.getStatusApiValue(s);
-
-            if (!key || !label || !apiValue) return;
-
-            if (!map.has(key)) {
-              map.set(key, {
-                key,
-                apiValue,
-                label,
-              });
-            }
-          });
-
-          this.allStatuses = Array.from(map.values());
-        },
-        error: () => {
-          this.allStatuses = [];
-        },
-      });
-  }
-
-  isStatusSelected(key: string): boolean {
-    return this.selectedStatusKeys.includes(key);
-  }
-
-  onStatusToggle(key: string, event: any) {
-    const checked = !!event.target?.checked;
-
-    if (checked) {
-      if (!this.selectedStatusKeys.includes(key)) {
-        this.selectedStatusKeys.push(key);
-      }
-    } else {
-      this.selectedStatusKeys = this.selectedStatusKeys.filter(
-        (k) => k !== key
-      );
-    }
-  }
-
-  applyFilters() {
-    this.isFilterOpen = false;
-    this.currentPage = 1;
-    this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
-  }
-  onSearchChange() {
-    clearTimeout(this.searchTimeout);
-
-    this.searchTimeout = setTimeout(() => {
-      this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
-    }, 350);
-  }
-
-  // ===============================
-  //          CHART OPTIONS
-  // ===============================
 
   totalOrdersChartOptions: LineChartOptions = {
     series: [{ name: 'Total Orders', data: [] }],
@@ -378,7 +263,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
         style: {
           colors: '#9ca3af',
           fontSize: '13px',
-          fontFamily:'Urbanist',
+          fontFamily: 'Urbanist',
         },
       },
       axisBorder: { show: false },
@@ -392,7 +277,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
         style: {
           colors: '#d1d5db',
           fontSize: '13px',
-          fontFamily:'Urbanist',
+          fontFamily: 'Urbanist',
         },
       },
     },
@@ -407,53 +292,48 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     colors: ['#3EA397'],
   };
 
-  insightsDonutOptions: DonutChartOptions = {
-    series: [100],
-    labels: ['Defected Products'],
-    chart: {
-      type: 'donut',
-      height: 230,
-    },
-    legend: {
-      show: false,
-    },
-    colors: ['#3CCFCF'],
-    dataLabels: {
-      enabled: false,
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '75%',
-          labels: {
-            show: true,
-            name: {
-              show: true,
-              formatter: () => 'Defected Products',
-              fontSize: '12px',
-              color: '#111827',
-            },
-            value: {
-              show: true,
-              formatter: () => '0%',
-              fontSize: '16px',
-              fontWeight: 600,
-              color: '#ef4444',
-            },
-            total: { show: false },
-          },
+
+insightsDonutOptions: DonutChartOptions = {
+  series: [0, 100],
+  labels: ['Defected Products', 'Non Defected Products'],
+  chart: {
+    type: 'donut',
+    height: 280,
+    toolbar: { show: false },
+  },
+  legend: {
+    show: false,
+  },
+  colors: ['#FF9F9F', '#3CCFCF'],
+  dataLabels: {
+    enabled: false,
+  },
+  tooltip: {
+    enabled: false,
+  },
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '78%',
+        labels: {
+          show: false,
+          name: { show: false },
+          value: { show: false },
+          total: { show: false, label: '', formatter: () => '' },
         },
       },
     },
-    responsive: [
-      {
-        breakpoint: 600,
-        options: {
-          chart: { height: 220 },
-        },
+  },
+  responsive: [
+    {
+      breakpoint: 600,
+      options: {
+        chart: { height: 240 },
       },
-    ],
-  };
+    },
+  ],
+};
+
 
   constructor(
     private http: HttpClient,
@@ -502,7 +382,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     this.loadOrdersList(this.currentPage);
     this.loadOrdersSummary();
     this.loadMonthlyStats();
-    this.loadMonthlySummary();
+    this.loadMonthlySummary(today, 1);
     this.loadTopProducts(2);
   }
 
@@ -514,7 +394,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     });
   }
 
-  // Calendar logic =========================
+
 
   private buildCalendar(year: number, month: number) {
     this.calendarYearNum = year;
@@ -587,33 +467,28 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     this.buildCalendar(y, m);
   }
 
-  // Header
   selectHeaderDate(date: Date) {
     this.headerDate = date;
     this.headerLabel = this.formatDate(date);
-
     this.isHeaderCalendarOpen = false;
     this.removeWeirdCharactersInDom();
   }
 
-  // Total Orders
   selectTotalOrdersDate(date: Date) {
     this.totalOrdersDate = date;
     this.totalOrdersLabel = this.formatDate(date);
-
     this.isTotalOrdersCalendarOpen = false;
     this.removeWeirdCharactersInDom();
 
     this.loadMonthlyStats(date.getFullYear());
   }
 
-  // Insights
   selectInsightsDate(date: Date) {
     this.insightsDate = date;
     this.insightsLabel = this.formatDate(date);
-
     this.isInsightsCalendarOpen = false;
     this.removeWeirdCharactersInDom();
+    this.loadMonthlySummary(date, 1);
   }
 
   isHeaderSelected(date: Date): boolean {
@@ -627,9 +502,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
   }
 
   isInsightsSelected(date: Date): boolean {
-    return this.insightsDate
-      ? this.isSameDate(date, this.insightsDate)
-      : false;
+    return this.insightsDate ? this.isSameDate(date, this.insightsDate) : false;
   }
 
   private isSameDate(a: Date, b: Date): boolean {
@@ -659,7 +532,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     this.isFilterOpen = false;
   }
 
-  // API =========================
+
 
   private getAuthOptions() {
     const token = this.auth.getAccessToken?.();
@@ -671,7 +544,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     };
   }
 
-  // ===== ORDERS LIST (WITH FILTERS) =====
+
 
   private loadOrdersList(
     page: number = 1,
@@ -685,60 +558,62 @@ export class HomeDashboard implements OnInit, AfterViewInit {
 
     let url = `https://chainly.azurewebsites.net/api/Orders?pageNumber=1&pageSize=1000&search=${encodedSearch}`;
 
-    this.http
-      .get<OrdersListResponse>(url, this.getAuthOptions())
-      .subscribe({
-        next: (res) => {
-          let allItems: Order[] = res?.items || [];
+    this.http.get<OrdersListResponse>(url, this.getAuthOptions()).subscribe({
+      next: (res) => {
+        let allItems: Order[] = res?.items || [];
 
-          if (trimmedSearch) {
-            const lower = trimmedSearch.toLowerCase();
-            allItems = allItems.filter(
-              (item) =>
-                String(item.orderId).includes(lower) ||
-                item.code?.toLowerCase().includes(lower)
-            );
-          }
+        if (trimmedSearch) {
+          const lower = trimmedSearch.toLowerCase();
+          allItems = allItems.filter(
+            (item) =>
+              String(item.orderId).includes(lower) ||
+              item.code?.toLowerCase().includes(lower)
+          );
+        }
 
-          if (statusKeys.length > 0) {
-            const wanted = new Set(statusKeys);
-            allItems = allItems.filter((item) => {
-              const key = this.getStatusKeyFromAny(item.lastStatus);
-              return wanted.has(key);
-            });
-          }
+        if (statusKeys.length > 0) {
+          const wanted = new Set(statusKeys);
+          allItems = allItems.filter((item) => {
+            const key = this.getStatusKeyFromAny(item.lastStatus);
+            return wanted.has(key);
+          });
+        }
 
-          const start = (page - 1) * this.pageSize;
-          const end = start + this.pageSize;
-          this.orders = allItems.slice(start, end);
+        const start = (page - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        this.orders = allItems.slice(start, end);
 
-          this.totalPages = Math.ceil(allItems.length / this.pageSize) || 1;
-          this.hasOrders = this.orders.length > 0;
+        this.totalPages = Math.ceil(allItems.length / this.pageSize) || 1;
+        this.hasOrders = this.orders.length > 0;
 
-          if (page > this.totalPages && this.totalPages > 0) {
-            this.currentPage = this.totalPages;
-            this.loadOrdersList(
-              this.currentPage,
-              this.searchText,
-              this.selectedStatusKeys
-            );
-          }
-        },
-        error: (err) => {
-          console.error('Error:', err);
-          this.orders = [];
-          this.hasOrders = false;
-          this.totalPages = 1;
-        },
-      });
+        if (page > this.totalPages && this.totalPages > 0) {
+          this.currentPage = this.totalPages;
+          this.loadOrdersList(
+            this.currentPage,
+            this.searchText,
+            this.selectedStatusKeys
+          );
+        }
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        this.orders = [];
+        this.hasOrders = false;
+        this.totalPages = 1;
+      },
+    });
   }
+
+  get pagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
   goToPage(page: number) {
-    if (page < 1 || page > this.totalPages || page === this.currentPage)
-      return;
+    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.loadOrdersList(page, this.searchText, this.selectedStatusKeys);
   }
 
-  // ===== SUMMARY =====
+
 
   private loadOrdersSummary() {
     this.http
@@ -776,7 +651,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
       });
   }
 
-  // ===== MONTHLY STATS =====
+
 
   private loadMonthlyStats(year?: number) {
     const targetYear =
@@ -784,156 +659,174 @@ export class HomeDashboard implements OnInit, AfterViewInit {
 
     const url = `https://chainly.azurewebsites.net/api/Orders/monthly-stats?year=${targetYear}`;
 
-    this.http
-      .get<OrdersMonthlyStatsResponse>(url, this.getAuthOptions())
-      .subscribe({
-        next: (res) => {
-          const data = new Array(12).fill(0);
-          const monthly = Array.isArray(res?.monthly) ? res.monthly : [];
+    this.http.get<OrdersMonthlyStatsResponse>(url, this.getAuthOptions()).subscribe({
+      next: (res) => {
+        const data = new Array(12).fill(0);
+        const monthly = Array.isArray(res?.monthly) ? res.monthly : [];
 
-          monthly.forEach((value, index) => {
-            if (index >= 0 && index < 12) {
-              data[index] = this.normalizeNumber(value);
-            }
-          });
-
-          this.totalOrdersChartOptions = {
-            ...this.totalOrdersChartOptions,
-            series: [
-              {
-                name: 'Total Orders',
-                data,
-              },
-            ],
-          };
-
-          this.hasMonthlyStats = data.some((v) => v > 0);
-        },
-        error: (err) => {
-          console.error('monthly-stats error', err);
-          const zeros = new Array(12).fill(0);
-          this.totalOrdersChartOptions = {
-            ...this.totalOrdersChartOptions,
-            series: [{ name: 'Total Orders', data: zeros }],
-          };
-          this.hasMonthlyStats = false;
-        },
-      });
-  }
-
-  // ===== INSIGHTS =====
-
-  private loadMonthlySummary() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
-
-    const url = `https://chainly.azurewebsites.net/api/Reports/monthly-summary?month=${month}&year=${year}&pageNumber=1&pageSize=10`;
-
-    this.http
-      .get<MonthlySummaryResponse>(url, this.getAuthOptions())
-      .subscribe({
-        next: (res) => {
-          if (!res) {
-            this.setInsightsEmpty();
-            return;
+        monthly.forEach((value, index) => {
+          if (index >= 0 && index < 12) {
+            data[index] = this.normalizeNumber(value);
           }
+        });
 
-          const overall = this.normalizeNumber(res.defectedPercentage);
-          this.overallDefectedPercent = overall;
-          this.hasInsightsData = overall > 0;
-
-          this.insightsDonutOptions = {
-            ...this.insightsDonutOptions,
-            series: [100],
-            plotOptions: {
-              pie: {
-                donut: {
-                  size: '75%',
-                  labels: {
-                    show: true,
-                    name: {
-                      show: true,
-                      formatter: () => 'Defected Products',
-                      fontSize: '12px',
-                      color: '#111827',
-                    },
-                    value: {
-                      show: true,
-                      formatter: () => `${overall}%`,
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      color: '#ef4444',
-                    },
-                    total: { show: false },
-                  },
-                },
-              },
+        this.totalOrdersChartOptions = {
+          ...this.totalOrdersChartOptions,
+          series: [
+            {
+              name: 'Total Orders',
+              data,
             },
-          };
+          ],
+        };
 
-          const lines = (res.lines ?? []).slice(0, 2);
-          if (!lines.length) {
-            this.setInsightsEmpty();
-          } else {
-            this.productionLines = lines.map((l) => ({
-              name: l.lineName,
-              percent: this.normalizeNumber(l.defectedPercentage),
-              text: `${this.normalizeNumber(
-                l.defectedCount
-              )} out of ${this.normalizeNumber(l.totalCount)} Defected`,
-            }));
-          }
-        },
-        error: () => this.setInsightsEmpty(),
-      });
+        this.hasMonthlyStats = data.some((v) => v > 0);
+      },
+      error: (err) => {
+        console.error('monthly-stats error', err);
+        const zeros = new Array(12).fill(0);
+        this.totalOrdersChartOptions = {
+          ...this.totalOrdersChartOptions,
+          series: [{ name: 'Total Orders', data: zeros }],
+        };
+        this.hasMonthlyStats = false;
+      },
+    });
   }
+
+
+
+ private loadMonthlySummary(date?: Date | null, page: number = 1) {
+  const base = date || this.insightsDate || new Date();
+  const month = base.getMonth() + 1;
+  const year = base.getFullYear();
+
+  const url = `https://chainly.azurewebsites.net/api/Reports/monthly-summary?month=${month}&year=${year}&pageNumber=${page}&pageSize=10`;
+
+  this.http
+    .get<MonthlySummaryResponse>(url, this.getAuthOptions())
+    .subscribe({
+      next: (res) => {
+        if (!res) {
+          this.setInsightsEmpty();
+          return;
+        }
+
+        this.insightsPageIndex = res.pageNumber ?? page;
+
+
+        const pageSize = res.pageSize || 10;
+        const totalCount = this.normalizeNumber(res.totalCount);
+        const apiTotalPages = res.totalPages;
+
+        this.insightsTotalPages =
+          apiTotalPages && apiTotalPages > 0
+            ? apiTotalPages
+            : totalCount > 0
+            ? Math.ceil(totalCount / pageSize)
+            : 1;
+
+        const totalProducts = this.normalizeNumber(res.totalProducts);
+        const defective = this.normalizeNumber(res.defectiveProducts);
+
+        const overall =
+          totalProducts > 0 ? (defective / totalProducts) * 100 : 0;
+
+        const safeOverall = Math.min(100, Math.max(0, +overall.toFixed(1)));
+
+        this.overallDefectedPercent = safeOverall;
+
+        const lines = Array.isArray(res.items) ? res.items : [];
+
+        if (!lines.length || totalProducts === 0) {
+          this.setInsightsEmpty();
+          return;
+        }
+
+        this.hasInsightsData = true;
+
+
+        this.insightsDonutOptions = {
+          ...this.insightsDonutOptions,
+          series: [safeOverall, 100 - safeOverall],
+        };
+
+        this.productionLines = lines.map((l) => {
+          const total = this.normalizeNumber(l.totalProducts);
+          const def = this.normalizeNumber(l.defectiveProductsCount);
+          const percent = total > 0 ? (def / total) * 100 : 0;
+
+          return {
+            name: l.productionLineName,
+            percent: +percent.toFixed(1),
+            text: `${def} out of ${total} Defected`,
+          };
+        });
+
+        this.productionLines = lines.map((l) => {
+          const total = this.normalizeNumber(l.totalProducts);
+          const def = this.normalizeNumber(l.defectiveProductsCount);
+          const percent = total > 0 ? (def / total) * 100 : 0;
+
+          return {
+            name: l.productionLineName,
+            percent: +percent.toFixed(1),
+            text: `${def} out of ${total} Defected`,
+          };
+        });
+      },
+      error: () => this.setInsightsEmpty(),
+    });
+}
 
   private setInsightsEmpty() {
-    this.overallDefectedPercent = 0;
-    this.hasInsightsData = false;
+  this.overallDefectedPercent = 0;
+  this.hasInsightsData = false;
+  this.insightsPageIndex = 1;
+  this.insightsTotalPages = 0;
 
-    this.insightsDonutOptions = {
-      ...this.insightsDonutOptions,
-      series: [100],
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '75%',
-            labels: {
-              show: true,
-              name: {
-                show: true,
-                formatter: () => 'Defected Products',
-                fontSize: '12px',
-                color: '#111827',
-              },
-              value: {
-                show: true,
-                formatter: () => '0%',
-                fontSize: '16px',
-                fontWeight: 600,
-                color: '#ef4444',
-              },
-              total: { show: false },
-            },
-          },
-        },
-      },
-    };
+  this.insightsDonutOptions = {
+    ...this.insightsDonutOptions,
+    series: [0, 100],
+  };
 
-    this.productionLines = [
-      {
-        name: 'Production Line 01',
-        percent: 0,
-        text: '0 out of 0 Defected',
-      },
-    ];
+  this.productionLines = [];
+}
+
+
+ get insightsPagesArray(): number[] {
+  return Array.from({ length: this.insightsTotalPages }, (_, i) => i + 1);
+}
+
+prevInsightsPage() {
+  if (this.insightsPageIndex > 1) {
+    this.insightsPageIndex--;
+    this.loadMonthlySummary(this.insightsDate, this.insightsPageIndex);
   }
+}
 
-  // ===== RISING DEMANDS =====
+nextInsightsPage() {
+  if (this.insightsPageIndex < this.insightsTotalPages) {
+    this.insightsPageIndex++;
+    this.loadMonthlySummary(this.insightsDate, this.insightsPageIndex);
+  }
+}
 
-  // تحميل أول N برودكت في البداية
+goToInsightsPage(page: number) {
+  if (
+    page < 1 ||
+    page > this.insightsTotalPages ||
+    page === this.insightsPageIndex
+  ) {
+    return;
+  }
+  this.insightsPageIndex = page;
+  this.loadMonthlySummary(this.insightsDate, this.insightsPageIndex);
+}
+
+
+
+
   private loadTopProducts(count: number = 2) {
     const url = `https://chainly.azurewebsites.net/api/Products/top/${count}`;
 
@@ -961,7 +854,6 @@ export class HomeDashboard implements OnInit, AfterViewInit {
       });
   }
 
-  // "View all" → يجيب أول 10 products من الـ Products
   onViewAllDemands() {
     const url =
       'https://chainly.azurewebsites.net/api/Products?pageNumber=1&pageSize=10&search=';
@@ -985,7 +877,6 @@ export class HomeDashboard implements OnInit, AfterViewInit {
       });
   }
 
-  // كليك على البرودكت → نداء demand forecasting
   onDemandItemClick(item: { productId: number | string; productName: string }) {
     const body = { product_id: item.productId };
 
@@ -993,13 +884,10 @@ export class HomeDashboard implements OnInit, AfterViewInit {
       .post<PredictionResponse>(`${this.demandApiBase}/predict`, body)
       .subscribe({
         next: (res) => {
-          console.log('Demand forecast result:', res);
-
           const newPercent = this.normalizeNumber(
             res?.predicted_change_percentage
           );
 
-          // نحدّث نفس العنصر في الـ UI مباشرة
           this.risingDemands = this.risingDemands.map((p) =>
             p.productId === item.productId
               ? { ...p, increasePercent: newPercent }
@@ -1012,9 +900,120 @@ export class HomeDashboard implements OnInit, AfterViewInit {
       });
   }
 
-  // ===== PERCENT HELPERS =====
+  get risingPagesTotal(): number {
+    return this.risingDemands.length
+      ? Math.ceil(this.risingDemands.length / this.itemsPerRisingSlide)
+      : 0;
+  }
 
-   getPercentClass(value: number | string | null | undefined): string {
+  get risingPagesArray(): number[] {
+    return Array.from({ length: this.risingPagesTotal }, (_, i) => i);
+  }
+
+  getCurrentRisingSlice() {
+    const start = this.risingPageIndex * this.itemsPerRisingSlide;
+    const end = start + this.itemsPerRisingSlide;
+    return this.risingDemands.slice(start, end);
+  }
+
+  prevRisingPage() {
+    if (this.risingPageIndex > 0) {
+      this.risingPageIndex--;
+    }
+  }
+
+  nextRisingPage() {
+    if (this.risingPageIndex < this.risingPagesTotal - 1) {
+      this.risingPageIndex++;
+    }
+  }
+
+  goToRisingPage(index: number) {
+    if (index < 0 || index >= this.risingPagesTotal) return;
+    this.risingPageIndex = index;
+  }
+
+
+
+  toggleFilterPopup() {
+    this.isFilterOpen = !this.isFilterOpen;
+
+    if (this.isFilterOpen && this.allStatuses.length === 0) {
+      this.loadStatuses();
+    }
+  }
+
+  private loadStatuses() {
+    this.http
+      .get<any[]>(
+        'https://chainly.azurewebsites.net/api/Orders/statuses',
+        this.getAuthOptions()
+      )
+      .subscribe({
+        next: (res) => {
+          const list = Array.isArray(res) ? res : [];
+
+          const map = new Map<string, StatusOption>();
+
+          list.forEach((s) => {
+            const key = this.getStatusKeyFromAny(s);
+            const label = this.getStatusLabel(s);
+            const apiValue = this.getStatusApiValue(s);
+
+            if (!key || !label || !apiValue) return;
+
+            if (!map.has(key)) {
+              map.set(key, {
+                key,
+                apiValue,
+                label,
+              });
+            }
+          });
+
+          this.allStatuses = Array.from(map.values());
+        },
+        error: () => {
+          this.allStatuses = [];
+        },
+      });
+  }
+
+  isStatusSelected(key: string): boolean {
+    return this.selectedStatusKeys.includes(key);
+  }
+
+  onStatusToggle(key: string, event: any) {
+    const checked = !!event.target?.checked;
+
+    if (checked) {
+      if (!this.selectedStatusKeys.includes(key)) {
+        this.selectedStatusKeys.push(key);
+      }
+    } else {
+      this.selectedStatusKeys = this.selectedStatusKeys.filter(
+        (k) => k !== key
+      );
+    }
+  }
+
+  applyFilters() {
+    this.isFilterOpen = false;
+    this.currentPage = 1;
+    this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
+  }
+
+  onSearchChange() {
+    clearTimeout(this.searchTimeout);
+
+    this.searchTimeout = setTimeout(() => {
+      this.loadOrdersList(1, this.searchText, this.selectedStatusKeys);
+    }, 350);
+  }
+
+
+
+  getPercentClass(value: number | string | null | undefined): string {
     const num = this.normalizeNumber(value);
 
     if (!this.hasOrders && !this.hasMonthlyStats) return 'neutral';
@@ -1031,7 +1030,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     return `${sign}${Math.abs(num).toFixed(1)}`;
   }
 
-   renderPercent(value: number | string | null | undefined): string {
+  renderPercent(value: number | string | null | undefined): string {
     const num = this.normalizeNumber(value);
     if (!num) return '0%';
 
@@ -1039,39 +1038,28 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     return `${sign}${Math.abs(num).toFixed(1)}%`;
   }
 
-  /** هيلبر مخصوص لرزينج ديماندز عشان الأيقونة واللون */
-   getDemandTrendClass(value: number | string | null | undefined): string {
+  getDemandTrendClass(value: number | string | null | undefined): string {
     const num = this.normalizeNumber(value);
-    if (num > 0) return 'demand-up'; // أخضر + أيقونة up
-    if (num < 0) return 'demand-down'; // أحمر + أيقونة down
-    return 'demand-neutral'; // رمادي
+    if (num > 0) return 'demand-up';
+    if (num < 0) return 'demand-down';
+    return 'demand-neutral';
   }
 
-   getDemandDirection(value: number | string | null | undefined): 'increase' | 'decrease' | 'stable' {
+  getDemandDirection(
+    value: number | string | null | undefined
+  ): 'increase' | 'decrease' | 'stable' {
     const num = this.normalizeNumber(value);
     if (num > 0) return 'increase';
     if (num < 0) return 'decrease';
     return 'stable';
   }
 
-   getDemandAbsPercent(value: number | string | null | undefined): string {
+  getDemandAbsPercent(value: number | string | null | undefined): string {
     const num = this.normalizeNumber(value);
     return Math.abs(num).toFixed(1);
   }
 
-  /** ✅ الجملة الكاملة اللي تحت التريند من غير إشارة السالب */
-  getDemandSentence(value: number | string | null | undefined): string {
-    const direction = this.getDemandDirection(value);
 
-    if (direction === 'stable') {
-      return 'The demand is expected to remain stable tomorrow';
-    }
-
-    const percent = this.getDemandAbsPercent(value); // دايمًا رقم موجب
-    return `The demand is expected to ${direction} by ${percent}% tomorrow`;
-  }
-
-  // ===== STATUS HELPERS =====
 
   private normalizeStatus(status: any): string {
     if (status === null || status === undefined) return '';
@@ -1169,7 +1157,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     return 'pending';
   }
 
-  // ===== NORMALIZE NUMBER =====
+
 
   private normalizeNumber(value: any): number {
     if (value === null || value === undefined) return 0;
@@ -1200,7 +1188,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
 
       const inc =
         p.increasePercent ??
-        p.predicted_change_percentage ?? // لو جاية من الـ predict ومخزنة في الـ API
+        p.predicted_change_percentage ??
         p.expectedIncreasePercent ??
         p.forecastIncrease ??
         0;
@@ -1216,7 +1204,7 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     });
   }
 
-  // ===== NAVIGATION TO ORDERS TAB =====
+  
 
   onViewAllOrders() {
     this.router.navigate(['/orders']);
@@ -1275,6 +1263,5 @@ export class HomeDashboard implements OnInit, AfterViewInit {
           this.orderToDelete = null;
         },
       });
-    console.log('orderToDelete', this.orderToDelete);
   }
 }

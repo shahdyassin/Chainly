@@ -21,8 +21,7 @@ export class DashboardShell {
     this.userName = this.auth.getCurrentUserName() || 'User';
     this.userRole = this.auth.getCurrentUserRole() || 'Manager';
     this.userAvatarUrl =
-      this.auth.getCurrentUserAvatar() ||
-      '/icons/dashboard/user.svg';
+      this.auth.getCurrentUserAvatar() || '/icons/dashboard/user.svg';
   }
 
   toggleSidebar() {
