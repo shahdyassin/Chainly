@@ -10,14 +10,22 @@ export const DASHBOARD_ROUTES: Routes = [
       {
         path: '',
         component: HomeDashboard,
+        data: { title: 'Dashboard' },
       },
       {
         path: 'home',
         component: HomeDashboard,
+        data: { title: 'Dashboard' },
       },
 
-      // { path: 'orders', component: OrdersPage },
-      // { path: 'suppliers', component: SuppliersPage },
+      {
+        path: 'production-lines',
+        data: { title: 'Production Lines' }, 
+        loadChildren: () =>
+          import('../production-lines/pages/production-lines.routes').then(
+            (m) => m.PRODUCTION_LINES_ROUTES
+          ),
+      },
     ],
   },
 ];
