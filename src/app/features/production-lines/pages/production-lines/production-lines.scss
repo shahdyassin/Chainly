@@ -578,3 +578,104 @@ table {
     grid-template-columns: 1fr;
   }
 }
+/* =========================
+   Mobile Fix (Production Lines)
+========================= */
+@media (max-width: 520px) {
+
+  .page {
+    padding: 12px 12px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+
+    .btn-add {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .search-box {
+      height: 42px;
+      padding: 0 12px;
+
+      input {
+        font-size: 12px;
+      }
+    }
+  }
+
+  /* ✅ خلي الجدول يـ scroll أفقي بدل ما يبوّظ الأعمدة */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 14px;
+  }
+
+  table {
+    min-width: 520px; /* ✅ يمنع ضغط الأعمدة */
+    table-layout: auto; /* ✅ بدل fixed على الموبايل */
+  }
+
+  table thead th,
+  table tbody td {
+    padding: 10px 10px;
+    font-size: 12px;
+  }
+
+  table .col-check {
+    width: 26px;
+  }
+
+  table .col-no {
+    width: 60px;
+    font-size: 12px;
+  }
+
+  table .col-actions {
+    width: 110px;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    margin-left: 6px;
+
+    img {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  /* pager */
+  .pager {
+    padding: 10px 10px;
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+    justify-items: center;
+
+    .left,
+    .right {
+      justify-self: center;
+    }
+
+    .middle button {
+      min-width: 34px;
+      height: 34px;
+      border-radius: 10px;
+    }
+
+    .right input[type='number'] {
+      width: 70px;
+      height: 34px;
+    }
+  }
+}
