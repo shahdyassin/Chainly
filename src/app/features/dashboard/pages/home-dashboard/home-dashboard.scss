@@ -667,6 +667,11 @@
 }
 
 
+:host ::ng-deep .insights-donut-wrapper .apexcharts-text tspan {
+  fill: #6BC7BC !important;
+}
+
+
 
 .panel-footer.dots,
 .panel-footer.pager {

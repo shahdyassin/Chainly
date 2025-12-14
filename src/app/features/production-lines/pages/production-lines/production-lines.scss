@@ -578,9 +578,7 @@ table {
     grid-template-columns: 1fr;
   }
 }
-/* =========================
-   Mobile Fix (Production Lines)
-========================= */
+
 @media (max-width: 520px) {
 
   .page {
@@ -612,7 +610,7 @@ table {
     }
   }
 
-  /* ✅ خلي الجدول يـ scroll أفقي بدل ما يبوّظ الأعمدة */
+
   .table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -620,8 +618,8 @@ table {
   }
 
   table {
-    min-width: 520px; /* ✅ يمنع ضغط الأعمدة */
-    table-layout: auto; /* ✅ بدل fixed على الموبايل */
+    min-width: 520px;
+    table-layout: auto;
   }
 
   table thead th,
@@ -655,7 +653,7 @@ table {
     }
   }
 
-  /* pager */
+
   .pager {
     padding: 10px 10px;
     grid-template-columns: 1fr;
