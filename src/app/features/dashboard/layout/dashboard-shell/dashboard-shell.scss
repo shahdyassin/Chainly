@@ -231,6 +231,20 @@
   font-weight: 500;
   color: #2e2e2e;
 }
+.topbar-title .sep {
+  margin: 0 8px;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 700;
+  opacity: 1;
+}
+.crumb.link {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.crumb.link:hover {
+  text-decoration: none;
+}
 
 
 .mobile-menu-btn {
@@ -322,7 +336,6 @@
   flex: 1;
   overflow: auto;
 }
-
 
 
 @media (min-width: 1025px) {

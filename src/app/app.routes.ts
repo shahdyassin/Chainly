@@ -19,8 +19,8 @@ export const routes: Routes = [
 
   {
     path: 'dashboard',
-    canActivate: [AuthGuard],   // ممنوع غير اللوجد إن يدخل الداشبورد
-    children: DASHBOARD_ROUTES, // جوهها الـ shell + الصفحات
+    canActivate: [AuthGuard],   
+    children: DASHBOARD_ROUTES,
   },
 
   { path: '**', redirectTo: '' },

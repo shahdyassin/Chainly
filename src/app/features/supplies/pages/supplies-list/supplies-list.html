@@ -1,0 +1,130 @@
+<div class="page">
+  <div class="card">
+    <div class="toolbar">
+      <div class="search-box">
+        <img class="search-ico" src="/icons/supplies/search.svg" alt="" />
+        <input
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Search with Supply's Name.."
+        />
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" /></th>
+            <th class="col-no">No.</th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/supplies/name.svg" alt="" />
+                <span>Name</span>
+              </div>
+            </th>
+
+            <th class="col-carbon">
+              <div class="th-inner">
+                <img src="/icons/supplies/carbon.svg" alt="" />
+                <span>Carbon Footprint</span>
+              </div>
+            </th>
+
+            <th class="col-sort">
+              <button class="sort-btn" type="button" (click)="toggleSort()" title="Sort">
+                <img src="/icons/supplies/sort.svg" alt="Sort" />
+              </button>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/productionLine/actions.svg" alt="" />
+                <span>Actions</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+
+        <!-- ✅ لو فيه داتا -->
+        <tbody *ngIf="hasData; else emptyBody">
+          <tr *ngFor="let row of items; let i = index">
+            <td class="col-check"><input type="checkbox" /></td>
+
+            <td class="col-no">
+              {{ (pageNumber - 1) * pageSize + (i + 1) }}.
+            </td>
+
+            <td class="td-title">{{ row.name }}</td>
+
+            <td class="col-carbon">
+              <span class="cf-badge">
+                <img src="/icons/supplies/carbonGreen.svg" alt="" />
+                {{ row.carbonFootprint }}
+              </span>
+            </td>
+
+            <td class="col-sort"></td>
+
+            <td class="col-actions">
+              <button class="icon-btn" (click)="openMaterial(row, i)" title="View">
+                <img src="/icons/supplies/eye.svg" alt="View" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- ✅ لو مفيش داتا -->
+        <ng-template #emptyBody>
+          <tbody>
+            <tr class="empty-row">
+              <!-- عدد الأعمدة = 6 -->
+              <td class="empty-cell" colspan="6">
+                <div class="empty">No data to show</div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+
+    <div class="pager">
+      <div class="left">
+        Showing
+        {{ items.length ? ((pageNumber - 1) * pageSize + 1) : 0 }}
+        ::
+        {{ (pageNumber - 1) * pageSize + items.length }}
+        of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+        <button class="nav-btn" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
+          &lt;
+        </button>
+
+        <button
+          *ngFor="let p of pagesArray"
+          [disabled]="p === '...'"
+          (click)="isNumber(p) && goToPage(p)"
+          [class.active]="p === pageNumber"
+        >
+          {{ p }}
+        </button>
+
+        <button class="nav-btn" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">
+          &gt;
+        </button>
+      </div>
+
+      <div class="right">
+        <span>Go to page</span>
+        <input
+          type="number"
+          [value]="pageNumber"
+          (change)="goToPage($any($event.target).valueAsNumber)"
+        />
+      </div>
+    </div>
+  </div>
+</div>

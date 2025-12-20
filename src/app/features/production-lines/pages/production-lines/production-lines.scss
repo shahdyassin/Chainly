@@ -1,6 +1,4 @@
-:host {
-  display: block;
-}
+:host { display: block; }
 
 :host .page,
 :host .page * {
@@ -67,18 +65,17 @@
       font-size: 13px;
       color: #111827;
 
-      &::placeholder {
-        color: #9ca3af;
-      }
+      &::placeholder { color: #9ca3af; }
     }
   }
-.search-box input:focus,
-.search-box input:focus-visible,
-.search-box input:hover,
-.search-box input:active {
-  outline: none !important;
-  box-shadow: none !important;
-}
+
+  .search-box input:focus,
+  .search-box input:focus-visible,
+  .search-box input:hover,
+  .search-box input:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 
   .search-box:hover,
   .search-box:focus-within {
@@ -122,6 +119,10 @@
   border-radius: 16px;
   overflow: hidden;
   background: #ffffff;
+
+  /* ✅ مهم للموبايل */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -173,13 +174,9 @@ table {
     background: #ffffff;
   }
 
-  tbody tr:last-child td {
-    border-bottom: 0;
-  }
+  tbody tr:last-child td { border-bottom: 0; }
 
-  tbody tr:hover td {
-    background: #ffffff !important;
-  }
+  tbody tr:hover td { background: #ffffff !important; }
 
   .col-check {
     width: 28px;
@@ -244,16 +241,18 @@ table {
     opacity: 0.7;
   }
 
-  &:hover {
-    background: #f9fafb !important;
-  }
-
-  &:active {
-    transform: none !important;
-  }
+  &:hover { background: #f9fafb !important; }
+  &:active { transform: none !important; }
 }
 
-.empty {
+/* ✅ Empty داخل الجدول */
+.empty-row td {
+  padding: 0 !important;
+  border-bottom: 0 !important;
+  background: #fff;
+}
+
+.empty-cell .empty {
   height: 360px;
   display: flex;
   align-items: center;
@@ -299,10 +298,7 @@ table {
       cursor: pointer;
       box-shadow: none !important;
 
-      &:disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-      }
+      &:disabled { cursor: not-allowed; opacity: 0.5; }
 
       &.active {
         border-color: #3ea397;
@@ -312,7 +308,7 @@ table {
     }
 
     .nav-btn {
-      font-weight: 900;
+      font-weight: 600;
       font-size: 14px;
       line-height: 1;
     }
@@ -362,7 +358,6 @@ table {
   max-width: calc(100% - 32px);
   background: #ffffff;
   border-radius: 18px;
-  // box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
   padding: 22px;
   text-align: center;
   opacity: 1 !important;
@@ -381,18 +376,13 @@ table {
   align-items: center;
   justify-content: center;
 
-  img {
-    width: 28px;
-    height: 28px;
-  }
+  img { width: 28px; height: 28px; }
 
   &.danger {
     border: none !important;
     background: #ffdada;
 
-    img {
-      opacity: 1;
-    }
+    img { opacity: 1; }
   }
 }
 
@@ -446,9 +436,9 @@ table {
   font-size: 14px;
   font-weight: 500;
   color: #666666;
-
   box-shadow: none !important;
 }
+
 .pl-field input:focus,
 .pl-field input:focus-visible,
 .pl-field input:hover,
@@ -465,8 +455,6 @@ table {
 .pl-field-item {
   padding: 12px 12px 10px;
 }
-
-
 
 .pl-modal-danger {
   width: 440px;
@@ -485,10 +473,6 @@ table {
   background: #3ea397;
   color: #ffffff;
   box-shadow: none !important;
-}
-
-.modal-danger {
-  width: 440px;
 }
 
 .danger-text {
@@ -533,24 +517,8 @@ table {
   box-shadow: none !important;
 }
 
-.btn-cancel {
-  background: #f2f2f2;
-  color: #666666;
-}
-
-.btn-danger {
-  background: #ff392b;
-  color: #ffffff;
-}
-
-.backdrop {
-  z-index: 999999 !important;
-}
-.modal {
-  z-index: 1000000 !important;
-  opacity: 1 !important;
-  transform: none !important;
-}
+.btn-cancel { background: #f2f2f2; color: #666666; }
+.btn-danger { background: #ff392b; color: #ffffff; }
 
 @media (max-width: 800px) {
   .toolbar {
@@ -580,10 +548,7 @@ table {
 }
 
 @media (max-width: 520px) {
-
-  .page {
-    padding: 12px 12px;
-  }
+  .page { padding: 12px 12px; }
 
   .card {
     padding: 12px;
@@ -604,12 +569,9 @@ table {
       height: 42px;
       padding: 0 12px;
 
-      input {
-        font-size: 12px;
-      }
+      input { font-size: 12px; }
     }
   }
-
 
   .table-wrap {
     overflow-x: auto;
@@ -628,18 +590,9 @@ table {
     font-size: 12px;
   }
 
-  table .col-check {
-    width: 26px;
-  }
-
-  table .col-no {
-    width: 60px;
-    font-size: 12px;
-  }
-
-  table .col-actions {
-    width: 110px;
-  }
+  table .col-check { width: 26px; }
+  table .col-no { width: 60px; font-size: 12px; }
+  table .col-actions { width: 110px; }
 
   .icon-btn {
     width: 32px;
@@ -653,7 +606,6 @@ table {
     }
   }
 
-
   .pager {
     padding: 10px 10px;
     grid-template-columns: 1fr;
@@ -661,9 +613,7 @@ table {
     justify-items: center;
 
     .left,
-    .right {
-      justify-self: center;
-    }
+    .right { justify-self: center; }
 
     .middle button {
       min-width: 34px;

@@ -1,0 +1,197 @@
+<div class="page">
+  <!-- ✅ Breadcrumb + Title زي باقي الصفحات -->
+  <div class="page-head">
+    <div class="left">
+      <h1 class="page-title">Suppliers</h1>
+
+      <div class="breadcrumb">
+        <span class="crumb" (click)="backToSuppliers()">Suppliers</span>
+        <span class="sep">/</span>
+        <span class="current">Import Files</span>
+      </div>
+    </div>
+
+    <button class="back-btn" type="button" (click)="backToSuppliers()">
+      <img src="/icons/common/back.svg" alt="back" />
+      <span>Back</span>
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- Card 1 -->
+    <div class="info-card">
+      <button class="card-head" type="button" (click)="open1 = !open1">
+        <div class="card-title">General Instructions</div>
+
+        <!-- ✅ chevron icon -->
+        <img
+          class="chev"
+          [class.up]="open1"
+          src="/icons/common/chevron-down.svg"
+          alt="toggle"
+        />
+      </button>
+
+      <div class="card-body" *ngIf="open1">
+        <ol>
+          <li>The file must be an Excel file (xlsx/xls).</li>
+          <li>
+            The file must contain 3 sheets in this exact order (order is required, but sheet names are not):
+            <ul>
+              <li>Sheet 1 → Suppliers</li>
+              <li>Sheet 2 → Materials</li>
+              <li>Sheet 3 → SupplierMaterials</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="info-card">
+      <button class="card-head" type="button" (click)="open2 = !open2">
+        <div class="card-title">SupplierMaterial sheet required columns</div>
+
+        <img
+          class="chev"
+          [class.up]="open2"
+          src="/icons/common/chevron-down.svg"
+          alt="toggle"
+        />
+      </button>
+
+      <div class="card-body" *ngIf="open2">
+        <ul>
+          <li>Defines the relationship between suppliers and materials.</li>
+          <li>SupplierId</li>
+          <li>MaterialId</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="info-card">
+      <button class="card-head" type="button" (click)="open3 = !open3">
+        <div class="card-title">Supplier sheet required columns</div>
+
+        <img
+          class="chev"
+          [class.up]="open3"
+          src="/icons/common/chevron-down.svg"
+          alt="toggle"
+        />
+      </button>
+
+      <div class="card-body" *ngIf="open3">
+        <ul>
+          <li>Name</li>
+          <li>LocationLongitude</li>
+          <li>LocationLatitude</li>
+          <li>Sector</li>
+          <li>FacilityType</li>
+          <li>ProductType</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Materials card -->
+    <div class="info-card">
+      <button class="card-head" type="button">
+        <div class="card-title">Materials sheet required columns</div>
+        <img class="chev up" src="/icons/common/chevron-down.svg" alt="toggle" />
+      </button>
+
+      <div class="card-body">
+        <ul>
+          <li>MaterialId</li>
+          <li>Name</li>
+          <li>Unit</li>
+          <li>EmissionValue</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="upload-area">
+      <button class="upload-btn" type="button" (click)="openUpload()">
+        <img src="/icons/suppliers/upload.svg" alt="upload" />
+        <span>Upload File</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ Warning Toast -->
+  <div class="toast-warning" *ngIf="toastWarning">
+    <img src="/icons/suppliers/warning.svg" alt="warning" />
+    <div class="toast-text">{{ toastWarning }}</div>
+  </div>
+
+  <!-- ✅ Upload Modal -->
+  <div class="import-backdrop" *ngIf="isUploadOpen" (click)="closeUpload()">
+    <div class="import-modal" (click)="$event.stopPropagation()">
+
+      <!-- ✅ SUCCESS -->
+      <ng-container *ngIf="uploadState === 'success'; else uploadContent">
+        <img class="success-ico" src="/icons/suppliers/success.svg" alt="success" />
+        <h3 class="success-title">Success!</h3>
+        <p class="success-sub">Your files uploaded successfully</p>
+
+        <div class="success-summary" *ngIf="importedSummary.total">
+          <div><b>Suppliers:</b> {{ importedSummary.suppliers }}</div>
+          <div><b>Materials:</b> {{ importedSummary.materials }}</div>
+          <div><b>Relationships:</b> {{ importedSummary.relationships }}</div>
+          <div><b>Total:</b> {{ importedSummary.total }}</div>
+        </div>
+
+        <button class="success-btn" type="button" (click)="continueAfterSuccess()">Continue</button>
+      </ng-container>
+
+      <ng-template #uploadContent>
+        <div class="drop-zone" (drop)="onDropFile($event)" (dragover)="onDragOver($event)">
+          <img class="drop-ico" src="/icons/suppliers/drop.svg" alt="drop" />
+          <div class="drop-title">Drop your file here or browse</div>
+          <div class="drop-sub">Max file size up to 1 GB</div>
+
+          <label class="browse-btn">
+            Browse
+            <input type="file" accept=".xlsx,.xls" (change)="onBrowseFile($event)" hidden />
+          </label>
+        </div>
+
+        <div class="uploads">
+          <div class="uploads-title">Uploads</div>
+
+          <div class="upload-row" *ngIf="selectedFile as f" [class.failed]="uploadState === 'failed'">
+            <img class="file-ico" src="/icons/files/file.svg" alt="file" />
+
+            <div class="file-meta">
+              <div class="file-name">{{ f.name }}</div>
+              <div class="file-sub" *ngIf="uploadState === 'uploading'">Uploading</div>
+              <div class="file-sub failed-text" *ngIf="uploadState === 'failed'">
+                {{ uploadErrorMsg || 'Upload failed' }}
+              </div>
+            </div>
+
+            <div class="file-actions">
+              <button class="mini-btn" type="button" *ngIf="uploadState === 'failed'" (click)="confirmUpload()" title="Retry">
+                <img src="/icons/common/retry.svg" alt="retry" />
+              </button>
+
+              <button class="mini-btn" type="button" *ngIf="uploadState !== 'uploading'" (click)="clearSelectedFile()" title="Remove">
+                <img src="/icons/common/close.svg" alt="remove" />
+              </button>
+            </div>
+          </div>
+
+          <div class="progress" *ngIf="uploadState === 'uploading'">
+            <div class="bar" [style.width.%]="uploadProgress"></div>
+            <div class="pct">{{ uploadProgress }}%</div>
+          </div>
+        </div>
+
+        <button class="confirm-btn" type="button" (click)="confirmUpload()" [disabled]="!selectedFile || uploadState === 'uploading'">
+          Confirm
+        </button>
+      </ng-template>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,245 @@
+<div class="page">
+  <div class="card">
+    <div class="toolbar">
+      <div class="search-box">
+        <img class="search-ico" src="/icons/suppliers/search.svg" alt="" />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Search with Supplier's Name.." />
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="ghost-btn" type="button" (click)="goToImportPage()">
+  <img src="/icons/suppliers/import.svg" alt="" />
+  <span>Import File</span>
+</button>
+
+
+        <button class="primary-btn" type="button" (click)="addSupplier()">
+          <img src="/icons/suppliers/add.svg" alt="" />
+          <span>Add Supplier</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" /></th>
+            <th class="col-no">No.</th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/suppliers/name.svg" alt="" />
+                <span>Name</span>
+              </div>
+            </th>
+
+            <th class="col-distance">
+              <div class="th-inner">
+                <img src="/icons/suppliers/distance.svg" alt="" />
+                <span>Distance</span>
+              </div>
+            </th>
+
+            <th class="col-sort">
+              <button class="sort-btn" type="button" (click)="toggleSort()" title="Sort">
+                <img src="/icons/suppliers/sort.svg" alt="Sort" />
+              </button>
+            </th>
+
+            <th class="col-location">
+              <div class="th-inner">
+                <img src="/icons/suppliers/location.svg" alt="" />
+                <span>Location</span>
+              </div>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/productionLine/actions.svg" alt="" />
+                <span>Actions</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="hasData; else emptyBody">
+          <tr *ngFor="let row of items; let i = index">
+            <td class="col-check"><input type="checkbox" /></td>
+            <td class="col-no">{{ (pageNumber - 1) * pageSize + (i + 1) }}.</td>
+
+            <td class="td-title">{{ row.name }}</td>
+            <td class="col-distance">{{ row.distance }}</td>
+            <td class="col-sort"></td>
+            <td class="col-location">{{ row.location }}</td>
+
+            <td class="col-actions">
+              <button class="icon-btn" type="button" (click)="viewSupplier(row, i)" title="View">
+                <img src="/icons/suppliers/eye.svg" alt="View" />
+              </button>
+
+              <button class="icon-btn" type="button" (click)="editSupplier(row)" title="Edit">
+                <img src="/icons/suppliers/edit.svg" alt="Edit" />
+              </button>
+
+              <!-- ✅ opens modal -->
+              <button class="icon-btn" type="button" (click)="openDelete(row)" title="Delete">
+                <img src="/icons/suppliers/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+
+        <ng-template #emptyBody>
+          <tbody>
+            <tr class="empty-row">
+              <td class="empty-cell" colspan="7">
+                <div class="empty">No data to show</div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+
+    <div class="pager">
+      <div class="left">
+        Showing {{ items.length ? ((pageNumber - 1) * pageSize + 1) : 0 }} :: {{ (pageNumber - 1) * pageSize + items.length }}
+        of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+        <button class="nav-btn" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">&lt;</button>
+
+        <button
+          *ngFor="let p of pagesArray"
+          (click)="isNumber(p) && goToPage(p)"
+          [disabled]="p === '...'"
+          [class.active]="p === pageNumber"
+        >
+          {{ p }}
+        </button>
+
+        <button class="nav-btn" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">&gt;</button>
+      </div>
+
+      <div class="right">
+        <span>Go to page</span>
+        <input type="number" [value]="pageNumber" (change)="goToPage($any($event.target).valueAsNumber)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Delete Modal -->
+  <div class="delete-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+      <div class="delete-icon">
+        <div class="ring">
+          <span>!</span>
+        </div>
+      </div>
+
+      <h2 class="delete-title">Delete Supplier</h2>
+
+      <p class="delete-text">
+        Are you sure you want to delete <b>{{ deleteTarget?.name }}</b>?<br />
+        This action cannot be undone.
+      </p>
+
+      <div class="delete-error" *ngIf="deleteError">{{ deleteError }}</div>
+
+      <div class="delete-actions">
+        <button class="btn-cancel" type="button" (click)="closeDelete()" [disabled]="deleting">
+          Cancel
+        </button>
+
+        <button class="btn-delete" type="button" (click)="confirmDelete()" [disabled]="deleting">
+          {{ deleting ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ✅ Warning Toast (reference) -->
+<div class="toast-warning" *ngIf="toastWarning">
+  <div class="toast-dot">!</div>
+  <div class="toast-text">{{ toastWarning }}</div>
+</div>
+
+<!-- ✅ Import Modal -->
+<div class="import-backdrop" *ngIf="isImportOpen" (click)="closeImport()">
+  <div class="import-modal" (click)="$event.stopPropagation()">
+
+    <!-- ✅ SUCCESS -->
+    <ng-container *ngIf="uploadState === 'success'; else importContent">
+      <div class="success-icon">✓</div>
+      <h3 class="success-title">Success!</h3>
+      <p class="success-sub">Your files uploaded successfully</p>
+
+      <!-- optional summary -->
+      <div class="success-summary" *ngIf="importedSummary.total">
+        <div><b>Suppliers:</b> {{ importedSummary.suppliers }}</div>
+        <div><b>Materials:</b> {{ importedSummary.materials }}</div>
+        <div><b>Relationships:</b> {{ importedSummary.relationships }}</div>
+        <div><b>Total:</b> {{ importedSummary.total }}</div>
+      </div>
+
+      <button class="success-btn" type="button" (click)="continueAfterSuccess()">Continue</button>
+    </ng-container>
+
+    <!-- ✅ باقي الحالات -->
+    <ng-template #importContent>
+
+      <div class="drop-zone" (drop)="onDropFile($event)" (dragover)="onDragOver($event)">
+        <div class="drop-ico">⬆</div>
+        <div class="drop-title">Drop your file here or browse</div>
+        <div class="drop-sub">Max file size up to 1 GB</div>
+
+        <label class="browse-btn">
+          Browse
+          <input type="file" accept=".xlsx,.xls" (change)="onBrowseFile($event)" hidden />
+        </label>
+      </div>
+
+      <div class="uploads">
+        <div class="uploads-title">Uploads</div>
+
+        <!-- ✅ selected file row -->
+        <div class="upload-row" *ngIf="selectedFile as f" [class.failed]="uploadState === 'failed'">
+          <div class="file-ico">📄</div>
+
+          <div class="file-meta">
+            <div class="file-name">{{ f.name }}</div>
+
+            <div class="file-sub" *ngIf="uploadState === 'uploading'">Uploading</div>
+            <div class="file-sub failed-text" *ngIf="uploadState === 'failed'">
+              {{ uploadErrorMsg || 'Upload failed' }}
+            </div>
+          </div>
+
+          <div class="file-actions">
+            <button class="mini-btn" type="button" *ngIf="uploadState === 'failed'" (click)="confirmUpload()" title="Retry">
+              ↻
+            </button>
+
+            <button class="mini-btn" type="button" *ngIf="uploadState !== 'uploading'" (click)="clearSelectedFile()" title="Remove">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- ✅ progress bar -->
+        <div class="progress" *ngIf="uploadState === 'uploading'">
+          <div class="bar" [style.width.%]="uploadProgress"></div>
+          <div class="pct">{{ uploadProgress }}%</div>
+        </div>
+      </div>
+
+      <button class="confirm-btn" type="button" (click)="confirmUpload()" [disabled]="!selectedFile || uploadState === 'uploading'">
+        Confirm
+      </button>
+
+    </ng-template>
+  </div>
+</div>
+
+</div>

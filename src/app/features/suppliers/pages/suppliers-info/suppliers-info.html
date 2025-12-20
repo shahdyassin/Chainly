@@ -1,0 +1,209 @@
+<div class="page">
+
+  <!-- Header Card -->
+  <div class="header" *ngIf="supplier as s">
+    <div class="header-row">
+      <div class="left">
+        <h1 class="name">{{ s.name }}</h1>
+
+        <div class="chips">
+          <span class="chip" *ngIf="s.facilityType">
+            <img class="chip-ico" src="/icons/suppliers/facility.svg" alt="" />
+            {{ s.facilityType }}
+          </span>
+
+          <span class="chip" *ngIf="s.sector">
+            <img class="chip-ico" src="/icons/suppliers/sector.svg" alt="" />
+            {{ s.sector }}
+          </span>
+        </div>
+
+        <div class="location-row" *ngIf="s.location">
+          <div class="location-pill">
+            <img class="loc-ico" src="/icons/suppliers/location.svg" alt="" />
+            <span class="loc-text">{{ s.location }}</span>
+          </div>
+
+          <button
+            class="open-map-link"
+            type="button"
+            (click)="openMapModal()"
+            [disabled]="s.latitude == null || s.longitude == null"
+          >
+            Open Map
+            <img class="ext-ico" src="/icons/suppliers/map.svg" alt="" />
+          </button>
+        </div>
+      </div>
+
+      <div class="right">
+        <button class="ghost-btn" type="button" (click)="editSupplier()">
+          <img src="/icons/suppliers/edit.svg" alt="" />
+          <span>Edit</span>
+        </button>
+
+        <button class="ghost-btn" type="button" (click)="deleteSupplier()">
+          <img src="/icons/suppliers/delete.svg" alt="" />
+          <span>Delete</span>
+        </button>
+
+        <div class="nav">
+          <button class="nav-btn" type="button" (click)="goPrevSupplier()" [disabled]="!canPrev" title="Previous">
+            <img src="/icons/suppliers/back.svg" alt="Prev" />
+          </button>
+
+          <button class="nav-btn" type="button" (click)="goNextSupplier()" [disabled]="!canNext" title="Next">
+            <img src="/icons/suppliers/next.svg" alt="Next" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supplies table -->
+  <div class="card">
+ <div class="section-title" *ngIf="supplier as s">
+      {{ s.name }} Supplies
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <img class="search-ico" src="/icons/suppliers/search.svg" alt="" />
+        <input
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Search with Supply's Name.."
+        />
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" /></th>
+            <th class="col-no">No.</th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/suppliers/name.svg" alt="" />
+                <span>Name</span>
+              </div>
+            </th>
+
+            <th class="col-carbon">
+              <div class="th-inner">
+                <img src="/icons/supplies/carbon.svg" alt="" />
+                <span>Carbon Footprint</span>
+              </div>
+            </th>
+
+            <th class="col-sort">
+              <button class="sort-btn" type="button" (click)="toggleSort()" title="Sort">
+                <img src="/icons/suppliers/sort.svg" alt="Sort" />
+              </button>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/productionLine/actions.svg" alt="" />
+                <span>Actions</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="hasData; else emptyBody">
+          <tr *ngFor="let row of items; let i = index">
+            <td class="col-check"><input type="checkbox" /></td>
+            <td class="col-no">{{ (pageNumber - 1) * pageSize + (i + 1) }}.</td>
+
+            <td class="td-title">{{ row.name }}</td>
+
+            <td class="col-carbon">
+              <span class="cf-badge">
+                <img src="/icons/supplies/carbonGreen.svg" alt="" />
+                {{ row.carbonFootprint }}
+              </span>
+            </td>
+
+            <td class="col-sort"></td>
+
+            <td class="col-actions">
+              <button class="icon-btn" type="button" title="View" (click)="viewSupply(row)">
+                <img src="/icons/suppliers/eye.svg" alt="View" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+
+        <ng-template #emptyBody>
+          <tbody>
+            <tr class="empty-row">
+              <td class="empty-cell" colspan="6">
+                <div class="empty">No data to show</div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+
+    <div class="pager">
+      <div class="left">
+        Showing
+        {{ items.length ? ((pageNumber - 1) * pageSize + 1) : 0 }}
+        ::
+        {{ (pageNumber - 1) * pageSize + items.length }}
+        of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+        <button class="nav-btn2" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">&lt;</button>
+
+        <button
+          *ngFor="let p of pagesArray"
+          (click)="isNumber(p) && goToPage(p)"
+          [disabled]="p === '...'"
+          [class.active]="p === pageNumber"
+        >
+          {{ p }}
+        </button>
+
+        <button class="nav-btn2" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">&gt;</button>
+      </div>
+
+      <div class="right">
+        <span>Go to page</span>
+        <input type="number" [value]="pageNumber" (change)="goToPage($any($event.target).valueAsNumber)" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Map Modal -->
+<div class="map-backdrop" *ngIf="isMapOpen" (click)="closeMapModal()">
+  <div class="map-modal" (click)="$event.stopPropagation()">
+    <div class="map-modal-head">
+      <div class="map-modal-title">
+        <img src="/icons/suppliers/location.svg" alt="" />
+        <span>Supplier Location</span>
+      </div>
+
+      <div class="map-modal-actions">
+        <button
+          class="ghost-btn"
+          type="button"
+          (click)="openMapExternal()"
+          [disabled]="supplier?.latitude == null || supplier?.longitude == null"
+        >
+          Open in Google Maps
+        </button>
+
+        <button class="icon-x" type="button" (click)="closeMapModal()">×</button>
+      </div>
+    </div>
+
+    <div class="map-canvas" id="supplier-map"></div>
+  </div>
+</div>

@@ -6,7 +6,6 @@
       </div>
       <span class="logo-text">Chainly</span>
 
-
       <button class="logo-mini-btn" (click)="toggleSidebar()">
         <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
       </button>
@@ -39,38 +38,22 @@
       <div class="nav-group">
         <p class="group-title">Operations</p>
 
-        <a
-          routerLink="/dashboard/rising-demands"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/rising-demands" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/increase.svg" alt="" />
           <span>Rising Demands</span>
         </a>
 
-        <a
-          routerLink="/dashboard/production-lines"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/production-lines" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/factory.svg" alt="" />
           <span>Production Lines</span>
         </a>
 
-        <a
-          routerLink="/dashboard/orders"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/orders" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/order.svg" alt="" />
           <span>Orders</span>
         </a>
 
-        <a
-          routerLink="/dashboard/digital-twin"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/digital-twin" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/twin.svg" alt="" />
           <span>Digital Twin</span>
         </a>
@@ -79,20 +62,12 @@
       <div class="nav-group">
         <p class="group-title">Suppliers Network</p>
 
-        <a
-          routerLink="/dashboard/suppliers"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/suppliers" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/suppliers.svg" alt="" />
           <span>Suppliers</span>
         </a>
 
-        <a
-          routerLink="/dashboard/supplies"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/supplies-list" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/truck.svg" alt="" />
           <span>Supplies</span>
         </a>
@@ -101,11 +76,7 @@
       <div class="nav-group">
         <p class="group-title">Management</p>
 
-        <a
-          routerLink="/dashboard/users"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/users" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/users.svg" alt="" />
           <span>Users</span>
         </a>
@@ -124,31 +95,38 @@
     </div>
   </aside>
 
-
   <div
     class="sidebar-backdrop"
     [class.visible]="isSidebarCollapsed"
     (click)="toggleSidebar()"
   ></div>
 
-
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-
         <button class="mobile-menu-btn" (click)="toggleSidebar()">
           <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
         </button>
 
-        <span class="topbar-title">{{ pageTitle }}</span>
 
+<span class="topbar-title">
+  <ng-container *ngFor="let c of breadcrumbs; let i = index; let last = last">
+    <a *ngIf="c.link" class="crumb link" [routerLink]="c.link">{{ c.label }}</a>
+    <span *ngIf="!c.link" class="crumb">{{ c.label }}</span>
+    <span *ngIf="!last" class="sep">/</span>
+  </ng-container>
+</span>
+
+
+
+      </div>
+
+      <div class="topbar-right">
         <div class="search-wrapper">
           <img src="/icons/dashboard/search.svg" alt="" />
           <input type="text" placeholder="Search anything.." />
         </div>
-      </div>
 
-      <div class="topbar-right">
         <button class="icon-btn">
           <img src="/icons/dashboard/notification.svg" alt="Notifications" />
         </button>
@@ -159,6 +137,7 @@
     </header>
 
     <main class="content">
+
       <router-outlet></router-outlet>
     </main>
   </div>

@@ -16,121 +16,115 @@
       </button>
     </div>
 
-    <div *ngIf="hasData; else empty">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="col-check"><input type="checkbox" /></th>
-              <th class="col-no">No.</th>
+    <!-- ✅ الجدول دايمًا ظاهر -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" /></th>
+            <th class="col-no">No.</th>
 
-              <th>
-                <div class="th-inner">
-                  <img src="/icons/productionLine/production.svg" alt="" />
-                  <span>Production Line</span>
-                </div>
-              </th>
+            <th>
+              <div class="th-inner">
+                <img src="/icons/productionLine/production.svg" alt="" />
+                <span>Production Line</span>
+              </div>
+            </th>
 
-              <th>
-                <div class="th-inner">
-                  <img src="/icons/productionLine/description.svg" alt="" />
-                  <span>Description</span>
-                </div>
-              </th>
+            <th>
+              <div class="th-inner">
+                <img src="/icons/productionLine/description.svg" alt="" />
+                <span>Description</span>
+              </div>
+            </th>
 
-              <th class="col-actions">
-                <div class="th-inner th-actions">
-                  <img src="/icons/productionLine/actions.svg" alt="" />
-                  <span>Actions</span>
-                </div>
-              </th>
-            </tr>
-          </thead>
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/productionLine/actions.svg" alt="" />
+                <span>Actions</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
 
+        <!-- ✅ لو فيه داتا -->
+        <tbody *ngIf="hasData; else emptyBody">
+          <tr *ngFor="let row of items; let i = index">
+            <td class="col-check"><input type="checkbox" /></td>
+            <td class="col-no">{{ (pageNumber - 1) * pageSize + (i + 1) }}.</td>
+            <td class="td-title">{{ row.lineName }}</td>
+            <td class="td-desc">{{ row.description }}</td>
+
+            <td class="col-actions">
+              <button class="icon-btn" (click)="openEdit(row)" title="Edit">
+                <img src="/icons/productionLine/edit.svg" alt="Edit" />
+              </button>
+
+              <button class="icon-btn" (click)="openDelete(row)" title="Delete">
+                <img src="/icons/productionLine/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- ✅ لو مفيش داتا -->
+        <ng-template #emptyBody>
           <tbody>
-            <tr *ngFor="let row of items; let i = index">
-              <td class="col-check"><input type="checkbox" /></td>
-              <td class="col-no">{{ (pageNumber - 1) * pageSize + (i + 1) }}</td>
-              <td class="td-title">{{ row.lineName }}</td>
-              <td class="td-desc">{{ row.description }}</td>
-
-              <td class="col-actions">
-                <button class="icon-btn" (click)="openEdit(row)" title="Edit">
-                  <img src="/icons/productionLine/edit.svg" alt="Edit" />
-                </button>
-
-                <button class="icon-btn" (click)="openDelete(row)" title="Delete">
-                  <img src="/icons/productionLine/delete.svg" alt="Delete" />
-                </button>
+            <tr class="empty-row">
+              <td class="empty-cell" colspan="5">
+                <div class="empty">No data to show</div>
               </td>
             </tr>
           </tbody>
-        </table>
-      </div>
-
-      <div class="pager">
-        <div class="left">
-          Showing
-          {{ items.length ? ((pageNumber - 1) * pageSize + 1) : 0 }}
-          ::
-          {{ (pageNumber - 1) * pageSize + items.length }}
-          of {{ totalCount }}
-        </div>
-
-        <div class="middle">
-          <button class="nav-btn" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
-            &lt;
-          </button>
-
-          <button
-            *ngFor="let p of pagesArray"
-            (click)="goToPage(p)"
-            [class.active]="p === pageNumber"
-          >
-            {{ p }}
-          </button>
-
-          <button
-            class="nav-btn"
-            (click)="goToPage(pageNumber + 1)"
-            [disabled]="pageNumber === totalPages"
-          >
-            &gt;
-          </button>
-        </div>
-
-        <div class="right">
-          <span>Go to page</span>
-          <input
-            type="number"
-            [value]="pageNumber"
-            (change)="goToPage($any($event.target).valueAsNumber)"
-          />
-        </div>
-      </div>
+        </ng-template>
+      </table>
     </div>
 
-    <ng-template #empty>
-      <div class="table-wrap">
-        <div class="empty">No data to show</div>
+    <!-- ✅ الـ pager زي ما هو -->
+    <div class="pager">
+      <div class="left">
+        Showing
+        {{ items.length ? ((pageNumber - 1) * pageSize + 1) : 0 }}
+        ::
+        {{ (pageNumber - 1) * pageSize + items.length }}
+        of {{ totalCount }}
       </div>
 
-      <div class="pager">
-        <div class="left">Showing 0 :: 0 of 0</div>
-        <div class="middle">
-          <button class="nav-btn" disabled>&lt;</button>
-          <button class="active">1</button>
-          <button class="nav-btn" disabled>&gt;</button>
-        </div>
-        <div class="right">
-          <span>Go to page</span>
-          <input type="number" value="1" disabled />
-        </div>
+      <div class="middle">
+        <button class="nav-btn" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
+          &lt;
+        </button>
+
+        <button
+          *ngFor="let p of pagesArray"
+          (click)="goToPage(p)"
+          [class.active]="p === pageNumber"
+        >
+          {{ p }}
+        </button>
+
+        <button
+          class="nav-btn"
+          (click)="goToPage(pageNumber + 1)"
+          [disabled]="pageNumber === totalPages"
+        >
+          &gt;
+        </button>
       </div>
-    </ng-template>
+
+      <div class="right">
+        <span>Go to page</span>
+        <input
+          type="number"
+          [value]="pageNumber"
+          (change)="goToPage($any($event.target).valueAsNumber)"
+        />
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- Add/Edit Modal -->
 <div class="pl-backdrop" *ngIf="isAddEditOpen" (click)="closeAddEdit()">
   <div class="pl-modal" (click)="$event.stopPropagation()">
     <div class="pl-modal-top-icon" [class.edit]="mode === 'edit'">
@@ -142,10 +136,8 @@
 
     <h3>{{ mode === 'add' ? 'Add Production Line' : 'Edit Production Line' }}</h3>
 
-    
     <form class="pl-modal-form" [formGroup]="form">
       <div class="pl-field pl-field-group">
-
         <div class="pl-field-item">
           <div class="pl-field-label">
             <img src="/icons/productionLine/production.svg" alt="" />
@@ -161,7 +153,6 @@
           </div>
           <input formControlName="description" />
         </div>
-
       </div>
 
       <button class="btn-confirm" type="button" (click)="confirmAddEdit()">Confirm</button>
@@ -169,6 +160,7 @@
   </div>
 </div>
 
+<!-- Delete Modal -->
 <div class="pl-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
   <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
     <div class="pl-modal-top-icon danger">

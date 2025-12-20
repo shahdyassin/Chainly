@@ -1,9 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterOutlet,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../../core/services/auth.service';
+
+type Crumb = { label: string; link?: any[] };
 
 @Component({
   selector: 'app-dashboard-shell',
@@ -19,7 +27,7 @@ export class DashboardShell implements OnInit {
   userRole = '';
   userAvatarUrl = '/icons/dashboard/user.svg';
 
-  pageTitle = 'Dashboard'; 
+  breadcrumbTitle = 'Dashboard';
 
   constructor(
     private auth: AuthService,
@@ -33,20 +41,47 @@ export class DashboardShell implements OnInit {
   }
 
   ngOnInit(): void {
-
     this.setTitleFromRoute();
-
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => this.setTitleFromRoute());
   }
 
   private setTitleFromRoute() {
-
     let current: ActivatedRoute | null = this.route;
     while (current?.firstChild) current = current.firstChild;
 
-    this.pageTitle = current?.snapshot.data?.['title'] || 'Dashboard';
+    const title = current?.snapshot.data?.['title'];
+    this.breadcrumbTitle = title ? String(title) : 'Dashboard';
+  }
+
+  private toParts(title: string): string[] {
+    return (title || '')
+      .replace(/[⁄∕]/g, '/')
+      .split('/')
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  // ✅ crumbs جاهزة للعرض + أول جزء بيتحول للينك صح حسب النص
+  get breadcrumbs(): Crumb[] {
+    const parts = this.toParts(this.breadcrumbTitle);
+
+    if (!parts.length) return [{ label: 'Dashboard', link: ['/dashboard'] }];
+
+    const first = parts[0];
+    const firstLink =
+      first.toLowerCase() === 'suppliers' ? ['/dashboard/suppliers'] :
+      first.toLowerCase() === 'supplies'  ? ['/dashboard/supplies-list'] :
+      first.toLowerCase() === 'dashboard' ? ['/dashboard'] :
+      undefined;
+
+    const crumbs: Crumb[] = [];
+    crumbs.push({ label: first, link: firstLink });
+
+    for (let i = 1; i < parts.length; i++) crumbs.push({ label: parts[i] });
+
+    return crumbs;
   }
 
   toggleSidebar() {
