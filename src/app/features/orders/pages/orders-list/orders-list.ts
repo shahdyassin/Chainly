@@ -14,7 +14,7 @@ import { AppEventsService } from '../../../../core/services/app-events.service';
 
 type PageItem = number | '...';
 
-type UploadState = 'idle' | 'uploading' | 'failed';
+type UploadState = 'uploading' | 'uploaded' | 'failed';
 
 type UploadItem = {
   uid: number;
@@ -23,6 +23,7 @@ type UploadItem = {
   progress: number;
   warningText: string;
 };
+
 
 type ImportStep = 'instructions' | 'upload' | 'success';
 
@@ -294,10 +295,11 @@ export class OrdersList implements OnInit {
     this.uploads = [];
   }
 
-  closeImport() {
-    if (this.isAnyUploading()) return;
-    this.isImportOpen = false;
-  }
+closeImport() {
+  if (this.isAnyUploading()) return;
+  this.isImportOpen = false;
+}
+
 
   openUploadStep() {
     this.importStep = 'upload';
@@ -335,95 +337,101 @@ export class OrdersList implements OnInit {
     ev.target.value = '';
   }
 
-  private addFiles(files: File[]) {
-    if (!files.length) return;
+private addFiles(files: File[]) {
+  if (!files.length) return;
 
-    for (const f of files) {
-      const name = (f.name || '').toLowerCase();
-      const ok = name.endsWith('.xlsx') || name.endsWith('.xls');
+  for (const f of files) {
+    const name = (f.name || '').toLowerCase();
+    const ok = name.endsWith('.xlsx') || name.endsWith('.xls');
 
-      this.uploads.unshift({
-        uid: this.uidSeq++,
-        file: f,
-        state: ok ? 'idle' : 'failed',
-        progress: 0,
-        warningText: ok ? '' : `This file doesn't match the required specifications. Please upload a valid file`,
+    const item: UploadItem = {
+      uid: this.uidSeq++,
+      file: f,
+      state: ok ? 'uploading' : 'failed',
+      progress: 0,
+      warningText: ok ? '' : `This file doesn't match the required specifications. Please upload a valid file`,
+    };
+
+    this.uploads.unshift(item);
+
+
+    if (ok) {
+      this.uploadOne(item).subscribe({
+        error: (err) => this.markFailed(item, err),
       });
     }
   }
+}
+
 
   removeUpload(item: UploadItem) {
     this.uploads = this.uploads.filter((x) => x.uid !== item.uid);
   }
 
-  retryUpload(item: UploadItem) {
-    item.state = 'idle';
-    item.progress = 0;
-    item.warningText = '';
-  }
+retryUpload(item: UploadItem) {
+  item.state = 'uploading';
+  item.progress = 0;
+  item.warningText = '';
 
-  isAnyUploading() {
-    return this.uploads.some((x) => x.state === 'uploading');
-  }
+  this.uploadOne(item).subscribe();
+}
 
-  confirmUpload() {
-    if (!this.uploads.length) return;
 
-    const queue = this.uploads.filter((x) => x.state === 'idle');
-    if (!queue.length) return;
+isAnyUploading() {
+  return this.uploads.some((x) => x.state === 'uploading');
+}
 
-    let anyFailed = false;
 
-    from(queue)
-      .pipe(
-        concatMap((item) =>
-          this.uploadOne(item).pipe(
-            catchError((err) => {
-              anyFailed = true;
-              this.markFailed(item, err);
-              return of(null);
-            })
-          )
-        ),
-        finalize(() => {
-          const hasUploading = this.uploads.some((x) => x.state === 'uploading');
-          const hasFailed = this.uploads.some((x) => x.state === 'failed');
+confirmUpload() {
+  if (!this.uploads.length) return;
+  if (this.isAnyUploading()) return;
 
-          if (!hasUploading && !hasFailed && !anyFailed && this.uploads.length) {
-            this.importStep = 'success';
-          }
-        })
-      )
-      .subscribe();
-  }
+  const hasFailed = this.uploads.some((x) => x.state === 'failed');
+  const allUploaded = this.uploads.every((x) => x.state === 'uploaded');
 
-  private uploadOne(item: UploadItem) {
-    item.state = 'uploading';
-    item.progress = 0;
-    item.warningText = '';
+  if (hasFailed || !allUploaded) return;
 
-    return this.ordersApi.importOrders(item.file).pipe(
-      tap((event) => {
-        if (event.type === HttpEventType.UploadProgress) {
-          const total = event.total ?? item.file.size ?? 1;
-          const pct = Math.round((100 * (event.loaded ?? 0)) / total);
-          item.progress = Math.max(0, Math.min(100, pct));
-        }
 
-        if (event.type === HttpEventType.Response) {
-          item.progress = 100;
-          item.state = 'idle';
+  this.importStep = 'success';
 
-          this.pageNumber = 1;
-          this.reloadAll();
-          this.events.notifyOrdersChanged();
-        }
-      }),
-      finalize(() => {
-        if (item.state === 'uploading') item.state = 'idle';
-      })
-    );
-  }
+  this.pageNumber = 1;
+  this.reloadAll();
+  this.events.notifyOrdersChanged();
+}
+
+
+private uploadOne(item: UploadItem) {
+  item.state = 'uploading';
+  item.progress = 0;
+  item.warningText = '';
+
+  return this.ordersApi.importOrders(item.file).pipe(
+    tap((event) => {
+      if (event.type === HttpEventType.UploadProgress) {
+        const total = event.total ?? item.file.size ?? 1;
+        const pct = Math.round((100 * (event.loaded ?? 0)) / total);
+        item.progress = Math.max(0, Math.min(100, pct));
+      }
+
+      if (event.type === HttpEventType.Response) {
+        item.progress = 100;
+        item.state = 'uploaded';
+      }
+    }),
+    catchError((err) => {
+      this.markFailed(item, err);
+      return of(null);
+    }),
+    finalize(() => {
+      if (item.state === 'uploading') {
+        item.state = 'failed';
+        item.progress = 0;
+        if (!item.warningText) item.warningText = 'Upload failed';
+      }
+    })
+  );
+}
+
 
   private markFailed(item: UploadItem, err: any) {
     item.state = 'failed';
@@ -454,4 +462,17 @@ export class OrdersList implements OnInit {
     if (kb >= 1) return `${kb.toFixed(0)} KB`;
     return `${n} B`;
   }
+
+  get hasFailedUploads(): boolean {
+  return this.uploads.some((x) => x.state === 'failed');
+}
+
+get allUploadsDone(): boolean {
+  return this.uploads.length > 0 && this.uploads.every((x) => x.state === 'uploaded');
+}
+
+get canConfirmUpload(): boolean {
+  return this.uploads.length > 0 && !this.isAnyUploading() && !this.hasFailedUploads && this.allUploadsDone;
+}
+
 }

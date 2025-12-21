@@ -4,14 +4,12 @@
   min-height: calc(100vh - 56px);
 }
 
-
 .content {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 0 24px;
+  padding: 0 10px;
 }
-
 
 .info-card {
   width: 100%;
@@ -50,7 +48,7 @@
 .card-title {
   font-size: 16px;
   font-weight: 500;
-  color: #1A1A1A;
+  color: #1a1a1a;
   min-width: 0;
 }
 
@@ -94,7 +92,7 @@
   padding: 0 100px;
   border-radius: 14px;
   border: 0;
-  background: #3EA397;
+  background: #3ea397;
   color: #fff;
   cursor: pointer;
   font-size: 14px;
@@ -108,7 +106,6 @@
     height: 20px;
   }
 }
-
 
 .import-backdrop {
   position: fixed;
@@ -125,18 +122,17 @@
   position: relative;
   width: 560px;
   max-width: calc(100% - 32px);
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 22px;
-  border: 1px solid #CCCCCC;
+  border: 1px solid #cccccc;
   padding: 18px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
 }
 
-
 .drop-zone {
   border: 1px dashed #e5e7eb;
   border-radius: 18px;
-  background: #F9F9F9;
+  background: #f9f9f9;
   height: 240px;
   padding: 18px;
 
@@ -153,22 +149,22 @@
   width: 46px;
   height: 46px;
   border-radius: 999px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #cccccc;
   display: grid;
   place-items: center;
   margin-bottom: 14px;
 }
 
 .drop-ico {
-  width: 26px;
-  height: 26px;
-  opacity: 0.9;
+  width: 24px;
+  height: 24px;
+  opacity: 1;
 }
 
 .drop-title {
   font-size: 20px;
   font-weight: 600;
-  color: #4D4D4D;
+  color: #4d4d4d;
   margin-bottom: 8px;
 }
 
@@ -180,7 +176,7 @@
 }
 
 .browse-link {
-  color: #4D4D4D;
+  color: #4d4d4d;
   font-weight: 700;
   cursor: pointer;
   text-decoration: underline;
@@ -194,9 +190,9 @@
 }
 
 .uploads-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2e2e2e;
   margin-bottom: 10px;
 }
 
@@ -206,22 +202,13 @@
   gap: 12px;
 }
 
-.empty-uploads {
-  border: 1px solid #eef0f3;
-  border-radius: 16px;
-  padding: 14px;
-  color: #9ca3af;
-  font-size: 12px;
-}
-
-
 .upload-item {
   position: relative;
   display: flex;
   align-items: flex-start;
   gap: 12px;
 
-  border: 1px solid #eef0f3;
+  border: 1px solid #e6e6e6;
   border-radius: 18px;
   background: #fff;
 
@@ -238,12 +225,11 @@
   background: #fff !important;
 }
 
-
 .upload-item .left {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #cccccc;
   background: #f9fafb;
   display: grid;
   place-items: center;
@@ -264,7 +250,7 @@
 .file-name {
   font-size: 16px;
   font-weight: 500;
-  color: #2E2E2E;
+  color: #2e2e2e;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -279,11 +265,12 @@
 
 .uploading-text {
   color: #3ea397;
+  font-size: 12px;
   font-weight: 500;
 }
 
 .failed-text {
-  color: #ff3b30;
+  color: #ff0707;
   font-weight: 500;
   font-size: 12px;
 }
@@ -305,9 +292,8 @@
   margin-right: 5px;
 }
 
-
-.icon-btn {
- width: auto;
+.icon-btn-plain {
+  width: auto;
   height: auto;
   border: 0 !important;
   background: transparent !important;
@@ -320,17 +306,15 @@
   box-shadow: none !important;
 
   img {
- width: 18px;
-  height: 18px;
-  display: block;
+    width: 18px;
+    height: 18px;
+    display: block;
   }
 }
-
 
 .warn-wrap {
   position: relative;
 }
-
 
 .warn-pop {
   position: absolute;
@@ -354,7 +338,6 @@
   z-index: 99999;
 }
 
-
 .warn-wrap:hover .warn-pop,
 .warn-wrap:focus-within .warn-pop {
   opacity: 1;
@@ -377,16 +360,15 @@
 .warn-title {
   font-size: 14px;
   font-weight: 500;
-  color: #FF0707;
+  color: #ff0707;
 }
 
 .warn-msg {
   font-size: 14px;
   font-weight: 500;
-  color: #2E2E2E;
+  color: #2e2e2e;
   line-height: 1.35;
 }
-
 
 .warn-arrow {
   position: absolute;
@@ -402,13 +384,10 @@
   transform: rotate(45deg);
 }
 
-
 .progress-line {
   position: absolute;
   left: 14px;
   right: 14px;
-
-
   bottom: 14px;
 
   display: flex;
@@ -439,7 +418,6 @@
   text-align: right;
 }
 
-
 .confirm-btn {
   margin-top: 14px;
   width: 100%;
@@ -457,7 +435,6 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 
 .success-wrap {
   padding: 10px 0 10px;
@@ -483,7 +460,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: #4D4D4D;
+  color: #4d4d4d;
 }
 
 .success-sub {

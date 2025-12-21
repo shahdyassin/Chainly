@@ -110,7 +110,6 @@
                   <img src="/icons/orders/edit.svg" alt="" />
                 </button>
 
-
                 <button class="icon-btn" type="button" title="Delete" (click)="openDelete(row)">
                   <img src="/icons/orders/delete.svg" alt="" />
                 </button>
@@ -159,10 +158,8 @@
     </div>
   </div>
 
-
   <div class="orders-import-backdrop" *ngIf="isImportOpen" (click)="closeImport()">
     <div class="orders-import-modal" (click)="$event.stopPropagation()">
-
 
       <ng-container *ngIf="importStep === 'success'; else notSuccess">
         <div class="success-wrap">
@@ -179,9 +176,7 @@
         </div>
       </ng-container>
 
-
       <ng-template #notSuccess>
-
 
         <ng-container *ngIf="importStep === 'instructions'; else uploadTpl">
           <div class="m-top">
@@ -214,7 +209,6 @@
           </button>
         </ng-container>
 
-
         <ng-template #uploadTpl>
 
           <div class="drop-zone" (click)="fileInput.click()" (drop)="onDropFile($event)"
@@ -233,7 +227,6 @@
             <input #fileInput type="file" accept=".xlsx,.xls" (change)="onBrowseFile($event)" hidden multiple />
           </div>
 
-
           <div class="uploads" *ngIf="uploads.length">
             <div class="uploads-title">Uploads</div>
 
@@ -247,13 +240,16 @@
                 <div class="mid">
                   <div class="file-name">{{ item.file.name }}</div>
 
-                  <div class="file-sub" *ngIf="item.state === 'idle'">
-                    {{ formatSize(item.file.size) }}
+
+                  <div class="file-sub" *ngIf="item.state === 'uploaded'">
+                    Uploaded • {{ formatSize(item.file.size) }}
                   </div>
+
 
                   <div class="file-sub uploading-text" *ngIf="item.state === 'uploading'">
                     Uploading
                   </div>
+
 
                   <div class="file-sub failed-text" *ngIf="item.state === 'failed'">
                     Upload Failed
@@ -261,16 +257,19 @@
                 </div>
 
                 <div class="right">
+
                   <button class="icon-btn-plain" type="button" *ngIf="item.state === 'uploading'"
                     (click)="removeUpload(item)" title="Cancel">
                     <img src="/icons/orders/close.svg" alt="cancel" />
                   </button>
 
-                  <button class="icon-btn-plain" type="button" *ngIf="item.state === 'idle'"
+
+                  <button class="icon-btn-plain" type="button" *ngIf="item.state === 'uploaded'"
                     (click)="removeUpload(item)" title="Remove">
                     <img src="/icons/orders/delete.svg" alt="delete" />
                   </button>
 
+                  
                   <button class="icon-btn-plain" type="button" *ngIf="item.state === 'failed'"
                     (click)="retryUpload(item)" title="Retry">
                     <img src="/icons/orders/retry.svg" alt="retry" />
@@ -305,10 +304,10 @@
               </div>
             </div>
 
-            <button class="confirm-btn" type="button" (click)="confirmUpload()"
-              [disabled]="!uploads.length || isAnyUploading()">
+            <button class="confirm-btn" type="button" (click)="confirmUpload()" [disabled]="!canConfirmUpload">
               Confirm
             </button>
+
           </div>
 
         </ng-template>
@@ -317,12 +316,9 @@
     </div>
   </div>
 
-
   <div class="orders-delete-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
     <div class="orders-delete-modal" (click)="$event.stopPropagation()">
-
       <div class="del-ico-wrap">
-
         <img class="del-ico" src="/icons/orders/warning.svg" alt="warn" />
       </div>
 
@@ -342,8 +338,6 @@
           Delete
         </button>
       </div>
-
     </div>
   </div>
-
 </div>
