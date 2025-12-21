@@ -293,7 +293,7 @@
   align-items: center;
   gap: 10px;
   flex: 0 0 auto;
-   margin-top: 2px;
+  margin-top: 2px;
 }
 
 .upload-item .right img{
@@ -459,15 +459,27 @@
 }
 
 
+.success-wrap {
+  padding: 10px 0 10px;
+  text-align: center;
+}
+
+.success-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  background: rgba(62, 163, 151, 0.15);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+}
+
 .success-ico {
-  width: 40px;
-  height: 40px;
-  display: block;
-  margin: 12px auto 10px;
+  width: 28px;
+  height: 28px;
 }
 
 .success-title {
-  text-align: center;
   margin: 0;
   font-size: 20px;
   font-weight: 600;
@@ -475,8 +487,7 @@
 }
 
 .success-sub {
-  text-align: center;
-  margin: 6px 0 14px;
+  margin: 8px 0 18px;
   font-size: 14px;
   font-weight: 400;
   color: #666666;
@@ -484,8 +495,8 @@
 
 .success-btn {
   width: 100%;
-  height: 52px;
-  border-radius: 16px;
+  height: 56px;
+  border-radius: 18px;
   border: 0;
   background: #3ea397;
   color: #fff;

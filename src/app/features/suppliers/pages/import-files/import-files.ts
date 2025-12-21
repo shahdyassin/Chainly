@@ -166,6 +166,7 @@ export class ImportFiles {
 
   continueAfterSuccess() {
     this.closeUpload();
+
     this.router.navigate(['/dashboard/suppliers']);
   }
 }

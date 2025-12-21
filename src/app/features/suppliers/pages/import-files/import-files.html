@@ -91,14 +91,20 @@
   <div class="import-backdrop" *ngIf="isUploadOpen" (click)="closeUpload()">
     <div class="import-modal" (click)="$event.stopPropagation()">
 
+       <!-- ✅ Success -->
       <ng-container *ngIf="uploadState === 'success'; else uploadContent">
-        <img class="success-ico" src="/icons/suppliers/success.svg" alt="success" />
-        <h3 class="success-title">Success!</h3>
-        <p class="success-sub">Your files uploaded successfully</p>
+        <div class="success-wrap">
+          <div class="success-badge">
+            <img class="success-ico" src="/icons/suppliers/success.svg" alt="success" />
+          </div>
 
-        <button class="success-btn" type="button" (click)="continueAfterSuccess()">
-          Continue
-        </button>
+          <h3 class="success-title">Success!</h3>
+          <p class="success-sub">Your files uploaded successfully</p>
+
+          <button class="success-btn" type="button" (click)="continueAfterSuccess()">
+            Continue
+          </button>
+        </div>
       </ng-container>
 
 

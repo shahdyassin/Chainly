@@ -50,7 +50,7 @@ export const DASHBOARD_ROUTES: Routes = [
         path: 'suppliers/import-files',
         loadComponent: () =>
           import('../suppliers/pages/import-files/import-files').then((m) => m.ImportFiles),
-        data: { title: 'Suppliers / Import Files' }, // ✅ مهم
+        data: { title: 'Suppliers / Import Files' },
       },
       {
         path: 'suppliers/supplier-add',
@@ -63,6 +63,12 @@ export const DASHBOARD_ROUTES: Routes = [
         loadComponent: () =>
           import('../suppliers/pages/supplier-edit/supplier-edit').then((m) => m.SupplierEdit),
         data: { title: 'Suppliers / Supplier Info' },
+      },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('../orders/pages/orders-list/orders-list').then((m) => m.OrdersList),
+        data: { title: 'Orders' },
       },
 
     ],

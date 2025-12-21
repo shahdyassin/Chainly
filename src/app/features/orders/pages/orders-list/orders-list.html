@@ -1,0 +1,349 @@
+<div class="orders-page">
+  <div class="orders-card">
+    <div class="orders-toolbar">
+      <div class="orders-search">
+        <img class="ico" src="/icons/orders/search.svg" alt="" />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearchChange()"
+          placeholder="Search with ID or Public Code ..." />
+      </div>
+
+      <button class="import-btn" type="button" (click)="openImport()">
+        <img class="ico" src="/icons/orders/import.svg" alt="" />
+        <span>Import File</span>
+      </button>
+    </div>
+
+    <div class="orders-tabs">
+      <button class="tab" [class.active]="activeTab === 'all'" (click)="setTab('all')">
+        <span>All</span>
+        <span class="count">({{ tabCounts.all }})</span>
+      </button>
+
+      <button class="tab" [class.active]="activeTab === 'delivered'" (click)="setTab('delivered')">
+        <span>Delivered</span>
+        <span class="count">({{ tabCounts.delivered }})</span>
+      </button>
+
+      <button class="tab" [class.active]="activeTab === 'cancelled'" (click)="setTab('cancelled')">
+        <span>Cancelled</span>
+        <span class="count">({{ tabCounts.cancelled }})</span>
+      </button>
+
+      <button class="tab" [class.active]="activeTab === 'inTransit'" (click)="setTab('inTransit')">
+        <span>InTransit</span>
+        <span class="count">({{ tabCounts.inTransit }})</span>
+      </button>
+
+      <button class="tab" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">
+        <span>Pending</span>
+        <span class="count">({{ tabCounts.pending }})</span>
+      </button>
+
+      <button class="tab" [class.active]="activeTab === 'shipped'" (click)="setTab('shipped')">
+        <span>Shipped</span>
+        <span class="count">({{ tabCounts.shipped }})</span>
+      </button>
+    </div>
+
+    <div class="orders-table-wrap">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th class="col-check">
+              <input type="checkbox" [checked]="false" (change)="toggleAll($event)" />
+            </th>
+
+            <th class="col-no">No.</th>
+
+            <th class="col-orderId">
+              <div class="th-inner">
+                <img src="/icons/orders/orderId.svg" alt="" />
+                <span>Order ID</span>
+              </div>
+            </th>
+
+            <th class="col-public">
+              <div class="th-inner">
+                <img src="/icons/orders/publicCode.svg" alt="" />
+                <span>Public Code</span>
+              </div>
+            </th>
+
+            <th class="col-status">
+              <div class="th-inner">
+                <img src="/icons/orders/status.svg" alt="" />
+                <span>Status</span>
+              </div>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/orders/actions.svg" alt="" />
+                <span>Actions</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="pagedOrders.length; else emptyState">
+          <tr *ngFor="let row of pagedOrders; let i = index">
+            <td class="col-check">
+              <input type="checkbox" [checked]="false" />
+            </td>
+
+            <td class="col-no">{{ startIndex + i + 1 }}.</td>
+
+            <td class="td-title" [title]="row.orderId">{{ row.orderId }}</td>
+            <td class="td-title" [title]="row.publicCode">{{ row.publicCode }}</td>
+
+            <td class="col-status">
+              <span class="status-pill" [ngClass]="statusClass(row.status)">{{ row.status }}</span>
+            </td>
+
+            <td class="col-actions">
+              <div class="actions">
+                <button class="icon-btn" type="button" title="View" (click)="viewOrder(row)">
+                  <img src="/icons/orders/eye.svg" alt="" />
+                </button>
+
+                <button class="icon-btn" type="button" title="Edit" (click)="editOrder(row)">
+                  <img src="/icons/orders/edit.svg" alt="" />
+                </button>
+
+
+                <button class="icon-btn" type="button" title="Delete" (click)="openDelete(row)">
+                  <img src="/icons/orders/delete.svg" alt="" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <ng-template #emptyState>
+          <tbody>
+            <tr>
+              <td class="empty-cell" colspan="6">
+                <div class="empty">
+                  <div class="empty-text">No data to show</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+
+    <div class="orders-pager">
+      <div class="left">
+        Showing {{ totalCount ? (startIndex + 1) : 0 }} :: {{ endIndex }} of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+        <button class="nav-btn" type="button" (click)="prevPage()" [disabled]="pageNumber === 1">‹</button>
+
+        <ng-container *ngFor="let p of pagesArray">
+          <button *ngIf="isNumber(p)" class="page-btn" [class.active]="p === pageNumber" type="button"
+            (click)="goToPage(p)">
+            {{ p }}
+          </button>
+          <span *ngIf="!isNumber(p)" class="dots">…</span>
+        </ng-container>
+
+        <button class="nav-btn" type="button" (click)="nextPage()" [disabled]="pageNumber === totalPages">›</button>
+      </div>
+
+      <div class="right">
+        <span>Go to page</span>
+        <input type="number" [ngModel]="pageNumber" (ngModelChange)="goToPage($event)" />
+      </div>
+    </div>
+  </div>
+
+
+  <div class="orders-import-backdrop" *ngIf="isImportOpen" (click)="closeImport()">
+    <div class="orders-import-modal" (click)="$event.stopPropagation()">
+
+
+      <ng-container *ngIf="importStep === 'success'; else notSuccess">
+        <div class="success-wrap">
+          <div class="success-badge">
+            <img class="success-ico" src="/icons/orders/success.svg" alt="success" />
+          </div>
+
+          <h3 class="success-title">Success!</h3>
+          <p class="success-sub">Your files uploaded successfully</p>
+
+          <button class="success-btn" type="button" (click)="continueAfterSuccess()">
+            Continue
+          </button>
+        </div>
+      </ng-container>
+
+
+      <ng-template #notSuccess>
+
+
+        <ng-container *ngIf="importStep === 'instructions'; else uploadTpl">
+          <div class="m-top">
+            <img src="/icons/orders/import.svg" alt="import" />
+            <div class="m-title">Import File</div>
+          </div>
+
+          <div class="m-box">
+            <div class="m-box-title">
+              <img src="/icons/orders/instructions.svg" alt="info" />
+              <span>Instructions</span>
+            </div>
+
+            <ol class="m-ol">
+              <li>The file must be an Excel file (xlsx/xls).</li>
+              <li>Required columns (order is important):</li>
+            </ol>
+
+            <ul class="m-ul">
+              <li>OrderId</li>
+              <li>Code</li>
+              <li>Phone</li>
+              <li>Email</li>
+            </ul>
+          </div>
+
+          <button class="upload-file-btn" type="button" (click)="openUploadStep()">
+            <img src="/icons/orders/upload.svg" alt="upload" />
+            <span>Upload File</span>
+          </button>
+        </ng-container>
+
+
+        <ng-template #uploadTpl>
+
+          <div class="drop-zone" (click)="fileInput.click()" (drop)="onDropFile($event)"
+            (dragover)="onDragOver($event)">
+            <div class="drop-ico-wrap">
+              <img class="drop-ico" src="/icons/orders/drop.svg" alt="drop" />
+            </div>
+
+            <div class="drop-title">
+              Drop your file here or
+              <span class="browse-link" (click)="$event.stopPropagation(); fileInput.click()">browse</span>
+            </div>
+
+            <div class="drop-sub">Max file size up to 1 GB</div>
+
+            <input #fileInput type="file" accept=".xlsx,.xls" (change)="onBrowseFile($event)" hidden multiple />
+          </div>
+
+
+          <div class="uploads" *ngIf="uploads.length">
+            <div class="uploads-title">Uploads</div>
+
+            <div class="uploads-list">
+              <div class="upload-item" *ngFor="let item of uploads; trackBy: trackByUploadId"
+                [class.failed]="item.state === 'failed'" [class.uploading]="item.state === 'uploading'">
+                <div class="left">
+                  <img class="file-ico" src="/icons/orders/file.svg" alt="file" />
+                </div>
+
+                <div class="mid">
+                  <div class="file-name">{{ item.file.name }}</div>
+
+                  <div class="file-sub" *ngIf="item.state === 'idle'">
+                    {{ formatSize(item.file.size) }}
+                  </div>
+
+                  <div class="file-sub uploading-text" *ngIf="item.state === 'uploading'">
+                    Uploading
+                  </div>
+
+                  <div class="file-sub failed-text" *ngIf="item.state === 'failed'">
+                    Upload Failed
+                  </div>
+                </div>
+
+                <div class="right">
+                  <button class="icon-btn-plain" type="button" *ngIf="item.state === 'uploading'"
+                    (click)="removeUpload(item)" title="Cancel">
+                    <img src="/icons/orders/close.svg" alt="cancel" />
+                  </button>
+
+                  <button class="icon-btn-plain" type="button" *ngIf="item.state === 'idle'"
+                    (click)="removeUpload(item)" title="Remove">
+                    <img src="/icons/orders/delete.svg" alt="delete" />
+                  </button>
+
+                  <button class="icon-btn-plain" type="button" *ngIf="item.state === 'failed'"
+                    (click)="retryUpload(item)" title="Retry">
+                    <img src="/icons/orders/retry.svg" alt="retry" />
+                  </button>
+
+                  <div class="warn-wrap" *ngIf="item.state === 'failed'">
+                    <button class="icon-btn-plain" type="button" title="Warning">
+                      <img src="/icons/orders/warning.svg" alt="warning" />
+                    </button>
+
+                    <div class="warn-pop">
+                      <div class="warn-head">
+                        <img class="warn-ico" src="/icons/orders/warning.svg" alt="warning" />
+                        <div class="warn-title">Warning</div>
+                      </div>
+
+                      <div class="warn-msg">
+                        {{ item.warningText }}
+                      </div>
+
+                      <div class="warn-arrow"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="progress-line" *ngIf="item.state === 'uploading'">
+                  <div class="pbar">
+                    <div class="pfill" [style.width.%]="item.progress"></div>
+                  </div>
+                  <div class="ppct">{{ item.progress }}%</div>
+                </div>
+              </div>
+            </div>
+
+            <button class="confirm-btn" type="button" (click)="confirmUpload()"
+              [disabled]="!uploads.length || isAnyUploading()">
+              Confirm
+            </button>
+          </div>
+
+        </ng-template>
+
+      </ng-template>
+    </div>
+  </div>
+
+
+  <div class="orders-delete-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
+    <div class="orders-delete-modal" (click)="$event.stopPropagation()">
+
+      <div class="del-ico-wrap">
+
+        <img class="del-ico" src="/icons/orders/warning.svg" alt="warn" />
+      </div>
+
+      <div class="del-title">Delete Order</div>
+
+      <div class="del-desc">
+        Are you sure you want to delete <b>Order #{{ deleteTarget?.orderId }}</b>?<br />
+        This action cannot be undone.
+      </div>
+
+      <div class="del-actions">
+        <button class="del-cancel" type="button" (click)="closeDelete()" [disabled]="isDeleting">
+          Cancel
+        </button>
+
+        <button class="del-confirm" type="button" (click)="confirmDelete()" [disabled]="isDeleting">
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
