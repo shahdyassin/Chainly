@@ -1,6 +1,4 @@
 <div class="page">
-
-  <!-- Header Card -->
   <div class="header" *ngIf="supplier as s">
     <div class="header-row">
       <div class="left">
@@ -42,6 +40,7 @@
           <span>Edit</span>
         </button>
 
+
         <button class="ghost-btn" type="button" (click)="deleteSupplier()">
           <img src="/icons/suppliers/delete.svg" alt="" />
           <span>Delete</span>
@@ -60,9 +59,9 @@
     </div>
   </div>
 
-  <!-- Supplies table -->
+
   <div class="card">
- <div class="section-title" *ngIf="supplier as s">
+    <div class="section-title" *ngIf="supplier as s">
       {{ s.name }} Supplies
     </div>
 
@@ -181,7 +180,7 @@
   </div>
 </div>
 
-<!-- Map Modal -->
+
 <div class="map-backdrop" *ngIf="isMapOpen" (click)="closeMapModal()">
   <div class="map-modal" (click)="$event.stopPropagation()">
     <div class="map-modal-head">
@@ -205,5 +204,35 @@
     </div>
 
     <div class="map-canvas" id="supplier-map"></div>
+  </div>
+</div>
+
+
+<div class="delete-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
+  <div class="delete-modal" (click)="$event.stopPropagation()">
+    <div class="delete-icon">
+      <div class="ring">
+        <span>!</span>
+      </div>
+    </div>
+
+    <h2 class="delete-title">Delete Supplier</h2>
+
+    <p class="delete-text">
+      Are you sure you want to delete <b>{{ supplier?.name }}</b>?<br />
+      This action cannot be undone.
+    </p>
+
+    <div class="delete-error" *ngIf="deleteError">{{ deleteError }}</div>
+
+    <div class="delete-actions">
+      <button class="btn-cancel" type="button" (click)="closeDelete()" [disabled]="deleting">
+        Cancel
+      </button>
+
+      <button class="btn-delete" type="button" (click)="confirmDelete()" [disabled]="deleting">
+        {{ deleting ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
   </div>
 </div>

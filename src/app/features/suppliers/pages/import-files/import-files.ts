@@ -4,7 +4,17 @@ import { Router } from '@angular/router';
 import { HttpEventType } from '@angular/common/http';
 import { SuppliersService } from '../../../../core/services/suppliers.service';
 
-type UploadState = 'idle' | 'ready' | 'uploading' | 'success' | 'failed';
+type UploadState = 'idle' | 'uploading' | 'success' | 'failed';
+
+type UploadItem = {
+  id: string;
+  file: File;
+  state: UploadState;
+  progress: number;
+
+
+  warningText: string;
+};
 
 @Component({
   selector: 'app-suppliers-import-files',
@@ -17,148 +27,144 @@ export class ImportFiles {
   private api = inject(SuppliersService);
   private router = inject(Router);
 
-  // collapse UI
   open1 = true;
   open2 = true;
   open3 = true;
+  open4 = true;
 
-  // upload modal state
   isUploadOpen = false;
-  uploadState: UploadState = 'idle';
-  selectedFile: File | null = null;
-  uploadProgress = 0;
 
-  toastWarning = '';
-  uploadErrorMsg = '';
 
-  importedSummary = { suppliers: 0, materials: 0, relationships: 0, total: 0 };
+  uploadState: 'idle' | 'success' = 'idle';
+
+  uploads: UploadItem[] = [];
+
+
+  private readonly SPEC_WARNING =
+    "This file doesn’t match the required specifications. Please upload a valid file";
 
   backToSuppliers() {
     this.router.navigate(['/dashboard/suppliers']);
   }
 
-  // open modal
   openUpload() {
     this.isUploadOpen = true;
-    this.resetUploadState();
+    this.uploadState = 'idle';
+    this.uploads = [];
   }
 
   closeUpload() {
-    if (this.uploadState === 'uploading') return;
+    if (this.isAnyUploading()) return;
     this.isUploadOpen = false;
   }
 
-  private resetUploadState() {
-    this.uploadState = 'idle';
-    this.selectedFile = null;
-    this.uploadProgress = 0;
-    this.toastWarning = '';
-    this.uploadErrorMsg = '';
-    this.importedSummary = { suppliers: 0, materials: 0, relationships: 0, total: 0 };
-  }
 
   onBrowseFile(ev: Event) {
     const input = ev.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
-    this.pickFile(file);
     input.value = '';
+    if (file) this.addFile(file);
   }
 
   onDropFile(ev: DragEvent) {
     ev.preventDefault();
     const file = ev.dataTransfer?.files?.[0] ?? null;
-    this.pickFile(file);
+    if (file) this.addFile(file);
   }
 
   onDragOver(ev: DragEvent) {
     ev.preventDefault();
   }
 
-  clearSelectedFile() {
-    if (this.uploadState === 'uploading') return;
-    this.selectedFile = null;
-    this.uploadState = 'idle';
-    this.uploadProgress = 0;
-    this.toastWarning = '';
-    this.uploadErrorMsg = '';
-  }
-
-  private pickFile(file: File | null) {
-    this.toastWarning = '';
-    this.uploadErrorMsg = '';
-
-    if (!file) return;
-
+  private addFile(file: File) {
     const name = (file.name ?? '').toLowerCase();
     const ok = name.endsWith('.xlsx') || name.endsWith('.xls');
 
-    if (!ok) {
-      this.toastWarning = "This file doesn’t match the required specifications. Please upload a valid file";
-      this.uploadState = 'failed';
-      this.selectedFile = null;
-      return;
-    }
+    const item: UploadItem = {
+      id: crypto.randomUUID(),
+      file,
+      state: ok ? 'idle' : 'failed',
+      progress: 0,
+      warningText: this.SPEC_WARNING,
+    };
 
-    this.selectedFile = file;
-    this.uploadState = 'ready';
-    this.uploadProgress = 0;
+
+    this.uploads = [item];
+  }
+
+
+  removeUpload(item: UploadItem) {
+    if (item.state === 'uploading') return;
+    this.uploads = this.uploads.filter((x) => x.id !== item.id);
+  }
+
+  retryUpload(item: UploadItem) {
+    item.state = 'idle';
+    item.progress = 0;
+
+
+    item.warningText = this.SPEC_WARNING;
   }
 
   confirmUpload() {
-    if (!this.selectedFile || this.uploadState === 'uploading') return;
+    if (!this.uploads.length || this.isAnyUploading()) return;
 
-    this.uploadState = 'uploading';
-    this.uploadProgress = 0;
-    this.toastWarning = '';
-    this.uploadErrorMsg = '';
-    this.importedSummary = { suppliers: 0, materials: 0, relationships: 0, total: 0 };
+    const item = this.uploads[0];
+    if (!item) return;
 
-    this.api.importCompleteExcel(this.selectedFile).subscribe({
+    const name = (item.file.name ?? '').toLowerCase();
+    const ok = name.endsWith('.xlsx') || name.endsWith('.xls');
+    if (!ok) {
+      item.state = 'failed';
+      item.progress = 0;
+      item.warningText = this.SPEC_WARNING;
+      return;
+    }
+
+    item.state = 'uploading';
+    item.progress = 0;
+
+    this.api.importCompleteExcel(item.file).subscribe({
       next: (event) => {
         if (event.type === HttpEventType.UploadProgress) {
           const total = event.total ?? 0;
           const loaded = event.loaded ?? 0;
-          this.uploadProgress = total ? Math.round((loaded / total) * 100) : 20;
+          item.progress = total ? Math.round((loaded / total) * 100) : 10;
         }
 
         if (event.type === HttpEventType.Response) {
-          this.uploadProgress = 100;
-
-          const body: any = event.body ?? {};
-          const data = body?.Data ?? body?.data ?? null;
-
-          this.importedSummary = {
-            suppliers: Number(data?.SuppliersImported ?? 0),
-            materials: Number(data?.MaterialsImported ?? 0),
-            relationships: Number(data?.RelationshipsImported ?? 0),
-            total: Number(data?.TotalRecords ?? 0),
-          };
-
+          item.progress = 100;
+          item.state = 'success';
           this.uploadState = 'success';
         }
       },
-      error: (err) => {
-        this.uploadState = 'failed';
-        this.uploadProgress = 0;
-        this.uploadErrorMsg = 'Upload failed';
+      error: () => {
+        item.state = 'failed';
+        item.progress = 0;
 
-        const msg =
-          (typeof err?.error === 'string' && err.error) ||
-          err?.error?.Message ||
-          err?.error?.message ||
-          'Import failed';
 
-        if (err?.status === 400) {
-          this.toastWarning = "This file doesn’t match the required specifications. Please upload a valid file";
-        } else {
-          this.toastWarning = msg;
-        }
+        item.warningText = this.SPEC_WARNING;
       },
     });
   }
 
+  isAnyUploading() {
+    return this.uploads.some((u) => u.state === 'uploading');
+  }
+
+  trackByUploadId(_: number, item: UploadItem) {
+    return item.id;
+  }
+
+  formatSize(bytes: number) {
+    if (!bytes && bytes !== 0) return '';
+    const mb = bytes / (1024 * 1024);
+    if (mb < 1024) return `${Math.round(mb)} MB`;
+    const gb = mb / 1024;
+    return `${gb.toFixed(1)} GB`;
+  }
+
   continueAfterSuccess() {
-    // يقفل المودال ويرجع لصفحة Suppliers (هي هتعمل load لوحدها)
     this.closeUpload();
     this.router.navigate(['/dashboard/suppliers']);
   }

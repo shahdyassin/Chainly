@@ -36,15 +36,19 @@ export class SuppliersInfo implements OnInit, OnDestroy {
 
   sortOrder: SortState = undefined;
 
-  // Prev/Next suppliers ctx
+
   canPrev = false;
   canNext = false;
   private ctx: any = null;
 
-  // Map modal
+
   isMapOpen = false;
   private map: L.Map | null = null;
   private marker: L.Marker | null = null;
+
+  isDeleteOpen = false;
+  deleting = false;
+  deleteError = '';
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((p) => {
@@ -66,7 +70,7 @@ export class SuppliersInfo implements OnInit, OnDestroy {
     this.destroyMap();
   }
 
-  // ========= Supplier Load =========
+
   loadSupplier() {
     this.api.getById(this.supplierId, this.pageNumber, this.pageSize, this.searchText).subscribe({
       next: (res) => {
@@ -139,18 +143,49 @@ export class SuppliersInfo implements OnInit, OnDestroy {
     return Number.isFinite(num) ? num : 0;
   }
 
-  // ========= Header Buttons =========
-  editSupplier() {
-    console.log('Edit supplier', this.supplierId);
-  }
+
+editSupplier() {
+  this.router.navigate(['/dashboard/suppliers/supplier-edit', this.supplierId]);
+}
+
+
 
   deleteSupplier() {
-    console.log('Delete supplier', this.supplierId);
+    this.deleteError = '';
+    this.isDeleteOpen = true;
   }
 
-  // ========= Eye on Material -> Supplies Info (show suppliers who sell it) =========
+  closeDelete() {
+    if (this.deleting) return;
+    this.isDeleteOpen = false;
+    this.deleteError = '';
+  }
+
+  confirmDelete() {
+    if (!this.supplierId || this.deleting) return;
+
+    this.deleting = true;
+    this.deleteError = '';
+
+    this.api.delete(this.supplierId).subscribe({
+      next: () => {
+        this.deleting = false;
+        this.closeDelete();
+
+
+        this.router.navigate(['/dashboard/suppliers']);
+      },
+      error: (err) => {
+        this.deleting = false;
+        if (err?.status === 404) this.deleteError = 'Supplier not found (404).';
+        else if (err?.status === 401 || err?.status === 403) this.deleteError = 'Not authorized.';
+        else this.deleteError = 'Delete failed. Please try again.';
+      },
+    });
+  }
+
+
   viewSupply(row: MaterialRow) {
-    // ✅ نخزن ctx بسيط عشان SuppliesInfo (Prev/Next) ما يهنجش لو محتاجه
     sessionStorage.setItem(
       'materials_ctx',
       JSON.stringify({
@@ -164,11 +199,10 @@ export class SuppliersInfo implements OnInit, OnDestroy {
       })
     );
 
-    // ✅ نروح لصفحة الماتيريال نفسها اللي بتعرض Suppliers اللي بيبيعوها
     this.router.navigate(['/dashboard/supplies-list/supplies-info', row.id]);
   }
 
-  // ========= Map Modal =========
+
   openMapExternal() {
     const lat = this.supplier?.latitude;
     const lng = this.supplier?.longitude;
@@ -227,7 +261,7 @@ export class SuppliersInfo implements OnInit, OnDestroy {
     }
   }
 
-  // ========= Next / Prev suppliers =========
+
   private readCtx() {
     const raw = sessionStorage.getItem('suppliers_ctx');
     this.ctx = raw ? JSON.parse(raw) : null;

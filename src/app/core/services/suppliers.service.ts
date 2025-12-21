@@ -32,6 +32,15 @@ export interface MaterialRow {
   carbonFootprint?: string | null;
 }
 
+export interface CreateSupplierPayload {
+  name: string;
+  Latitude: number | null;
+  Longitude: number | null;
+  facilityType: string | null;
+  sector: string | null;
+  materialIds: number[];
+}
+
 export interface Paged<T> {
   items: T[];
   totalPages: number;
@@ -45,9 +54,9 @@ export interface SupplierByIdResponse {
   materials: Paged<MaterialRow>;
 }
 
-// ✅ backend response
+
 export interface ImportCompleteExcelResponse {
-  message?: string; // في C# اسمها Message (هنعمل map تحت)
+  message?: string;
   Message?: string;
   data?: any;
   Data?: {
@@ -117,15 +126,18 @@ export class SuppliersService {
     );
   }
 
-  // ✅ DELETE
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/api/Suppliers/${id}`);
-  }
 
-  // ✅ IMPORT (with progress events)
+delete(id: number) {
+  return this.http.delete(`${this.baseUrl}/api/Suppliers/${id}`, {
+    responseType: 'text',
+  });
+}
+
+
+
   importCompleteExcel(file: File): Observable<HttpEvent<ImportCompleteExcelResponse>> {
     const form = new FormData();
-    form.append('file', file); // لازم اسمها file زي الباك
+    form.append('file', file);
 
     const req = new HttpRequest('POST', `${this.baseUrl}/api/Suppliers/import-complete-excel`, form, {
       reportProgress: true,
@@ -134,4 +146,29 @@ export class SuppliersService {
 
     return this.http.request<ImportCompleteExcelResponse>(req);
   }
+
+createSupplier(payload: CreateSupplierPayload): Observable<any> {
+  return this.http.post<any>(`${this.baseUrl}/api/Suppliers`, payload);
+}
+
+updateSupplier(id: number, payload: CreateSupplierPayload): Observable<any> {
+  return this.http.put<any>(`${this.baseUrl}/api/Suppliers/${id}`, payload);
+}
+
+
+
+getMaterials(search?: string): Observable<{ id: number; name: string; carbonFootprint?: string | null }[]> {
+  let params = new HttpParams();
+  const q = (search ?? '').trim();
+  if (q) params = params.set('search', q);
+
+  return this.http.get<any>(`${this.baseUrl}/api/Materials`, { params }).pipe(
+    map((r) => (r?.items ?? r?.Items ?? r ?? []).map((x: any) => ({
+      id: Number(x.id ?? x.Id),
+      name: String(x.name ?? x.Name ?? ''),
+      carbonFootprint: x.carbonFootprint ?? x.CarbonFootprint ?? null,
+    })))
+  );
+}
+
 }

@@ -25,7 +25,8 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Organic Cotton Suppliers</div>
+    <div class="card-title">{{ materialName }} Suppliers</div>
+
 
     <div class="toolbar">
       <div class="search-box">
@@ -74,7 +75,7 @@
           </tr>
         </thead>
 
-        <!-- ✅ لو فيه داتا -->
+
         <tbody *ngIf="hasData; else emptyBody">
           <tr *ngFor="let row of items; let i = index">
             <td class="col-check"><input type="checkbox" /></td>
@@ -95,14 +96,14 @@
             <td class="col-sort"></td>
 
             <td class="col-actions">
-              <button class="icon-btn" type="button" title="View">
+              <button class="icon-btn" type="button" title="View" (click)="openSupplier(row)">
                 <img src="/icons/supplies/eye.svg" alt="View" />
               </button>
             </td>
           </tr>
         </tbody>
 
-        <!-- ✅ لو مفيش داتا: نفس الجدول + نفس الهيدر -->
+
         <ng-template #emptyBody>
           <tbody>
             <tr class="empty-row">

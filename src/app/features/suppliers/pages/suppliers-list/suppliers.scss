@@ -382,9 +382,7 @@ table {
   opacity: 0.6;
   cursor: not-allowed;
 }
-/* =========================
-   TOAST WARNING (Reference)
-   ========================= */
+
 .toast-warning{
   position: fixed;
   left: 18px;
@@ -418,9 +416,7 @@ table {
   line-height: 1.25;
 }
 
-/* =========================
-   IMPORT MODAL
-   ========================= */
+
 .import-backdrop{
   position: fixed;
   inset: 0;
@@ -600,9 +596,7 @@ table {
   cursor: not-allowed;
 }
 
-/* =========================
-   SUCCESS VIEW
-   ========================= */
+
 .success-icon{
   width: 46px;
   height: 46px;
@@ -685,9 +679,7 @@ table tr, table tr:hover, .icon-btn, .icon-btn:hover, .sort-btn, .sort-btn:hover
   box-shadow: none !important;
 }
 
-/* =========================
-   RESPONSIVE - CARD / TABLE / PAGER
-   ========================= */
+
 @media (max-width: 1024px) {
   .card { padding: 12px; }
   .toolbar .search-box { height: 42px; border-radius: 12px; }

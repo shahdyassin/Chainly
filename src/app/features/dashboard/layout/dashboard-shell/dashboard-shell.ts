@@ -59,11 +59,10 @@ export class DashboardShell implements OnInit {
     return (title || '')
       .replace(/[⁄∕]/g, '/')
       .split('/')
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean);
   }
 
-  // ✅ crumbs جاهزة للعرض + أول جزء بيتحول للينك صح حسب النص
   get breadcrumbs(): Crumb[] {
     const parts = this.toParts(this.breadcrumbTitle);
 

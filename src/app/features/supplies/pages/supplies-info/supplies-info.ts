@@ -40,7 +40,7 @@ export class SuppliesInfo implements OnInit {
 
   sortOrder: SortState = undefined;
 
- 
+
   ctx: any = null;
   canPrev = false;
   canNext = false;
@@ -220,7 +220,8 @@ export class SuppliesInfo implements OnInit {
     this.router.navigate(['/dashboard/supplies-list']);
   }
 
-  openSupplier(row: SupplierItem) {
-    console.log('Supplier:', row);
+   openSupplier(row: SupplierItem) {
+    if (!row?.id) return;
+    this.router.navigate(['/dashboard/suppliers/supplier-info', row.id]);
   }
 }

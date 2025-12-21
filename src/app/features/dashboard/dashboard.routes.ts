@@ -30,26 +30,40 @@ export const DASHBOARD_ROUTES: Routes = [
         path: 'supplies-list',
         data: { title: 'Supplies' },
         loadChildren: () =>
-          import('../supplies/supplies.routes').then(
-            (m) => m.SUPPLIES_LIST_ROUTES
-          ),
+          import('../supplies/supplies.routes').then((m) => m.SUPPLIES_LIST_ROUTES),
       },
       {
         path: 'suppliers',
         loadComponent: () =>
-          import('../suppliers/pages/suppliers-list/suppliers').then(m => m.Suppliers),
-        data: { title: 'Suppliers' }
+          import('../suppliers/pages/suppliers-list/suppliers').then((m) => m.Suppliers),
+        data: { title: 'Suppliers' },
       },
       {
         path: 'suppliers/supplier-info/:id',
         loadComponent: () =>
-          import('../suppliers/pages/suppliers-info/suppliers-info').then((m) => m.SuppliersInfo),
+          import('../suppliers/pages/suppliers-info/suppliers-info').then(
+            (m) => m.SuppliersInfo
+          ),
         data: { title: 'Suppliers / Supplier Info' },
       },
       {
         path: 'suppliers/import-files',
-        loadComponent: () => import('../suppliers/pages/import-files/import-files').then(m => m.ImportFiles)
-      }
+        loadComponent: () =>
+          import('../suppliers/pages/import-files/import-files').then((m) => m.ImportFiles),
+        data: { title: 'Suppliers / Import Files' }, // ✅ مهم
+      },
+      {
+        path: 'suppliers/supplier-add',
+        loadComponent: () =>
+          import('../suppliers/pages/supplier-add/supplier-add').then((m) => m.SupplierAdd),
+        data: { title: 'Suppliers / Supplier Info' },
+      },
+      {
+        path: 'suppliers/supplier-edit/:id',
+        loadComponent: () =>
+          import('../suppliers/pages/supplier-edit/supplier-edit').then((m) => m.SupplierEdit),
+        data: { title: 'Suppliers / Supplier Info' },
+      },
 
     ],
   },

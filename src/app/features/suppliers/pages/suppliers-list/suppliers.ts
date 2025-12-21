@@ -32,18 +32,16 @@ export class Suppliers implements OnInit {
 
   sortType: string | undefined = undefined;
 
-  // =========================
-  // ✅ IMPORT UI STATE
-  // =========================
+
   isImportOpen = false;
   uploadState: UploadState = 'idle';
   selectedFile: File | null = null;
 
   uploadProgress = 0;
-  uploadErrorMsg = ''; // Upload failed
-  toastWarning = ''; // Warning bar like reference
+  uploadErrorMsg = '';
+  toastWarning = '';
 
-  // Success info (optional display)
+
   importedSummary = {
     suppliers: 0,
     materials: 0,
@@ -51,9 +49,7 @@ export class Suppliers implements OnInit {
     total: 0,
   };
 
-  // =========================
-  // ✅ Delete modal state (سيبناها زي ما هي)
-  // =========================
+
   isDeleteOpen = false;
   deleteTarget: SupplierItem | null = null;
   deleting = false;
@@ -114,7 +110,7 @@ export class Suppliers implements OnInit {
     return typeof x === 'number';
   }
 
-  // ✅ View supplier
+
   viewSupplier(row: SupplierItem, i: number) {
     const globalIndex = (this.pageNumber - 1) * this.pageSize + i;
 
@@ -134,9 +130,7 @@ export class Suppliers implements OnInit {
     this.router.navigate(['/dashboard/suppliers/supplier-info', row.id]);
   }
 
-  // =========================
-  // ✅ IMPORT FLOW
-  // =========================
+
   importFile() {
     this.isImportOpen = true;
     this.uploadState = 'idle';
@@ -156,7 +150,7 @@ export class Suppliers implements OnInit {
     const input = ev.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
     this.onFilePicked(file);
-    input.value = ''; // allow picking same file again
+    input.value = '';
   }
 
   onDropFile(ev: DragEvent) {
@@ -188,7 +182,7 @@ export class Suppliers implements OnInit {
     const ok = name.endsWith('.xlsx') || name.endsWith('.xls');
 
     if (!ok) {
-      // نفس نص الريفرنس
+
       this.toastWarning = "This file doesn’t match the required specifications. Please upload a valid file";
       this.uploadState = 'failed';
       this.selectedFile = null;
@@ -211,14 +205,14 @@ export class Suppliers implements OnInit {
 
     this.api.importCompleteExcel(this.selectedFile).subscribe({
       next: (event) => {
-        // progress
+
         if (event.type === HttpEventType.UploadProgress) {
           const total = event.total ?? 0;
           const loaded = event.loaded ?? 0;
           this.uploadProgress = total ? Math.round((loaded / total) * 100) : 20;
         }
 
-        // response
+
         if (event.type === HttpEventType.Response) {
           this.uploadProgress = 100;
 
@@ -234,8 +228,6 @@ export class Suppliers implements OnInit {
 
           this.uploadState = 'success';
 
-          // ✅ reload list to show imported data
-          // الأفضل بعد import تعمل load(1) عشان الداتا الجديدة غالباً تظهر أول صفحات
           this.load(1);
         }
       },
@@ -244,15 +236,13 @@ export class Suppliers implements OnInit {
         this.uploadProgress = 0;
         this.uploadErrorMsg = 'Upload failed';
 
-        // backend BadRequest بيرجع string ("Only Excel files...")
-        // backend 500 بيرجع {Message:"Import failed", Error:"..."}
         const msg =
           (typeof err?.error === 'string' && err.error) ||
           err?.error?.Message ||
           err?.error?.message ||
           'Import failed';
 
-        // لو الملف مش مطابق
+
         if (err?.status === 400) {
           this.toastWarning = "This file doesn’t match the required specifications. Please upload a valid file";
         } else {
@@ -266,20 +256,18 @@ export class Suppliers implements OnInit {
     this.closeImport();
   }
 
-  // =========================
-  // باقي أزرارك
-  // =========================
-  addSupplier() {
-    console.log('Add supplier...');
-  }
 
-  editSupplier(row: SupplierItem) {
-    console.log('Edit', row);
-  }
+ addSupplier() {
+  this.router.navigate(['/dashboard/suppliers/supplier-add']);
+}
 
-  // =========================
-  // ✅ Delete modal handlers (سيبناها زي ما هي)
-  // =========================
+
+ editSupplier(row: SupplierItem) {
+  this.router.navigate(['/dashboard/suppliers/supplier-edit', row.id]);
+}
+
+
+
   openDelete(row: SupplierItem) {
     this.deleteTarget = row;
     this.deleteError = '';

@@ -47,7 +47,7 @@
           </tr>
         </thead>
 
-        <!-- ✅ لو فيه داتا -->
+
         <tbody *ngIf="hasData; else emptyBody">
           <tr *ngFor="let row of items; let i = index">
             <td class="col-check"><input type="checkbox" /></td>
@@ -79,7 +79,7 @@
         <ng-template #emptyBody>
           <tbody>
             <tr class="empty-row">
-              
+
               <td class="empty-cell" colspan="6">
                 <div class="empty">No data to show</div>
               </td>

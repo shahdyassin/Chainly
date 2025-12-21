@@ -1,0 +1,251 @@
+<div class="ref-page">
+
+  <div class="ref-head">
+    <h1 class="ref-title">Edit Supplier</h1>
+
+    <button class="ref-confirm" type="button" (click)="confirmChanges()" [disabled]="saving">
+      <img class="ico" src="/icons/suppliers/confirm.svg" alt="" />
+      <span>{{ saving ? 'Saving...' : 'Confirm Changes' }}</span>
+    </button>
+  </div>
+
+
+  <div class="ref-card">
+    <div class="ref-card-h">Supplier Info</div>
+
+    <div class="ref-info-box">
+
+      <div class="ref-info-row">
+        <div class="left">
+          <img class="row-ico" src="/icons/suppliers/location.svg" alt="" />
+          <span>Location</span>
+        </div>
+
+        <div class="mid">
+          <span class="value" [class.placeholder]="!locationText">
+            {{ locationText || 'Add Location' }}
+          </span>
+        </div>
+
+        <div class="right">
+          <button class="ref-pill" type="button" (click)="openMapModal()">
+            <span>Locate on Map</span>
+            <img class="ext" src="/icons/suppliers/locate.svg" alt="" />
+          </button>
+        </div>
+      </div>
+
+
+      <div class="ref-info-row">
+        <div class="left">
+          <img class="row-ico" src="/icons/suppliers/facility2.svg" alt="" />
+          <span>Facility</span>
+        </div>
+
+        <div class="mid">
+          <input class="ref-inline no-glow" [(ngModel)]="facilityType" placeholder="Add Facility" />
+        </div>
+
+        <div class="right"></div>
+      </div>
+
+      <div class="ref-info-row">
+        <div class="left">
+          <img class="row-ico" src="/icons/suppliers/sector2.svg" alt="" />
+          <span>Sector</span>
+        </div>
+
+        <div class="mid">
+          <input class="ref-inline no-glow" [(ngModel)]="sector" placeholder="Add Sector" />
+        </div>
+
+        <div class="right"></div>
+      </div>
+    </div>
+
+
+    <div class="ref-name">
+      <label>Supplier Name</label>
+      <input [(ngModel)]="name" placeholder="Supplier Name" />
+    </div>
+
+    <div class="ref-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+  </div>
+
+
+  <div class="ref-card">
+    <div class="ref-card-h">Supplies</div>
+
+
+    <div class="sup-toolbar">
+      <div class="sup-search-box">
+        <img class="search-ico" src="/icons/supplies/search.svg" alt="" />
+        <input [(ngModel)]="matSearch" (ngModelChange)="onMatSearchChange()" placeholder="Search" />
+      </div>
+
+
+      <button class="sup-add-btn" type="button" (click)="openMaterialsModal()">
+        <img class="ico" src="/icons/suppliers/addsupplies.svg" alt="+" />
+        <span>Add Supply</span>
+      </button>
+    </div>
+
+    <div class="sup-table-wrap">
+      <table class="sup-table">
+        <thead>
+          <tr>
+            <th class="col-check">
+              <input class="tbl-check" type="checkbox" [checked]="false" (change)="toggleAll($event)" />
+            </th>
+
+            <th class="col-no">No.</th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/supplies/name.svg" alt="" />
+                <span>Name</span>
+              </div>
+            </th>
+
+            <th class="col-carbon">
+              <div class="th-inner">
+                <img src="/icons/supplies/carbon.svg" alt="" />
+                <span>Carbon Footprint</span>
+              </div>
+            </th>
+
+            <th class="col-sort">
+              <button class="sup-sort-btn" type="button" (click)="toggleSort()" title="Sort">
+                <img src="/icons/suppliers/sort.svg" alt="Sort" />
+              </button>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/productionLine/actions.svg" alt="" />
+                <span>Actions</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+
+
+        <tbody *ngIf="pagedMaterials.length; else emptyBody">
+          <tr *ngFor="let row of pagedMaterials; let i = index">
+            <td class="col-check">
+              <input class="tbl-check" type="checkbox" [checked]="false" (change)="removeMaterial(row.id)" />
+            </td>
+
+            <td class="col-no">{{ (pageNumber - 1) * pageSize + (i + 1) }}.</td>
+
+            <td class="td-title">{{ row.name }}</td>
+
+            <td class="col-carbon">
+              <span class="cf-badge">
+                <img src="/icons/supplies/carbonGreen.svg" alt="" />
+                {{ row.carbonFootprint }}
+              </span>
+            </td>
+
+            <td class="col-sort"></td>
+
+            <td class="col-actions">
+              <button class="sup-icon-btn" type="button" title="View" (click)="viewSupply(row)">
+                <img src="/icons/suppliers/eye.svg" alt="View" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+
+        <ng-template #emptyBody>
+          <tbody>
+            <tr class="empty-row">
+              <td class="empty-cell" colspan="6">
+                <div class="empty">No data to show</div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+
+
+    <div class="sup-pager">
+      <div class="left">
+        Showing {{ totalCount ? ((pageNumber - 1) * pageSize + 1) : 0 }}
+        ::
+        {{ (pageNumber - 1) * pageSize + pagedMaterials.length }}
+        of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+        <button class="nav-btn" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">&lt;</button>
+
+        <button
+          *ngFor="let p of pagesArray"
+          (click)="isNumber(p) && goToPage(p)"
+          [disabled]="p === '...'"
+          [class.active]="p === pageNumber"
+        >
+          {{ p }}
+        </button>
+
+        <button class="nav-btn" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">&gt;</button>
+      </div>
+
+      <div class="right">
+        <span>Go to page</span>
+        <input type="number" [value]="pageNumber" (change)="goToPage($any($event.target).valueAsNumber)" />
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="ref-backdrop" *ngIf="isMaterialsOpen" (click)="closeMaterialsModal()">
+  <div class="ref-modal" (click)="$event.stopPropagation()">
+    <div class="m-top">
+      <img src="/icons/suppliers/addsupplies.svg" alt="" />
+      <div class="m-title">Add Supplies</div>
+    </div>
+
+    <div class="m-search">
+      <img src="/icons/supplies/search.svg" alt="" />
+      <input [(ngModel)]="materialsSearch" (ngModelChange)="loadMaterials()" placeholder="Search" />
+    </div>
+
+    <div class="m-chips">
+      <div class="chip" *ngFor="let x of tempSelected">
+        <span>{{ x.name }}</span>
+        <button type="button" (click)="tempRemove(x.id)">×</button>
+      </div>
+    </div>
+
+    <div class="m-list">
+      <div class="m-loading" *ngIf="materialsLoading">Loading...</div>
+
+      <label class="m-opt" *ngFor="let m of materialsOptions">
+        <input class="chk sm" type="checkbox" [checked]="tempHas(m.id)" (change)="tempToggle(m)" />
+        <span>{{ m.name }}</span>
+      </label>
+    </div>
+
+    <button class="m-confirm" type="button" (click)="confirmMaterials()">Confirm</button>
+  </div>
+</div>
+
+
+<div class="ref-backdrop" *ngIf="isMapOpen" (click)="cancelLocation()">
+  <div class="ref-modal map" (click)="$event.stopPropagation()">
+    <div class="map-head">
+      <h3 class="map-title">Supplier Location</h3>
+      <button class="map-x" type="button" (click)="cancelLocation()">
+        <img src="/icons/suppliers/close.svg" alt="x" />
+      </button>
+    </div>
+
+    <app-map-picker (locationSelected)="onLocationSelected($event)"></app-map-picker>
+
+    <button class="m-confirm" type="button" (click)="confirmLocation()">Done</button>
+  </div>
+</div>
