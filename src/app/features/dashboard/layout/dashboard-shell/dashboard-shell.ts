@@ -70,10 +70,12 @@ export class DashboardShell implements OnInit {
 
     const first = parts[0];
     const firstLink =
-      first.toLowerCase() === 'suppliers' ? ['/dashboard/suppliers'] :
-      first.toLowerCase() === 'supplies'  ? ['/dashboard/supplies-list'] :
-      first.toLowerCase() === 'dashboard' ? ['/dashboard'] :
-      undefined;
+  first.toLowerCase() === 'orders'     ? ['/dashboard/orders'] :
+  first.toLowerCase() === 'suppliers'  ? ['/dashboard/suppliers'] :
+  first.toLowerCase() === 'supplies'   ? ['/dashboard/supplies-list'] :
+  first.toLowerCase() === 'dashboard'  ? ['/dashboard'] :
+  undefined;
+
 
     const crumbs: Crumb[] = [];
     crumbs.push({ label: first, link: firstLink });

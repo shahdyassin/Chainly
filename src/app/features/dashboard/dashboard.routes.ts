@@ -70,7 +70,13 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../orders/pages/orders-list/orders-list').then((m) => m.OrdersList),
         data: { title: 'Orders' },
       },
-
+      {
+        path: 'orders/:id',
+        loadComponent: () =>
+          import('../orders/pages/order-details/order-details')
+            .then(m => m.OrderDetails),
+        data: { title: 'Orders / Order Details' },
+      }
     ],
   },
 ];

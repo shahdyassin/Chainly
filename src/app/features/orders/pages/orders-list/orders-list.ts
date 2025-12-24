@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpEventType } from '@angular/common/http';
-import { forkJoin, from, of } from 'rxjs';
-import { catchError, concatMap, finalize, tap } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, tap, takeUntil } from 'rxjs/operators';
+import { Router, RouterModule } from '@angular/router';
 import {
   OrdersService,
   OrderRow,
@@ -24,20 +25,22 @@ type UploadItem = {
   warningText: string;
 };
 
-
 type ImportStep = 'instructions' | 'upload' | 'success';
 
 @Component({
   selector: 'app-orders-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './orders-list.html',
   styleUrl: './orders-list.scss',
 })
-export class OrdersList implements OnInit {
+export class OrdersList implements OnInit, OnDestroy {
   private ordersApi = inject(OrdersService);
   private events = inject(AppEventsService);
+  private router = inject(Router);
 
+  private destroy$ = new Subject<void>();
+  private search$ = new Subject<string>();
 
   searchText = '';
   activeTab: OrderStatusTab = 'all';
@@ -57,37 +60,59 @@ export class OrdersList implements OnInit {
     shipped: 0,
   };
 
-
   isImportOpen = false;
   importStep: ImportStep = 'instructions';
   uploads: UploadItem[] = [];
   private uidSeq = 1;
-
 
   isDeleteOpen = false;
   deleteTarget: OrderRow | null = null;
   isDeleting = false;
 
   ngOnInit(): void {
+
+    this.search$
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((txt) => {
+        this.searchText = txt;
+        this.pageNumber = 1;
+        this.reloadAll();
+      });
+
+
     this.reloadAll();
 
-    this.events.ordersChanged$.subscribe(() => {
-      this.pageNumber = 1;
-      this.reloadAll();
-    });
+
+    this.events.ordersChanged$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.pageNumber = 1;
+        this.reloadAll();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 
-  onSearchChange() {
-    this.pageNumber = 1;
-    this.reloadAll();
+
+  onSearchChange(value?: string) {
+    this.search$.next(String(value ?? this.searchText ?? '').trim());
   }
+
 
   setTab(tab: OrderStatusTab) {
     this.activeTab = tab;
     this.pageNumber = 1;
     this.loadOrders();
   }
+
 
   goToPage(p: any) {
     const n = Number(p);
@@ -110,12 +135,15 @@ export class OrdersList implements OnInit {
     this.goToPage(this.pageNumber + 1);
   }
 
+
   viewOrder(row: OrderRow) {
-    console.log('View order', row);
+    if (!row?.id) return;
+    this.router.navigate(['/dashboard/orders', row.id]);
   }
 
   editOrder(row: OrderRow) {
-    console.log('Edit order', row);
+    if (!row?.id) return;
+    this.router.navigate(['/dashboard/orders', row.id, 'edit']);
   }
 
 
@@ -143,7 +171,8 @@ export class OrdersList implements OnInit {
           this.isDeleting = false;
           this.isDeleteOpen = false;
           this.deleteTarget = null;
-        })
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: () => {
@@ -199,8 +228,8 @@ export class OrdersList implements OnInit {
 
 
   private reloadAll() {
-    this.loadTabCounts();
     this.loadOrders();
+    this.loadTabCounts();
   }
 
   private loadOrders() {
@@ -213,17 +242,17 @@ export class OrdersList implements OnInit {
         status: apiStatus,
         search: this.searchText,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          const filtered = this.filterByActiveTab(res.items ?? []);
-          this.orders = filtered;
+          this.orders = this.filterByActiveTab(res.items ?? []);
 
           this.totalCount = res.totalCount ?? 0;
           this.totalPages = res.totalPages ?? 1;
 
+
           if (this.pageNumber > this.totalPages) {
             this.pageNumber = this.totalPages;
-            this.loadOrders();
           }
         },
         error: () => {
@@ -263,8 +292,17 @@ export class OrdersList implements OnInit {
       inTransit: reqInTransit,
       pending: reqPending,
       shipped: reqShipped,
-    }).subscribe({
-      next: (x) => {
+    })
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(() => of(null))
+      )
+      .subscribe((x: any) => {
+        if (!x) {
+          this.tabCounts = { all: 0, delivered: 0, cancelled: 0, inTransit: 0, pending: 0, shipped: 0 };
+          return;
+        }
+
         this.tabCounts = {
           all: x.all.totalCount ?? 0,
           delivered: x.delivered.totalCount ?? 0,
@@ -273,11 +311,7 @@ export class OrdersList implements OnInit {
           pending: x.pending.totalCount ?? 0,
           shipped: x.shipped.totalCount ?? 0,
         };
-      },
-      error: () => {
-        this.tabCounts = { all: 0, delivered: 0, cancelled: 0, inTransit: 0, pending: 0, shipped: 0 };
-      },
-    });
+      });
   }
 
   private mapTabToApiStatus(tab: OrderStatusTab): OrderStatusApi {
@@ -289,17 +323,17 @@ export class OrdersList implements OnInit {
     return null;
   }
 
+
   openImport() {
     this.isImportOpen = true;
     this.importStep = 'instructions';
     this.uploads = [];
   }
 
-closeImport() {
-  if (this.isAnyUploading()) return;
-  this.isImportOpen = false;
-}
-
+  closeImport() {
+    if (this.isAnyUploading()) return;
+    this.isImportOpen = false;
+  }
 
   openUploadStep() {
     this.importStep = 'upload';
@@ -311,6 +345,7 @@ closeImport() {
     this.uploads = [];
     this.reloadAll();
   }
+
 
   onDragOver(ev: DragEvent) {
     ev.preventDefault();
@@ -337,101 +372,84 @@ closeImport() {
     ev.target.value = '';
   }
 
-private addFiles(files: File[]) {
-  if (!files.length) return;
+  private addFiles(files: File[]) {
+    if (!files.length) return;
 
-  for (const f of files) {
-    const name = (f.name || '').toLowerCase();
-    const ok = name.endsWith('.xlsx') || name.endsWith('.xls');
+    for (const f of files) {
+      const name = (f.name || '').toLowerCase();
+      const ok = name.endsWith('.xlsx') || name.endsWith('.xls');
 
-    const item: UploadItem = {
-      uid: this.uidSeq++,
-      file: f,
-      state: ok ? 'uploading' : 'failed',
-      progress: 0,
-      warningText: ok ? '' : `This file doesn't match the required specifications. Please upload a valid file`,
-    };
+      const item: UploadItem = {
+        uid: this.uidSeq++,
+        file: f,
+        state: ok ? 'uploading' : 'failed',
+        progress: 0,
+        warningText: ok ? '' : `This file doesn't match the required specifications. Please upload a valid file`,
+      };
 
-    this.uploads.unshift(item);
+      this.uploads.unshift(item);
 
-
-    if (ok) {
-      this.uploadOne(item).subscribe({
-        error: (err) => this.markFailed(item, err),
-      });
+      if (ok) {
+        this.uploadOne(item).subscribe();
+      }
     }
   }
-}
-
 
   removeUpload(item: UploadItem) {
     this.uploads = this.uploads.filter((x) => x.uid !== item.uid);
   }
 
-retryUpload(item: UploadItem) {
-  item.state = 'uploading';
-  item.progress = 0;
-  item.warningText = '';
+  retryUpload(item: UploadItem) {
+    item.state = 'uploading';
+    item.progress = 0;
+    item.warningText = '';
+    this.uploadOne(item).subscribe();
+  }
 
-  this.uploadOne(item).subscribe();
-}
+  isAnyUploading() {
+    return this.uploads.some((x) => x.state === 'uploading');
+  }
 
+  confirmUpload() {
+    if (!this.canConfirmUpload) return;
 
-isAnyUploading() {
-  return this.uploads.some((x) => x.state === 'uploading');
-}
+    this.importStep = 'success';
+    this.pageNumber = 1;
+    this.reloadAll();
+    this.events.notifyOrdersChanged();
+  }
 
+  private uploadOne(item: UploadItem) {
+    item.state = 'uploading';
+    item.progress = 0;
+    item.warningText = '';
 
-confirmUpload() {
-  if (!this.uploads.length) return;
-  if (this.isAnyUploading()) return;
+    return this.ordersApi.importOrders(item.file).pipe(
+      tap((event) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          const total = event.total ?? item.file.size ?? 1;
+          const pct = Math.round((100 * (event.loaded ?? 0)) / total);
+          item.progress = Math.max(0, Math.min(100, pct));
+        }
 
-  const hasFailed = this.uploads.some((x) => x.state === 'failed');
-  const allUploaded = this.uploads.every((x) => x.state === 'uploaded');
-
-  if (hasFailed || !allUploaded) return;
-
-
-  this.importStep = 'success';
-
-  this.pageNumber = 1;
-  this.reloadAll();
-  this.events.notifyOrdersChanged();
-}
-
-
-private uploadOne(item: UploadItem) {
-  item.state = 'uploading';
-  item.progress = 0;
-  item.warningText = '';
-
-  return this.ordersApi.importOrders(item.file).pipe(
-    tap((event) => {
-      if (event.type === HttpEventType.UploadProgress) {
-        const total = event.total ?? item.file.size ?? 1;
-        const pct = Math.round((100 * (event.loaded ?? 0)) / total);
-        item.progress = Math.max(0, Math.min(100, pct));
-      }
-
-      if (event.type === HttpEventType.Response) {
-        item.progress = 100;
-        item.state = 'uploaded';
-      }
-    }),
-    catchError((err) => {
-      this.markFailed(item, err);
-      return of(null);
-    }),
-    finalize(() => {
-      if (item.state === 'uploading') {
-        item.state = 'failed';
-        item.progress = 0;
-        if (!item.warningText) item.warningText = 'Upload failed';
-      }
-    })
-  );
-}
-
+        if (event.type === HttpEventType.Response) {
+          item.progress = 100;
+          item.state = 'uploaded';
+        }
+      }),
+      catchError((err) => {
+        this.markFailed(item, err);
+        return of(null);
+      }),
+      finalize(() => {
+        if (item.state === 'uploading') {
+          item.state = 'failed';
+          item.progress = 0;
+          if (!item.warningText) item.warningText = 'Upload failed';
+        }
+      })
+    );
+  }
 
   private markFailed(item: UploadItem, err: any) {
     item.state = 'failed';
@@ -464,15 +482,14 @@ private uploadOne(item: UploadItem) {
   }
 
   get hasFailedUploads(): boolean {
-  return this.uploads.some((x) => x.state === 'failed');
-}
+    return this.uploads.some((x) => x.state === 'failed');
+  }
 
-get allUploadsDone(): boolean {
-  return this.uploads.length > 0 && this.uploads.every((x) => x.state === 'uploaded');
-}
+  get allUploadsDone(): boolean {
+    return this.uploads.length > 0 && this.uploads.every((x) => x.state === 'uploaded');
+  }
 
-get canConfirmUpload(): boolean {
-  return this.uploads.length > 0 && !this.isAnyUploading() && !this.hasFailedUploads && this.allUploadsDone;
-}
-
+  get canConfirmUpload(): boolean {
+    return this.uploads.length > 0 && !this.isAnyUploading() && !this.hasFailedUploads && this.allUploadsDone;
+  }
 }

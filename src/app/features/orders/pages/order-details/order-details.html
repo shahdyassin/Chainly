@@ -1,0 +1,172 @@
+<div class="od-page">
+  <div class="od-header">
+    <div class="left">
+      <div class="title-row">
+        <div class="title">
+          Order #{{ order?.orderId || '-' }}
+        </div>
+
+        <span class="pill" [ngClass]="statusClass(order?.status || '')">
+          {{ order?.status || 'Pending' }}
+        </span>
+      </div>
+
+      <div class="sub">
+        Public code: <span>{{ order?.publicCode || '-' }}</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-outline" type="button">
+        <img src="/icons/orders/edit.svg" alt="Edit">
+        Edit
+      </button>
+
+      <button class="btn-outline danger" type="button" (click)="openDelete()">
+        <img src="/icons/orders/delete.svg" alt="Delete">
+        Delete
+      </button>
+
+      <button class="nav-btn" type="button" (click)="prevOrder()" [disabled]="!canPrev()">
+        <img src="/icons/orders/left.svg" alt="Previous">
+      </button>
+
+      <button class="nav-btn" type="button" (click)="nextOrder()" [disabled]="!canNext()">
+        <img src="/icons/orders/right.svg" alt="Next">
+      </button>
+    </div>
+  </div>
+
+
+  <div class="od-card tracking-card">
+    <div class="tracking-title">Order Tracking</div>
+
+    <div class="timeline" *ngIf="trackings.length; else emptyTrack">
+
+      <div class="track" *ngFor="let t of trackings.slice().reverse(); let i = index">
+
+        <div class="stepper">
+          <div class="circle" [ngClass]="statusClass(t.status)">
+            <img class="status-icon" [ngClass]="statusClass(t.status)" [src]="getStatusIcon(t.status)" alt="">
+          </div>
+          <div class="line" *ngIf="i !== trackings.length - 1"></div>
+        </div>
+
+
+        <div class="track-card">
+
+          <div class="track-head">
+            <div class="track-status">{{ t.status }}</div>
+
+            <div class="track-date">
+              <img src="/icons/orders/calender.svg" alt="">
+              {{ t.date | date:'dd.MM.yyyy' }}
+            </div>
+          </div>
+
+          <div class="table-box">
+            <table class="track-table">
+
+              <tr>
+                <td class="lbl">
+                  <img src="/icons/orders/location.svg" alt="">
+                  Location
+                </td>
+
+                 <td class="val">
+                  <span class="val-text">{{ t.location || '-' }}</span>
+                </td>
+
+
+                <td class="action">
+                  <button class="map-btn" type="button" (click)="openMap(t)">
+                    Open Map
+                    <img src="/icons/orders/map.svg" alt="">
+                  </button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="lbl">
+                  <img src="/icons/orders/scannedBy.svg" alt="">
+                  Scanned By
+                </td>
+
+                <td class="val" colspan="2">
+                  <span class="val-text">{{ t.scannedBy || '-' }}</span>
+                </td>
+
+              </tr>
+
+              <tr>
+                <td class="lbl">
+                  <img src="/icons/orders/notes.svg" alt="">
+                  Notes
+                </td>
+
+                <td class="val" colspan="2">
+                  <span class="val-text">{{ t.notes || '-' }}</span>
+                </td>
+
+              </tr>
+
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <ng-template #emptyTrack>
+      <div class="empty-track-card">
+        No tracking data available
+      </div>
+    </ng-template>
+  </div>
+
+</div>
+
+
+
+<div class="orders-delete-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
+  <div class="orders-delete-modal" (click)="$event.stopPropagation()">
+    <div class="del-ico-wrap">
+      <img class="del-ico" src="/icons/orders/warning.svg" alt="warn" />
+    </div>
+
+    <div class="del-title">Delete Order</div>
+
+    <div class="del-desc">
+      Are you sure you want to delete <b>Order #{{ order?.orderId }}</b>?<br />
+      This action cannot be undone.
+    </div>
+
+    <div class="del-actions">
+      <button class="del-cancel" type="button" (click)="closeDelete()" [disabled]="isDeleting">
+        Cancel
+      </button>
+
+      <button class="del-confirm" type="button" (click)="confirmDelete()" [disabled]="isDeleting">
+        {{ isDeleting ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="map-backdrop" *ngIf="isMapOpen" (click)="closeMap()">
+  <div class="map-modal" (click)="$event.stopPropagation()">
+
+    <div class="map-head">
+      <h3 class="map-title">Order Location</h3>
+      <button class="map-close" type="button" (click)="closeMap()">
+        <img src="/icons/orders/close.svg" alt="Close">
+      </button>
+    </div>
+
+    <div id="order-tracking-map" class="map-container"></div>
+
+  </div>
+</div>

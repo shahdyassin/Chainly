@@ -102,9 +102,10 @@
 
             <td class="col-actions">
               <div class="actions">
-                <button class="icon-btn" type="button" title="View" (click)="viewOrder(row)">
+                <button class="icon-btn" type="button" title="View" [routerLink]="['/dashboard/orders', row.id]">
                   <img src="/icons/orders/eye.svg" alt="" />
                 </button>
+
 
                 <button class="icon-btn" type="button" title="Edit" (click)="editOrder(row)">
                   <img src="/icons/orders/edit.svg" alt="" />
@@ -269,7 +270,7 @@
                     <img src="/icons/orders/delete.svg" alt="delete" />
                   </button>
 
-                  
+
                   <button class="icon-btn-plain" type="button" *ngIf="item.state === 'failed'"
                     (click)="retryUpload(item)" title="Retry">
                     <img src="/icons/orders/retry.svg" alt="retry" />
