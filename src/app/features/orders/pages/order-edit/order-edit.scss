@@ -1,4 +1,4 @@
-/* order-edit.scss */
+
 .oe-page {
   padding: 24px;
   background: #f6f7f7;
@@ -8,7 +8,7 @@
   gap: 18px;
 }
 
-/* ===== Header ===== */
+
 .oe-header {
   display: flex;
   align-items: center;
@@ -29,7 +29,6 @@
   line-height: 1;
 }
 
-/* pill */
 .pill {
   padding: 4px 14px;
   border-radius: 10px;
@@ -63,7 +62,7 @@
   color: #2e2e2e;
 }
 
-/* confirm */
+
 .confirm-btn.ref {
   height: 44px;
   border-radius: 10px;
@@ -91,7 +90,7 @@
   cursor: not-allowed;
 }
 
-/* ===== Cards ===== */
+
 .oe-card {
   background: #fff;
   border-radius: 20px;
@@ -106,7 +105,7 @@
   color: #2e2e2e;
 }
 
-/* ===== Order Details ===== */
+
 .od-box {
   border: 1px solid #e6e6e6;
   border-radius: 18px;
@@ -175,7 +174,7 @@
   padding: 0 !important;
 }
 
-/* ================== ORDER TRACKING =================== */
+
 .timeline {
   display: flex;
   flex-direction: column;
@@ -188,7 +187,7 @@
   gap: 14px;
 }
 
-/* STEPPER */
+
 .stepper {
   position: relative;
   width: 56px;
@@ -277,7 +276,7 @@
   filter: grayscale(1) brightness(0) opacity(0.75);
 }
 
-/* Track Card */
+
 .track-card.ref {
   background: #f4f4f4;
   border-radius: 18px;
@@ -298,7 +297,7 @@
   color: #2E2E2E;
 }
 
-/* Done / Edit pills */
+
 .done-pill {
   height: 36px;
   padding: 0 14px;
@@ -350,14 +349,14 @@
   }
 }
 
-/* ✅ Inner table with correct borders */
+
 .track-form.ref {
   width: 100%;
   background: #ffffff;
   border-radius: 18px;
   border: 1px solid #e6e6e6;
   overflow: hidden;
-  /* ✅ fixes uneven corners */
+
 }
 
 .track-row.ref {
@@ -375,7 +374,6 @@
   min-height: 82px;
   align-items: stretch;
 }
-
 
 .track-left.ref {
   background: #ffffff;
@@ -442,7 +440,7 @@
   cursor: default;
 }
 
-/* Locate btn */
+
 .track-pill.ref {
   height: 36px;
   border-radius: 999px;
@@ -478,22 +476,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* ✅ يزق الايقونة للاخر */
 }
 
-/* ✅ خلي input ياخد الباقي */
+
 .date-value-wrap .track-value.ref {
   flex: 1;
 }
 
-/* ✅ right column for date */
+
 .date-right {
   position: relative;
-  /* ✅ dropdown هيتعلق هنا */
   justify-content: flex-end;
 }
 
-/* ✅ icon button */
+
 .date-ico-btn {
   width: 34px;
   height: 34px;
@@ -509,15 +505,27 @@
   height: 20px;
 }
 
-/* ✅ dropdown under icon */
+
 .calendar-dropdown.tracking-cal {
-  position: absolute;
+  position: absolute !important;
+  top: 44px;
+  right: 0;
   width: 260px;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
   padding: 10px 12px 12px;
   z-index: 999999;
+}
+
+.track-row.ref.date-row {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.track-right.ref.date-right {
+  position: relative !important;
+  overflow: visible !important;
 }
 
 .calendar-header {
@@ -585,8 +593,6 @@
 }
 
 
-
-/* Empty */
 .empty-track-card {
   text-align: center;
   padding: 30px;
@@ -597,57 +603,7 @@
   background: #fafafa;
 }
 
-/* Date */
-.date-right {
-  position: relative;
-  justify-content: flex-end;
-}
 
-.date-ico-btn {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  background: transparent;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.date-ico-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.date-ico-btn img {
-  width: 20px;
-  height: 20px;
-}
-
-/* Calendar dropdown */
-.calendar-dropdown.tracking-cal {
-  position: absolute;
-  top: 44px;
-  right: 0;
-  width: 260px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
-  padding: 10px 12px 12px;
-  z-index: 999999;
-}
-
-/* Empty */
-.empty-track-card {
-  text-align: center;
-  padding: 30px;
-  font-weight: 700;
-  color: #888;
-  border: 1px dashed #ccc;
-  border-radius: 18px;
-  background: #fafafa;
-}
-
-/* ===== Map Modal ===== */
 .ref-backdrop {
   position: fixed;
   inset: 0;
@@ -713,26 +669,128 @@
   font-weight: 600;
   cursor: pointer;
 }
-/* ✅ FORCE CALENDAR TO SHOW OUTSIDE ANY OVERFLOW */
-.track-row.ref.date-row {
-  position: relative !important;
+
+
+.track-card.ref,
+.track-form.ref,
+.oe-card {
   overflow: visible !important;
-  z-index: 99999 !important;
 }
+
 
 .track-right.ref.date-right {
   position: relative !important;
   overflow: visible !important;
-  z-index: 99999 !important;
 }
 
-/* ✅ KEEP BORDER PERFECT */
-.track-form.ref {
-  overflow: hidden !important;
-}
-
-/* ✅ CALENDAR SHOULD ESCAPE OVERFLOW */
 .calendar-dropdown.tracking-cal {
-  position: fixed !important;
+  position: absolute !important;
+  top: 44px !important;
+  right: 0 !important;
+  left: auto !important;
+  transform: none !important;
   z-index: 9999999 !important;
+}
+
+
+@media (max-width: 768px) {
+
+  .calendar-dropdown.tracking-cal {
+    width: 260px !important;
+    max-width: 92vw !important;
+
+
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+
+
+    top: 44px !important;
+  }
+}
+
+@media (max-width: 420px) {
+
+  .calendar-dropdown.tracking-cal {
+    max-width: 96vw !important;
+  }
+
+  .calendar-grid {
+    grid-auto-rows: 24px !important;
+    gap: 2px !important;
+  }
+
+  .calendar-day {
+    height: 24px !important;
+    line-height: 24px !important;
+    font-size: 10px !important;
+  }
+}
+@media (max-width: 768px) {
+
+
+  .oe-page {
+    padding: 16px !important;
+  }
+
+
+  .oe-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .confirm-btn.ref {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+
+  .track {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stepper {
+    display: none !important;
+  }
+
+
+  .track-row.ref {
+    grid-template-columns: 1fr !important;
+    padding: 0 !important;
+  }
+
+  .track-left.ref {
+    width: 100% !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid #e6e6e6 !important;
+    padding: 12px 14px !important;
+  }
+
+  .track-mid.ref {
+    width: 100% !important;
+    padding: 12px 14px !important;
+  }
+
+  .track-right.ref {
+    width: 100% !important;
+    padding: 12px 14px !important;
+    justify-content: flex-start !important;
+  }
+
+
+  .track-pill.ref {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+
+  .calendar-dropdown.tracking-cal {
+    width: 260px !important;
+    max-width: 92vw !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    top: 44px !important;
+  }
 }

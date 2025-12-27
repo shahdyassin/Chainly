@@ -93,7 +93,7 @@
 
             <td class="col-no">{{ startIndex + i + 1 }}.</td>
 
-            <td class="td-title" [title]="row.orderId">{{ row.orderId }}</td>
+            <td class="td-title" [title]="row.companyOrderId">{{ row.companyOrderId }}</td>
             <td class="td-title" [title]="row.publicCode">{{ row.publicCode }}</td>
 
             <td class="col-status">
@@ -326,7 +326,7 @@
       <div class="del-title">Delete Order</div>
 
       <div class="del-desc">
-        Are you sure you want to delete <b>Order #{{ deleteTarget?.orderId }}</b>?<br />
+        Are you sure you want to delete <b>Order #{{ deleteTarget?.companyOrderId }}</b>?<br />
         This action cannot be undone.
       </div>
 

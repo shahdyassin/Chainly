@@ -1,14 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { Subject, switchMap, map, EMPTY, Observable, expand, takeWhile, of } from 'rxjs';
-import { catchError, finalize, takeUntil } from 'rxjs/operators';
-
+import { HostListener } from '@angular/core';
 import {
-  OrdersService,
-  OrderRow,
-  TrackingRow,
-} from '../../../../core/services/orders.service';
+  Subject,
+  switchMap,
+  map,
+  EMPTY,
+  Observable,
+  expand,
+  takeWhile,
+} from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+import { OrdersService, OrderRow } from '../../../../core/services/orders.service';
 import { FormsModule } from '@angular/forms';
 import { MapPickerComponent } from '../../../../shared/map-picker/map-picker';
 
@@ -63,6 +68,14 @@ export class OrderEdit implements OnInit, OnDestroy {
 
   calendarPos: { top: number; left: number } | null = null;
 
+
+  private originalCompanyOrderId = 0;
+
+
+  private currentTrackingCompanyId = 0;
+
+
+
   ngOnInit() {
     this.route.paramMap
       .pipe(
@@ -75,84 +88,70 @@ export class OrderEdit implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (o) => {
-          this.order = o;
           if (!o) return;
 
-          this.form.companyOrderId = String(o.companyOrderId ?? '');
+          this.order = o;
+
+
+          this.originalCompanyOrderId =
+            Number(o.companyOrderId ?? 0) ||
+            Number((o as any).OrderId ?? 0) ||
+            Number((o as any).orderId ?? 0);
+
+
+          this.currentTrackingCompanyId = this.originalCompanyOrderId;
+
+
+          this.form.companyOrderId = String(this.currentTrackingCompanyId);
           this.form.publicCode = o.publicCode || '';
           this.form.status = o.status || 'Pending';
 
-          // ✅ Tracking لازم بـ companyOrderId الحقيقي
-          const trackingId =
-            Number(o.companyOrderId ?? 0) ||
-            Number((o as any).orderId ?? 0);
-
-          if (!trackingId || trackingId <= 0) {
-            console.warn('Invalid trackingId:', trackingId);
+          if (!this.currentTrackingCompanyId || this.currentTrackingCompanyId <= 0) {
+            console.warn('Invalid trackingId:', this.currentTrackingCompanyId);
             return;
           }
 
-          console.log('TRACKING REQUEST ID:', trackingId);
+          console.log('TRACKING REQUEST ID:', this.currentTrackingCompanyId);
 
           this.api
-            .getOrderWithTracking(trackingId)
+            .getOrderWithTracking(this.currentTrackingCompanyId)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
               next: (res: any) => {
                 console.log('TRACKING RESPONSE:', res);
 
-                // ✅✅✅ أهم تعديل:
-                // companyOrderId اللي جاية من tracking response هي الصح
-                const realCompanyId = Number(res?.companyOrderId ?? res?.data?.companyOrderId ?? 0);
 
-                if (realCompanyId && realCompanyId > 0) {
+                const realCompanyId = Number(res?.companyOrderId ?? 0);
+
+                if (realCompanyId > 0) {
+                  this.currentTrackingCompanyId = realCompanyId;
                   this.form.companyOrderId = String(realCompanyId);
 
-                  // ✅ لو order object موجود حدثيه كمان
                   if (this.order) {
                     this.order.companyOrderId = realCompanyId;
-                    this.order.orderId = String(realCompanyId); // لو بتعرضيه فوق
                   }
                 }
 
-                // ✅ تحديث publicCode من response لو موجود
-                const realCode = String(res?.code ?? res?.data?.code ?? '').trim();
+                const realCode = String(res?.code ?? '').trim();
                 if (realCode) this.form.publicCode = realCode;
 
-                // ✅ trackings list
-                const list =
-                  res?.trackings ??
-                  res?.data?.trackings ??
-                  res?.items ??
-                  [];
+                const list = Array.isArray(res?.trackings) ? res.trackings : [];
 
-                this.trackings = (list ?? [])
+                this.trackings = list
                   .map((x: any) => ({
                     id: Number(x.id),
                     status: String(x.status ?? '').trim(),
                     location: String(x.location ?? '').trim(),
-
                     scannedBy: String(
                       x.updatedBy?.fullName ??
-                      x.updatedBy?.name ??
-                      x.scannedBy ??
-                      x.user?.fullName ??
-                      x.user?.name ??
-                      ''
-                    ).trim(),
-
-                    notes: String(x.notes ?? '').trim(),
-
-                    date: this.parseTrackingDate(
-                      String(
-                        x.timestamp ??
-                        x.date ??
-                        x.updatedAt ??
-                        x.createdAt ??
+                        x.updatedBy?.name ??
+                        x.scannedBy ??
+                        x.user?.fullName ??
+                        x.user?.name ??
                         ''
-                      ).trim()
-                    ),
-
+                    ).trim(),
+                    notes: String(x.notes ?? '').trim(),
+                    date: this.parseTrackingDate(String(x.timestamp ?? '').trim()),
                     latitude: Number(x.latitude ?? 0),
                     longitude: Number(x.longitude ?? 0),
                     isEditing: false,
@@ -172,51 +171,155 @@ export class OrderEdit implements OnInit, OnDestroy {
       });
   }
 
+
+private isPollingTracking = false;
+
+private refreshTrackingUntilUpdated(trackingId: number, expectedNotes: string) {
+  let tries = 0;
+
+  const poll = () => {
+    if (this.isPollingTracking) return;
+    this.isPollingTracking = true;
+
+    tries++;
+
+    this.api.getOrderWithTracking(this.currentTrackingCompanyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: any) => {
+          this.isPollingTracking = false;
+
+          const list = Array.isArray(res?.trackings) ? res.trackings : [];
+
+          const updated = list.find((x: any) => Number(x.id) === trackingId);
+          const notesNow = String(updated?.notes ?? '').trim();
+
+          if (notesNow === expectedNotes.trim()) {
+            this.trackings = list
+              .map((x: any) => ({
+                id: Number(x.id),
+                status: String(x.status ?? '').trim(),
+                location: String(x.location ?? '').trim(),
+                scannedBy: String(
+                  x.updatedBy?.fullName ??
+                  x.updatedBy?.name ??
+                  x.scannedBy ??
+                  x.user?.fullName ??
+                  x.user?.name ??
+                  ''
+                ).trim(),
+                notes: String(x.notes ?? '').trim(),
+                date: this.parseTrackingDate(String(x.timestamp ?? '').trim()),
+                latitude: Number(x.latitude ?? 0),
+                longitude: Number(x.longitude ?? 0),
+                isEditing: false,
+              }))
+              .reverse();
+
+            console.log("✅ Polling success after tries:", tries);
+            return;
+          }
+
+          if (tries < 6) {
+            setTimeout(poll, 450);
+          } else {
+            console.warn("⚠️ Polling ended without seeing update");
+            this.trackings = list.map((x: any) => ({
+              id: Number(x.id),
+              status: String(x.status ?? '').trim(),
+              location: String(x.location ?? '').trim(),
+              scannedBy: String(
+                x.updatedBy?.fullName ??
+                x.updatedBy?.name ??
+                x.scannedBy ??
+                x.user?.fullName ??
+                x.user?.name ??
+                ''
+              ).trim(),
+              notes: String(x.notes ?? '').trim(),
+              date: this.parseTrackingDate(String(x.timestamp ?? '').trim()),
+              latitude: Number(x.latitude ?? 0),
+              longitude: Number(x.longitude ?? 0),
+              isEditing: false,
+            })).reverse();
+          }
+        },
+        error: (err) => {
+          this.isPollingTracking = false;
+          console.error("Refresh tracking failed", err);
+        },
+      });
+  };
+
+  poll();
+}
+
+
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  // ✅✅✅ FIXED PUT
+@HostListener('document:click', ['$event'])
+closeCalendarOutside(event: MouseEvent) {
+  this.openedCalendarIndex = null;
+}
+
+
+
 saveOrder() {
   if (!this.order || this.isSaving) return;
 
   this.isSaving = true;
 
-  const oldCompanyId = Number(this.order.companyOrderId);
-  const newCompanyId = Number(this.form.companyOrderId);
+  const newCompanyId = Number(String(this.form.companyOrderId || '').trim());
+  const oldCompanyId = Number(this.originalCompanyOrderId);
 
   const payload = {
     companyOrderId: newCompanyId,
     code: String(this.form.publicCode || '').trim(),
-    phone: null,
-    email: null,
+    phone: "",
+    email: "",
     status: this.mapStatusToNumber(this.form.status),
   };
 
   this.api.updateOrder(oldCompanyId, payload).subscribe({
     next: () => {
-      // ✅ update local UI
-      this.order!.companyOrderId = newCompanyId;
-      this.order!.publicCode = payload.code;
-      this.order!.status = this.form.status;
+      console.log("✅ PUT DONE");
 
-      // ✅✅✅ أهم سطر: خزني الـ newCompanyId مش القديم
-      localStorage.setItem(
-        `order_tracking_id_${this.order!.id}`,
-        String(newCompanyId)
-      );
 
-      this.isSaving = false;
+      this.api.getOrderWithTracking(newCompanyId)
+.subscribe({
+        next: (res: any) => {
+          console.log("✅ REFRESH TRACKING DONE", res);
 
-      // ✅ رجعي للـ details
-      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-  this.router.navigate(['/dashboard/orders', this.order!.id]);
-});
+          this.form.companyOrderId = String(res.companyOrderId ?? newCompanyId);
+          this.form.publicCode = String(res.code ?? '');
 
+          this.originalCompanyOrderId = Number(res.companyOrderId ?? newCompanyId);
+          this.currentTrackingCompanyId = this.originalCompanyOrderId;
+
+          localStorage.setItem(
+            `order_tracking_id_${this.order!.id}`,
+            String(this.originalCompanyOrderId)
+          );
+
+          this.isSaving = false;
+
+          // refresh page
+          this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+            this.router.navigate(['/dashboard/orders', this.order!.id]);
+          });
+        },
+        error: (err) => {
+          console.error("❌ refresh tracking failed", err);
+          this.isSaving = false;
+        }
+      });
     },
     error: (err) => {
-      console.error("Update order error:", err);
+      console.error("❌ update order error", err);
       this.isSaving = false;
     }
   });
@@ -225,17 +328,13 @@ saveOrder() {
 
 
 
-
-
   private mapStatusToNumber(status: string): number {
     const s = String(status || '').trim().toLowerCase();
-
     if (s === 'pending') return 0;
     if (s === 'shipped') return 1;
     if (s === 'intransit' || s === 'in transit') return 2;
     if (s === 'delivered') return 3;
     if (s === 'cancelled' || s === 'canceled') return 4;
-
     return 0;
   }
 
@@ -249,8 +348,6 @@ saveOrder() {
   finishEditing(index: number) {
     const t = this.trackings[index];
     if (!t) return;
-
-    t.isEditing = false;
     this.openedCalendarIndex = null;
 
     const payload = {
@@ -260,10 +357,18 @@ saveOrder() {
       notes: t.notes,
     };
 
-    this.api.updateTracking(t.id, payload).subscribe({
-      next: () => console.log('Tracking updated ✅'),
-      error: (err) => console.error('Update tracking error:', err),
-    });
+const expectedNotes = t.notes;
+
+this.api.updateTracking(t.id, payload).subscribe({
+  next: () => {
+        t.isEditing = false;
+    console.log("Tracking updated ✅");
+    this.refreshTrackingUntilUpdated(t.id, expectedNotes);
+  },
+  error: (err) => console.error("Update tracking error:", err),
+});
+
+
   }
 
   private fetchOrderByInternalId(id: number): Observable<OrderRow | null> {
@@ -284,6 +389,13 @@ saveOrder() {
       takeWhile((order) => order === null, true)
     );
   }
+
+  private parseTrackingDate(raw: string): Date | null {
+    if (!raw) return null;
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
 
   statusClass(status: string) {
     const k = String(status ?? '').trim().replace(/\s+/g, '').toLowerCase();
@@ -311,12 +423,10 @@ saveOrder() {
       t.date = null;
       return;
     }
-
     if (raw instanceof Date) {
       t.date = raw;
       return;
     }
-
     const d = new Date(raw);
     t.date = isNaN(d.getTime()) ? null : d;
   }
@@ -348,11 +458,9 @@ saveOrder() {
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('map:setCenter', { detail: coords }));
     }, 400);
-
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('map:setCenter', { detail: coords }));
     }, 900);
-
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('map:setCenter', { detail: coords }));
     }, 1500);
@@ -375,7 +483,6 @@ saveOrder() {
     const label = await this.getPlaceName(lat, lng);
 
     const t = this.trackings[this.activeTrackingIndex];
-
     t.location = label;
     t.latitude = lat;
     t.longitude = lng;
@@ -388,16 +495,12 @@ saveOrder() {
 
     return fetch(url, { headers: { 'Accept-Language': 'en' } })
       .then((res) => res.json())
-      .then(
-        (data) => data?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`
-      )
+      .then((data) => data?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`)
       .catch(() => `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
   }
 
   private geocodeAddress(address: string) {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-      address
-    )}`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
 
     return fetch(url, { headers: { 'Accept-Language': 'en' } })
       .then((res) => res.json())
@@ -409,48 +512,6 @@ saveOrder() {
         };
       })
       .catch(() => null);
-  }
-
-  private parseTrackingDate(raw: string): Date | null {
-    if (!raw) return null;
-
-    const d = new Date(raw);
-    if (!isNaN(d.getTime())) return d;
-
-    const match = raw.match(
-      /(\d{1,2})\s+([A-Za-z]{3,})\.?\s+(\d{4})\s*-\s*(\d{1,2}):(\d{2})(AM|PM)/i
-    );
-    if (!match) return null;
-
-    const day = Number(match[1]);
-    const monthName = match[2].toLowerCase().slice(0, 3);
-    const year = Number(match[3]);
-    let hour = Number(match[4]);
-    const minute = Number(match[5]);
-    const ampm = match[6].toUpperCase();
-
-    const months: any = {
-      jan: 0,
-      feb: 1,
-      mar: 2,
-      apr: 3,
-      may: 4,
-      jun: 5,
-      jul: 6,
-      aug: 7,
-      sep: 8,
-      oct: 9,
-      nov: 10,
-      dec: 11,
-    };
-
-    const month = months[monthName];
-    if (month === undefined) return null;
-
-    if (ampm === 'PM' && hour < 12) hour += 12;
-    if (ampm === 'AM' && hour === 12) hour = 0;
-
-    return new Date(year, month, day, hour, minute);
   }
 
   get trackingMonthName(): string {
@@ -467,17 +528,35 @@ saveOrder() {
 
       if (btn) {
         const rect = btn.getBoundingClientRect();
-
         const calendarWidth = 260;
         const gap = 8;
 
-        this.calendarPos = {
-          top: rect.bottom + gap,
-          left: rect.right - calendarWidth,
-        };
+const vw = window.innerWidth;
+const vh = window.innerHeight;
+
+let left = rect.right - calendarWidth;
+let top = rect.bottom + gap;
+
+
+if (left + calendarWidth > vw - 12) {
+  left = vw - calendarWidth - 12;
+}
+
+
+if (left < 12) {
+  left = 12;
+}
+
+
+const calendarHeight = 280;
+if (top + calendarHeight > vh - 12) {
+  top = rect.top - calendarHeight - gap;
+}
+
+this.calendarPos = { top, left };
+
       }
     }
-
     this.generateTrackingCalendar();
   }
 
@@ -522,21 +601,17 @@ saveOrder() {
 
   isToday(date: Date): boolean {
     const now = new Date();
-    return (
-      date.getFullYear() === now.getFullYear() &&
+    return date.getFullYear() === now.getFullYear() &&
       date.getMonth() === now.getMonth() &&
-      date.getDate() === now.getDate()
-    );
+      date.getDate() === now.getDate();
   }
 
   isTrackingSelected(current: any, cellDate: Date): boolean {
     if (!current) return false;
     const d = new Date(current);
-    return (
-      d.getFullYear() === cellDate.getFullYear() &&
+    return d.getFullYear() === cellDate.getFullYear() &&
       d.getMonth() === cellDate.getMonth() &&
-      d.getDate() === cellDate.getDate()
-    );
+      d.getDate() === cellDate.getDate();
   }
 
   selectTrackingDate(t: TrackingItem, date: Date, i: number) {

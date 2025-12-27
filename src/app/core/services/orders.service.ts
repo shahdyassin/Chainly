@@ -28,7 +28,6 @@ export type OrderStatusApi =
 export type OrderRow = {
   id: number;
   companyOrderId: number;
-  orderId: string;        // ✅ ده الـ orderId الحقيقي اللي API عايزه في tracking
   publicCode: string;
   status: string;
 };
@@ -77,7 +76,6 @@ export type TrackingApiResponse = {
   trackings: TrackingRow[];
 };
 
-
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private http = inject(HttpClient);
@@ -107,123 +105,97 @@ export class OrdersService {
       .pipe(map((res) => this.normalizePagedResponse(res)));
   }
 
-  // ✅ رجّعناه زي ما كان (GET /api/Orders/{id})
+  
   getOrderById(id: number): Observable<OrderRow> {
     if (!id || id <= 0) return throwError(() => new Error('Invalid order ID'));
 
     return this.http.get<any>(`${API_BASE}/api/Orders/${id}`).pipe(
       map((res) => {
         const root = res?.data ?? res?.result ?? res ?? {};
+
+        const companyId = Number(root?.companyOrderId ?? root?.CompanyOrderId ?? root?.OrderId ?? 0);
+
         return {
           id: Number(root?.id ?? root?.Id ?? 0),
-          companyOrderId: Number(root?.companyOrderId ?? root?.CompanyOrderId ?? 0),
-          orderId: String(root?.orderId ?? root?.OrderId ?? '').trim(),
-          publicCode: String(root?.publicCode ?? root?.PublicCode ?? '').trim(),
-          status: String(root?.status ?? root?.Status ?? '').trim(),
+          companyOrderId: companyId,
+          orderId: String(companyId || ''),
+          publicCode: String(root?.publicCode ?? root?.PublicCode ?? root?.Code ?? '').trim(),
+          status: String(root?.status ?? root?.Status ?? root?.LastStatus ?? '').trim() || 'Pending',
         } as OrderRow;
       })
     );
   }
 
-  // ✅ FIX: endpoint بياخد orderId الحقيقي مش internal id
- getOrderTracking(orderId: number): Observable<TrackingRow[]> {
-  if (!orderId || orderId <= 0) {
-    return throwError(() => new Error('Invalid orderId'));
+  getOrderWithTracking(orderId: number): Observable<TrackingApiResponse> {
+    if (!orderId || orderId <= 0) {
+      return of({
+        id: 0,
+        companyOrderId: 0,
+        code: '',
+        email: null,
+        phone: null,
+        status: null,
+        trackings: [],
+      });
+    }
+
+    return this.http
+      .get<any>(`${API_BASE}/api/Orders/${orderId}/tracking`)
+      .pipe(
+        map((res) => {
+          const root = res?.data ?? res?.result ?? res ?? {};
+          const trackingsRaw = Array.isArray(root?.trackings) ? root.trackings : [];
+
+          const trackings: TrackingRow[] = trackingsRaw.map((x: any) => ({
+            id: Number(x?.id ?? 0),
+            status: String(x?.status ?? '').trim(),
+            location: String(x?.location ?? '').trim(),
+            scannedBy: String(x?.updatedBy?.fullName ?? '').trim(),
+            notes: String(x?.notes ?? '').trim(),
+            date: String(x?.timestamp ?? '').trim(),
+            latitude: Number(x?.latitude ?? 0),
+            longitude: Number(x?.longitude ?? 0),
+          }));
+
+          return {
+            id: Number(root?.id ?? 0),
+            companyOrderId: Number(root?.companyOrderId ?? 0),
+            code: String(root?.code ?? '').trim(),
+            email: root?.email ?? null,
+            phone: root?.phone ?? null,
+            status: root?.status ?? null,
+            trackings,
+          } as TrackingApiResponse;
+        }),
+
+        catchError((err) => {
+          if (err?.status === 404) {
+            return of({
+              id: 0,
+              companyOrderId: orderId,
+              code: '',
+              email: null,
+              phone: null,
+              status: null,
+              trackings: [],
+            } as TrackingApiResponse);
+          }
+          return throwError(() => err);
+        })
+      );
   }
 
-  return this.http
-    .get<any>(`${API_BASE}/api/Orders/${orderId}/tracking`)
-    .pipe(
-      map((res) => {
-        // ✅ response نفسه object فيه trackings
-        const root = res?.data ?? res?.result ?? res ?? {};
-        const arr = Array.isArray(root?.trackings) ? root.trackings : [];
-
-        return arr.map((x: any) => ({
-          id: Number(x?.id ?? 0),
-          status: String(x?.status ?? '').trim(),
-          location: String(x?.location ?? '').trim(),
-          scannedBy: String(x?.updatedBy?.fullName ?? '').trim(),
-          notes: String(x?.notes ?? '').trim(),
-          date: String(x?.timestamp ?? '').trim(),
-          latitude: Number(x?.latitude ?? 0),
-          longitude: Number(x?.longitude ?? 0),
-        })) as TrackingRow[];
-      }),
-      catchError((err) => {
-        console.error('Tracking error:', err);
-        return of([]);
-      })
-    );
-}
-
-getOrderWithTracking(orderId: number): Observable<TrackingApiResponse> {
-  if (!orderId || orderId <= 0) {
-    return throwError(() => new Error('Invalid orderId'));
+  updateOrder(orderId: string | number, payload: UpdateOrderPayload): Observable<any> {
+    return this.http.put(`${API_BASE}/api/Orders/${orderId}`, payload, {
+      responseType: 'text'
+    });
   }
 
-  return this.http
-    .get<any>(`${API_BASE}/api/Orders/${orderId}/tracking`)
-    .pipe(
-      map((res) => {
-        const root = res?.data ?? res?.result ?? res ?? {};
-
-        const trackingsRaw = Array.isArray(root?.trackings)
-          ? root.trackings
-          : [];
-
-        const trackings: TrackingRow[] = trackingsRaw.map((x: any) => ({
-          id: Number(x?.id ?? 0),
-          status: String(x?.status ?? '').trim(),
-          location: String(x?.location ?? '').trim(),
-          scannedBy: String(x?.updatedBy?.fullName ?? '').trim(),
-          notes: String(x?.notes ?? '').trim(),
-          date: String(x?.timestamp ?? '').trim(),
-          latitude: Number(x?.latitude ?? 0),
-          longitude: Number(x?.longitude ?? 0),
-        }));
-
-        return {
-          id: Number(root?.id ?? 0),
-          companyOrderId: Number(root?.companyOrderId ?? 0),
-          code: String(root?.code ?? '').trim(),
-          email: root?.email ?? null,
-          phone: root?.phone ?? null,
-          status: root?.status ?? null,
-          trackings,
-        } as TrackingApiResponse;
-      })
-    );
-}
-
-
-
-updateOrder(orderId: string | number, payload: UpdateOrderPayload): Observable<any> {
-
-  const primary$ = this.http.put(`${API_BASE}/api/Orders/${orderId}`, payload, {
-    responseType: 'text'
-  });
-
-  const fallback$ = this.http.put(`${API_BASE}/api/Orders/${payload.companyOrderId}`, payload, {
-    responseType: 'text'
-  });
-
-  return primary$.pipe(
-    catchError((err: any) => {
-      console.warn("Primary update failed, trying fallback...", err);
-      return fallback$;
-    })
-  );
-}
-
-
-
-updateTracking(trackingId: number, payload: UpdateTrackingPayload): Observable<any> {
-  return this.http.put(`${API_BASE}/api/Orders/tracking/${trackingId}`, payload, {
-    responseType: 'text'   // ✅ مهم
-  });
-}
-
+  updateTracking(trackingId: number, payload: UpdateTrackingPayload): Observable<any> {
+    return this.http.put(`${API_BASE}/api/Orders/tracking/${trackingId}`, payload, {
+      responseType: 'text'
+    });
+  }
 
   importOrders(file: File): Observable<HttpEvent<any>> {
     const form = new FormData();
@@ -272,7 +244,7 @@ updateTracking(trackingId: number, payload: UpdateTrackingPayload): Observable<a
     }).pipe(map((res) => (res.items ?? []).map((x) => x.id)));
   }
 
-    private normalizePagedResponse(res: any): OrdersPagedResponse {
+  private normalizePagedResponse(res: any): OrdersPagedResponse {
     const root = res?.data ?? res?.result ?? res ?? {};
 
     const itemsRaw =
@@ -286,19 +258,15 @@ updateTracking(trackingId: number, payload: UpdateTrackingPayload): Observable<a
     const arr = Array.isArray(itemsRaw) ? itemsRaw : [];
 
     const items: OrderRow[] = arr.map((x: any) => {
-      const baseStatus = String(x?.status ?? x?.Status ?? '').trim();
-      const lastStatus = String(x?.lastStatus ?? x?.LastStatus ?? '').trim();
+      const lastStatus = String(x?.LastStatus ?? x?.lastStatus ?? '').trim();
+      const companyId = Number(x?.OrderId ?? x?.orderId ?? 0);
 
       return {
-        id: Number(x?.id ?? x?.Id ?? 0),
-        companyOrderId: Number(x?.companyOrderId ?? x?.CompanyOrderId ?? 0),
-        orderId: String(x?.orderId ?? x?.OrderId ?? '').trim(),
-        publicCode: String(
-          x?.publicCode ?? x?.PublicCode ?? x?.code ?? x?.Code ?? ''
-        ).trim(),
-
-        // ✅ status النهائي = lastStatus لو موجود وإلا baseStatus
-        status: lastStatus || baseStatus,
+        id: Number(x?.Id ?? x?.id ?? 0),
+        companyOrderId: companyId,
+        orderId: String(companyId || ''),
+        publicCode: String(x?.Code ?? x?.code ?? '').trim(),
+        status: lastStatus || 'Pending',
       } as OrderRow;
     });
 

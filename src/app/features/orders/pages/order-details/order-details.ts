@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subject, switchMap, map, of } from 'rxjs';
-import { finalize, takeUntil, catchError } from 'rxjs/operators';
+import { Subject, switchMap, map, of, EMPTY, Observable } from 'rxjs';
+import { finalize, takeUntil, catchError, takeWhile, expand } from 'rxjs/operators';
 import { OrdersService, OrderRow } from '../../../../core/services/orders.service';
 
 type TrackingItem = {
@@ -40,43 +40,13 @@ export class OrderDetails implements OnInit, OnDestroy {
   isDeleteOpen = false;
   isDeleting = false;
 
-  // ✅ map
+
   isMapOpen = false;
-  currentMapLocation: { lat: number; lng: number; address: string } | null =
-    null;
+  currentMapLocation: { lat: number; lng: number; address: string } | null = null;
   private map: any = null;
   private marker: any = null;
 
-  // ✅✅✅ Smart Tracking Fetch (NO ERRORS, NO 404 spam)
- private getTrackingSmart(o: OrderRow) {
-  const stored = localStorage.getItem(`order_tracking_id_${o.id}`);
-  const storedId = Number(stored ?? 0);
-
-  const companyId = Number(o.companyOrderId ?? 0);
-  const orderId = Number(o.orderId ?? 0);
-
-  // ✅ خلي candidates بس أرقام صحيحة ومش صفر
-  const candidates = [storedId, companyId]
-    .filter((x) => Number.isFinite(x) && x > 0);
-
-  if (!candidates.length) return of(null);
-
-  const tryOne = (i: number): any =>
-    this.api.getOrderWithTracking(candidates[i]).pipe(
-      catchError((err) => {
-        // ✅ لو 404 جرب الرقم اللي بعده
-        if (i + 1 < candidates.length) return tryOne(i + 1);
-        return of(null);
-      })
-    );
-
-  return tryOne(0);
-}
-
-
-
   ngOnInit() {
-    // ✅ keep ids for prev/next nav
     this.api
       .getOrderIdsForNav('')
       .pipe(takeUntil(this.destroy$))
@@ -99,11 +69,7 @@ export class OrderDetails implements OnInit, OnDestroy {
           this.trackings = [];
           this.reversedTrackings = [];
 
-          return this.api.getOrders({ pageNumber: 1, pageSize: 500 }).pipe(
-            map((res) => {
-              const arr = res.items ?? [];
-              return arr.find((x) => x.id === id) ?? null;
-            }),
+          return this.fetchOrderByInternalId(id).pipe(
             switchMap((o) => {
               this.order = o;
 
@@ -111,77 +77,74 @@ export class OrderDetails implements OnInit, OnDestroy {
 
               console.log('ORDER FOUND:', o);
 
-              // ✅ smart tracking
-              return this.getTrackingSmart(o);
+
+              return this.api.getOrderWithTracking(o.companyOrderId).pipe(
+                catchError(() => of(null))
+              );
             })
           );
         })
       )
       .subscribe({
         next: (res: any) => {
-          if (!res) {
+          if (!res || !this.order) {
             this.trackings = [];
             this.reversedTrackings = [];
             return;
           }
 
-const bestTrackingId = Number(res.companyOrderId ?? 0);
-
-if (bestTrackingId > 0 && this.order) {
-  localStorage.setItem(
-    `order_tracking_id_${this.order.id}`,
-    String(bestTrackingId)
-  );
-}
+          const realCompanyId = Number(res?.companyOrderId ?? 0);
 
 
+          this.order.companyOrderId = realCompanyId || this.order.companyOrderId || 0;
+          this.order.publicCode = String(res?.code ?? this.order.publicCode ?? '-');
+          this.order.status = String(
+            res?.trackings?.length
+              ? res.trackings[res.trackings.length - 1]?.status
+              : this.order.status ?? 'Pending'
+          );
 
-          const trackings = Array.isArray(res.trackings) ? res.trackings : [];
-          const last = trackings.length ? trackings[trackings.length - 1] : null;
+          const rawTrackings =
+  res?.trackings ??
+  res?.Trackings ??
+  res?.data?.trackings ??
+  res?.data?.Trackings ??
+  res?.result?.trackings ??
+  res?.result?.Trackings ??
+  [];
 
-          // ✅ update UI from tracking response
-          if (this.order) {
-           this.order.companyOrderId = Number(res.companyOrderId ?? this.order.companyOrderId ?? 0);
+const trackingsArr = Array.isArray(rawTrackings) ? rawTrackings : [];
 
-            this.order.publicCode = String(res.code ?? this.order.publicCode ?? '-');
-
-            this.order.status = String(last?.status ?? this.order.status ?? 'Pending');
-
-          }
-
-         this.trackings = trackings.map((x: any) => ({
-  status: String(x.status ?? '').trim(),
-  location: String(x.location ?? '').trim(),
-
-  // ✅ اسم الشخص من أي مصدر
+this.trackings = trackingsArr.map((x: any) => ({
+  status: String(x.status ?? x.Status ?? '').trim(),
+  location: String(x.location ?? x.Location ?? '').trim(),
   scannedBy: String(
     x.updatedBy?.fullName ??
+    x.updatedBy?.FullName ??
     x.updatedBy?.name ??
     x.scannedBy ??
     x.user?.fullName ??
     x.user?.name ??
     ''
   ).trim(),
-
-  notes: String(x.notes ?? '').trim(),
-
-  // ✅ التاريخ من أي مصدر
+  notes: String(x.notes ?? x.Notes ?? '').trim(),
   date: this.parseTrackingDate(
     String(
       x.timestamp ??
+      x.Timestamp ??
       x.date ??
-      x.updatedAt ??
+      x.Date ??
       x.createdAt ??
+      x.CreatedAt ??
       ''
     ).trim()
   ),
-
-  latitude: Number(x.latitude ?? 0),
-  longitude: Number(x.longitude ?? 0),
+  latitude: Number(x.latitude ?? x.Latitude ?? 0),
+  longitude: Number(x.longitude ?? x.Longitude ?? 0),
 }));
 
+this.reversedTrackings = this.trackings.slice().reverse();
 
-          this.reversedTrackings = this.trackings.slice().reverse();
         },
         error: (err) => {
           console.error(err);
@@ -197,50 +160,53 @@ if (bestTrackingId > 0 && this.order) {
     this.destroy$.complete();
   }
 
-  private parseTrackingDate(raw: string): Date | null {
-    if (!raw) return null;
+private parseTrackingDate(raw: string): Date | null {
+  if (!raw) return null;
 
-    const match = raw.match(
-      /(\d{1,2})\s+([A-Za-z]{3,})\.?\s+(\d{4})\s*-\s*(\d{1,2}):(\d{2})(AM|PM)/i
-    );
 
-    if (!match) {
-      const d = new Date(raw);
-      return isNaN(d.getTime()) ? null : d;
-    }
+  const match = raw.match(
+    /(\d{1,2})\s+([A-Za-z]{3,})\.?\s+(\d{4})\s*-\s*(\d{1,2}):(\d{2})(AM|PM)/i
+  );
 
-    const day = Number(match[1]);
-    const monthName = match[2].toLowerCase().slice(0, 3);
-    const year = Number(match[3]);
-    let hour = Number(match[4]);
-    const minute = Number(match[5]);
-    const ampm = match[6].toUpperCase();
 
-    const months: any = {
-      jan: 0,
-      feb: 1,
-      mar: 2,
-      apr: 3,
-      may: 4,
-      jun: 5,
-      jul: 6,
-      aug: 7,
-      sep: 8,
-      oct: 9,
-      nov: 10,
-      dec: 11,
-    };
-
-    const month = months[monthName];
-    if (month === undefined) return null;
-
-    if (ampm === 'PM' && hour < 12) hour += 12;
-    if (ampm === 'AM' && hour === 12) hour = 0;
-
-    return new Date(year, month, day, hour, minute);
+  if (!match) {
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
   }
 
-  // ✅ nav
+  const day = Number(match[1]);
+  const monthName = match[2].toLowerCase().slice(0, 3);
+  const year = Number(match[3]);
+  let hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const ampm = match[6].toUpperCase();
+
+  const months: any = {
+    jan: 0,
+    feb: 1,
+    mar: 2,
+    apr: 3,
+    may: 4,
+    jun: 5,
+    jul: 6,
+    aug: 7,
+    sep: 8,
+    oct: 9,
+    nov: 10,
+    dec: 11,
+  };
+
+  const month = months[monthName];
+  if (month === undefined) return null;
+
+  if (ampm === 'PM' && hour < 12) hour += 12;
+  if (ampm === 'AM' && hour === 12) hour = 0;
+
+  return new Date(year, month, day, hour, minute);
+}
+
+
+
   canPrev() {
     return this.currentIndex > 0;
   }
@@ -261,7 +227,7 @@ if (bestTrackingId > 0 && this.order) {
     this.router.navigate(['/dashboard/orders', id]);
   }
 
-  // ✅ delete
+
   openDelete() {
     this.isDeleteOpen = true;
   }
@@ -292,7 +258,6 @@ if (bestTrackingId > 0 && this.order) {
       });
   }
 
-  // ✅ status helpers
   statusClass(status: string) {
     const k = String(status ?? '').trim().replace(/\s+/g, '').toLowerCase();
     if (k === 'delivered') return 'delivered';
@@ -308,7 +273,31 @@ if (bestTrackingId > 0 && this.order) {
     return `/icons/orders/${s || 'pending'}.svg`;
   }
 
-  // ✅ map
+  private fetchOrderByInternalId(id: number): Observable<OrderRow | null> {
+    const pageSize = 100;
+    let pageNumber = 1;
+
+    return this.api.getOrders({ pageNumber, pageSize }).pipe(
+      expand((res) => {
+        const found = (res.items ?? []).find((x) => x.id === id);
+        if (found) return EMPTY;
+
+        pageNumber++;
+        if (pageNumber > res.totalPages) return EMPTY;
+
+        return this.api.getOrders({ pageNumber, pageSize });
+      }),
+      map((res) => (res.items ?? []).find((x) => x.id === id) ?? null),
+      takeWhile((order) => order === null, true)
+    );
+  }
+
+  goEdit() {
+    if (!this.orderIdNum) return;
+    this.router.navigate(['/dashboard/orders', this.orderIdNum, 'edit']);
+  }
+
+
   openMap(t: TrackingItem) {
     if (!t.location) return;
 
@@ -390,10 +379,5 @@ if (bestTrackingId > 0 && this.order) {
 
       setTimeout(() => this.map.invalidateSize(), 200);
     });
-  }
-
-  goEdit() {
-    if (!this.orderIdNum) return;
-    this.router.navigate(['/dashboard/orders', this.orderIdNum, 'edit']);
   }
 }

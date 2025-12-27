@@ -274,7 +274,7 @@ export class OrdersList implements OnInit, OnDestroy {
     const q = this.searchText;
 
     this.ordersApi
-      .getOrders({ pageNumber: 1, pageSize: 500, search: q }) // ✅ جيبي كلهم مرة واحدة
+      .getOrders({ pageNumber: 1, pageSize: 500, search: q }) 
       .pipe(
         takeUntil(this.destroy$),
         catchError(() => of(null))

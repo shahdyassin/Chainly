@@ -3,7 +3,7 @@
     <div class="left">
       <div class="title-row">
         <div class="title">
-          Order #{{ order?.orderId || '-' }}
+         Order #{{ order?.companyOrderId || '-' }}
         </div>
 
         <span class="pill" [ngClass]="statusClass(order?.status || '')">
@@ -144,7 +144,8 @@
     <div class="del-title">Delete Order</div>
 
     <div class="del-desc">
-      Are you sure you want to delete <b>Order #{{ order?.orderId }}</b>?<br />
+      Are you sure you want to delete <b>Order #{{ order?.companyOrderId || '-' }}
+</b>?<br />
       This action cannot be undone.
     </div>
 

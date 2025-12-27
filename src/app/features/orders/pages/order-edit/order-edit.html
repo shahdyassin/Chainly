@@ -1,13 +1,9 @@
-<!-- order-edit.html -->
 <div class="oe-page">
-
-  <!-- Header -->
   <div class="oe-header">
     <div class="left">
       <div class="title-row">
-        <div class="title">Order #{{ form.companyOrderId || order?.orderId || '-' }}
-
-</div>
+        <div class="title">Order #{{ order?.companyOrderId || '-' }}
+        </div>
 
         <span class="pill" [ngClass]="statusClass(form.status)">
           {{ form.status || 'Pending' }}
@@ -15,13 +11,15 @@
       </div>
     </div>
 
-    <button class="confirm-btn ref" type="button" [disabled]="isSaving" (click)="saveOrder()">
+    <button class="confirm-btn ref" type="button" [disabled]="isSaving || !form.companyOrderId || !form.publicCode"
+      (click)="saveOrder()">
+
       <img class="btn-ico" src="/icons/orders/confirm.svg" alt="confirm" />
       <span>{{ isSaving ? 'Saving...' : 'Confirm Changes' }}</span>
     </button>
   </div>
 
-  <!-- Order Details -->
+
   <div class="oe-card">
     <div class="card-title">Order Details</div>
 
@@ -36,6 +34,8 @@
 
         <div class="od-right">
           <input class="od-input" type="text" [(ngModel)]="form.companyOrderId" placeholder="Enter Order ID" />
+
+
         </div>
       </div>
 
@@ -55,7 +55,7 @@
     </div>
   </div>
 
-  <!-- Tracking -->
+
   <div class="oe-card">
     <div class="card-title">Order Tracking</div>
 
@@ -63,7 +63,7 @@
 
       <div class="track" *ngFor="let t of trackings; let i = index">
 
-        <!-- Stepper -->
+
         <div class="stepper">
           <div class="circle" [ngClass]="statusClass(t.status)">
             <img class="status-icon" [ngClass]="statusClass(t.status)" [src]="statusIcon(t.status)" alt="status" />
@@ -73,38 +73,31 @@
           </div>
         </div>
 
-        <!-- Track Card -->
+
         <div class="track-card ref">
 
           <div class="track-head ref">
             <div class="track-status">{{ t.status }}</div>
 
-            <!-- ✅ Done ثابت لأول خطوة -->
-            <!-- ✅ Edit يظهر لو البلوك مش editing -->
-<button class="edit-pill"
-        *ngIf="!t.isEditing"
-        type="button"
-        (click)="startEditing(i)">
-  <img src="/icons/orders/edit.svg" alt="edit" />
-  <span>Edit</span>
-</button>
+
+            <button class="edit-pill" *ngIf="!t.isEditing" type="button" (click)="startEditing(i)">
+              <img src="/icons/orders/edit.svg" alt="edit" />
+              <span>Edit</span>
+            </button>
 
 
 
-            <button class="done-pill"
-                    *ngIf="t.isEditing"
-                    type="button"
-                    (click)="finishEditing(i)">
+            <button class="done-pill" *ngIf="t.isEditing" type="button" (click)="finishEditing(i)">
               <img src="/icons/orders/confirm.svg" alt="done" />
               <span>Done</span>
             </button>
 
           </div>
 
-          <!-- Inner table -->
+
           <div class="track-form ref">
 
-            <!-- Location -->
+
             <div class="track-row ref">
               <div class="track-left ref">
                 <img class="row-ico" src="/icons/orders/location.svg" />
@@ -112,24 +105,18 @@
               </div>
 
               <div class="track-mid ref">
-                <input class="track-value ref"
-                       type="text"
-                       [(ngModel)]="t.location"
-                       [readonly]="!t.isEditing" />
+                <input class="track-value ref" type="text" [(ngModel)]="t.location" [readonly]="!t.isEditing" />
               </div>
 
               <div class="track-right ref">
-                <button class="track-pill ref"
-                        type="button"
-                        (click)="openMapForTracking(i)"
-                        [disabled]="!t.isEditing">
+                <button class="track-pill ref" type="button" (click)="openMapForTracking(i)" [disabled]="!t.isEditing">
                   <span>Locate on Map</span>
                   <img class="ext" src="/icons/orders/locate.svg" />
                 </button>
               </div>
             </div>
 
-            <!-- Scanned By -->
+
             <div class="track-row ref">
               <div class="track-left ref">
                 <img class="row-ico" src="/icons/orders/scannedBy.svg" />
@@ -137,16 +124,13 @@
               </div>
 
               <div class="track-mid ref">
-                <input class="track-value ref"
-                       type="text"
-                       [(ngModel)]="t.scannedBy"
-                       [readonly]="!t.isEditing" />
+                <input class="track-value ref" type="text" [(ngModel)]="t.scannedBy" [readonly]="!t.isEditing" />
               </div>
 
               <div class="track-right ref"></div>
             </div>
 
-            <!-- Date -->
+
             <div class="track-row ref date-row">
               <div class="track-left ref">
                 <img class="row-ico" src="/icons/orders/calender.svg" />
@@ -154,24 +138,17 @@
               </div>
 
               <div class="track-mid ref date-cell">
-                <input class="track-value ref"
-                       type="text"
-                       [value]="formatDisplayDate(t.date)"
-                       readonly />
+                <input class="track-value ref" type="text" [value]="formatDisplayDate(t.date)" readonly />
               </div>
 
               <div class="track-right ref date-right">
-                <button type="button"
-                        class="date-ico-btn"
-                        (click)="toggleCalendar(i, $event)"
-                        [disabled]="!t.isEditing">
+                <button type="button" class="date-ico-btn" (click)="toggleCalendar(i, $event); $event.stopPropagation()"
+                  [disabled]="!t.isEditing">
                   <img src="/icons/orders/calender.svg" alt="calendar" />
                 </button>
 
-                <div class="calendar-dropdown tracking-cal" *ngIf="openedCalendarIndex === i" [ngStyle]="{
-    top: calendarPos?.top + 'px',
-    left: calendarPos?.left + 'px'
-  }">
+                <div class="calendar-dropdown tracking-cal" *ngIf="openedCalendarIndex === i"
+                  (click)="$event.stopPropagation()">
                   <div class="calendar-header">
                     <button class="calendar-nav-btn" type="button" (click)="prevMonthTracking()">‹</button>
                     <div class="calendar-title">{{ trackingMonthName }} {{ trackingYearNum }}</div>
@@ -185,10 +162,9 @@
                   <div class="calendar-grid">
                     <ng-container *ngFor="let cell of trackingCalendarCells">
                       <ng-container *ngIf="cell; else emptyCell">
-                        <button type="button"
-                                class="calendar-day"
-                                [ngClass]="{ today: isToday(cell.date), selected: isTrackingSelected(t.date, cell.date) }"
-                                (click)="selectTrackingDate(t, cell.date, i)">
+                        <button type="button" class="calendar-day"
+                          [ngClass]="{ today: isToday(cell.date), selected: isTrackingSelected(t.date, cell.date) }"
+                          (click)="selectTrackingDate(t, cell.date, i)">
                           {{ cell.day }}
                         </button>
                       </ng-container>
@@ -202,7 +178,7 @@
               </div>
             </div>
 
-            <!-- Notes -->
+
             <div class="track-row ref notes">
               <div class="track-left ref">
                 <img class="row-ico" src="/icons/orders/notes.svg" />
@@ -210,9 +186,7 @@
               </div>
 
               <div class="track-mid ref">
-                <textarea class="track-notes ref"
-                          [(ngModel)]="t.notes"
-                          [readonly]="!t.isEditing"></textarea>
+                <textarea class="track-notes ref" [(ngModel)]="t.notes" [readonly]="!t.isEditing"></textarea>
               </div>
 
               <div class="track-right ref"></div>
@@ -228,7 +202,7 @@
     </ng-template>
   </div>
 
-  <!-- Map Modal -->
+
   <div class="ref-backdrop" *ngIf="showMap" (click)="cancelMap()">
     <div class="ref-modal map" (click)="$event.stopPropagation()">
 
