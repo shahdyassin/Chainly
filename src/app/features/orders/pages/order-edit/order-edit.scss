@@ -1,0 +1,738 @@
+/* order-edit.scss */
+.oe-page {
+  padding: 24px;
+  background: #f6f7f7;
+  min-height: calc(100vh - 56px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ===== Header ===== */
+.oe-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -5px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2e2e2e;
+  line-height: 1;
+}
+
+/* pill */
+.pill {
+  padding: 4px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 0;
+}
+
+.pill.delivered {
+  background: #daf1ee;
+  color: #2e2e2e;
+}
+
+.pill.pending {
+  background: #ffc297;
+  color: #2e2e2e;
+}
+
+.pill.intransit {
+  background: #d6eff9;
+  color: #2e2e2e;
+}
+
+.pill.shipped {
+  background: #ffeebb;
+  color: #2e2e2e;
+}
+
+.pill.cancelled {
+  background: #ffc6c6;
+  color: #2e2e2e;
+}
+
+/* confirm */
+.confirm-btn.ref {
+  height: 44px;
+  border-radius: 10px;
+  border: 0;
+  background: #3ea397;
+  color: #fff;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+.confirm-btn.ref .btn-ico {
+  width: 20px;
+  height: 20px;
+  filter: brightness(100);
+}
+
+.confirm-btn.ref:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== Cards ===== */
+.oe-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid #e6e6e6;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #2e2e2e;
+}
+
+/* ===== Order Details ===== */
+.od-box {
+  border: 1px solid #e6e6e6;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #ffffff;
+  width: 100%;
+}
+
+.od-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  height: 54px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.od-row:last-child {
+  border-bottom: none;
+}
+
+.od-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #f3f4f6;
+  border-right: 1px solid #eef0f3;
+}
+
+.od-icon {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.od-icon img {
+  width: 20px;
+  height: 20px;
+}
+
+.od-label {
+  font-weight: 500;
+  color: #999999;
+  font-size: 14px;
+}
+
+.od-right {
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.od-input {
+  width: 100%;
+  border: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a1a1a;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* ================== ORDER TRACKING =================== */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.track {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 14px;
+}
+
+/* STEPPER */
+.stepper {
+  position: relative;
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  height: 100%;
+  z-index: 2;
+}
+
+.circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 3;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.circle img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.circle.delivered {
+  background: #DAF1EE;
+}
+
+.circle.shipped {
+  background: #FFEEBB;
+}
+
+.circle.intransit {
+  background: #D6EFF9;
+}
+
+.circle.pending {
+  background: #ffedd5;
+}
+
+.circle.cancelled {
+  background: #fee2e2;
+}
+
+.circle .status-icon.intransit {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.line {
+  width: 3px;
+  flex: 1;
+  margin-top: 15px;
+  border-radius: 999px;
+  background: #cfe7ff;
+}
+
+.line.delivered {
+  background: #A9E7DD;
+}
+
+.line.shipped {
+  background: #F6D36D;
+}
+
+.line.intransit {
+  background: #8FD1F1;
+}
+
+.line.pending {
+  background: #ffedd5;
+}
+
+.line.cancelled {
+  background: #fee2e2;
+}
+
+.status-icon.pending,
+.status-icon.cancelled {
+  filter: grayscale(1) brightness(0) opacity(0.75);
+}
+
+/* Track Card */
+.track-card.ref {
+  background: #f4f4f4;
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid #e6e6e6;
+}
+
+.track-head.ref {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.track-status {
+  font-weight: 500;
+  font-size: 18px;
+  color: #2E2E2E;
+}
+
+/* Done / Edit pills */
+.done-pill {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 0;
+  background: #3EA397;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(100);
+  }
+}
+
+.edit-pill {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1A1A1A;
+  }
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: #fafafa;
+  }
+}
+
+/* ✅ Inner table with correct borders */
+.track-form.ref {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e6e6e6;
+  overflow: hidden;
+  /* ✅ fixes uneven corners */
+}
+
+.track-row.ref {
+  display: grid;
+  grid-template-columns: 240px 1fr 240px;
+  min-height: 58px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.track-row.ref:last-child {
+  border-bottom: none;
+}
+
+.track-row.ref.notes {
+  min-height: 82px;
+  align-items: stretch;
+}
+
+
+.track-left.ref {
+  background: #ffffff;
+  border-right: 1px solid #e6e6e6;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666666;
+}
+
+.row-ico {
+  width: 18px;
+  height: 18px;
+  opacity: 1;
+}
+
+.track-mid.ref,
+.track-right.ref {
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+}
+
+.track-right.ref {
+  justify-content: flex-end;
+}
+
+.track-value.ref {
+  width: 100%;
+  border: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 16px;
+  font-weight: 500;
+  color: #2E2E2E;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.track-value.ref[readonly] {
+  color: #2E2E2E;
+  opacity: 1;
+  cursor: default;
+}
+
+.track-notes.ref {
+  width: 100%;
+  border: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 16px;
+  font-weight: 500;
+  color: #2E2E2E;
+  padding: 0 !important;
+  resize: none;
+  min-height: 56px;
+  box-shadow: none !important;
+}
+
+.track-notes.ref[readonly] {
+  cursor: default;
+}
+
+/* Locate btn */
+.track-pill.ref {
+  height: 36px;
+  border-radius: 999px;
+  border: 0;
+  background: #3ea397;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.track-pill.ref:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.track-pill.ref .ext {
+  width: 18px;
+  height: 18px;
+}
+
+.date-cell {
+  position: relative;
+  overflow: visible;
+}
+
+.date-value-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* ✅ يزق الايقونة للاخر */
+}
+
+/* ✅ خلي input ياخد الباقي */
+.date-value-wrap .track-value.ref {
+  flex: 1;
+}
+
+/* ✅ right column for date */
+.date-right {
+  position: relative;
+  /* ✅ dropdown هيتعلق هنا */
+  justify-content: flex-end;
+}
+
+/* ✅ icon button */
+.date-ico-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.date-ico-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* ✅ dropdown under icon */
+.calendar-dropdown.tracking-cal {
+  position: absolute;
+  width: 260px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+  padding: 10px 12px 12px;
+  z-index: 999999;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.calendar-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.calendar-nav-btn {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 26px;
+  gap: 2px;
+}
+
+.calendar-day {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+.calendar-day.empty {
+  cursor: default;
+}
+
+.calendar-day.today {
+  border: 1px solid #3ccfcf;
+}
+
+.calendar-day.selected {
+  background: #3ccfcf;
+  color: #ffffff;
+}
+
+
+
+/* Empty */
+.empty-track-card {
+  text-align: center;
+  padding: 30px;
+  font-weight: 700;
+  color: #888;
+  border: 1px dashed #ccc;
+  border-radius: 18px;
+  background: #fafafa;
+}
+
+/* Date */
+.date-right {
+  position: relative;
+  justify-content: flex-end;
+}
+
+.date-ico-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.date-ico-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.date-ico-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Calendar dropdown */
+.calendar-dropdown.tracking-cal {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: 260px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+  padding: 10px 12px 12px;
+  z-index: 999999;
+}
+
+/* Empty */
+.empty-track-card {
+  text-align: center;
+  padding: 30px;
+  font-weight: 700;
+  color: #888;
+  border: 1px dashed #ccc;
+  border-radius: 18px;
+  background: #fafafa;
+}
+
+/* ===== Map Modal ===== */
+.ref-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 999999;
+}
+
+.ref-modal.map {
+  width: 90%;
+  max-width: 640px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 18px 18px;
+  border: 0;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+}
+
+.map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.map-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.map-x {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.map-x img {
+  width: 18px;
+  height: 18px;
+}
+
+.ref-modal.map app-map-picker {
+  width: 100%;
+  height: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.m-confirm {
+  margin-top: 12px;
+  width: 100%;
+  height: 48px;
+  border-radius: 20px;
+  border: none;
+  background: #3ea397;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+/* ✅ FORCE CALENDAR TO SHOW OUTSIDE ANY OVERFLOW */
+.track-row.ref.date-row {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 99999 !important;
+}
+
+.track-right.ref.date-right {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 99999 !important;
+}
+
+/* ✅ KEEP BORDER PERFECT */
+.track-form.ref {
+  overflow: hidden !important;
+}
+
+/* ✅ CALENDAR SHOULD ESCAPE OVERFLOW */
+.calendar-dropdown.tracking-cal {
+  position: fixed !important;
+  z-index: 9999999 !important;
+}

@@ -141,11 +141,6 @@ export class OrdersList implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/orders', row.id]);
   }
 
-  editOrder(row: OrderRow) {
-    if (!row?.id) return;
-    this.router.navigate(['/dashboard/orders', row.id, 'edit']);
-  }
-
 
   openDelete(row: OrderRow) {
     this.deleteTarget = row;
@@ -245,7 +240,7 @@ export class OrdersList implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.orders = this.filterByActiveTab(res.items ?? []);
+          this.orders = res.items ?? [];
 
           this.totalCount = res.totalCount ?? 0;
           this.totalPages = res.totalPages ?? 1;
@@ -278,41 +273,44 @@ export class OrdersList implements OnInit, OnDestroy {
   private loadTabCounts() {
     const q = this.searchText;
 
-    const reqAll = this.ordersApi.getOrders({ pageNumber: 1, pageSize: 1, search: q });
-    const reqDelivered = this.ordersApi.getOrders({ pageNumber: 1, pageSize: 1, status: 'Delivered', search: q });
-    const reqCancelled = this.ordersApi.getOrders({ pageNumber: 1, pageSize: 1, status: 'Cancelled', search: q });
-    const reqInTransit = this.ordersApi.getOrders({ pageNumber: 1, pageSize: 1, status: 'InTransit', search: q });
-    const reqPending = this.ordersApi.getOrders({ pageNumber: 1, pageSize: 1, status: 'Pending', search: q });
-    const reqShipped = this.ordersApi.getOrders({ pageNumber: 1, pageSize: 1, status: 'Shipped', search: q });
-
-    forkJoin({
-      all: reqAll,
-      delivered: reqDelivered,
-      cancelled: reqCancelled,
-      inTransit: reqInTransit,
-      pending: reqPending,
-      shipped: reqShipped,
-    })
+    this.ordersApi
+      .getOrders({ pageNumber: 1, pageSize: 500, search: q }) // ✅ جيبي كلهم مرة واحدة
       .pipe(
         takeUntil(this.destroy$),
         catchError(() => of(null))
       )
-      .subscribe((x: any) => {
-        if (!x) {
-          this.tabCounts = { all: 0, delivered: 0, cancelled: 0, inTransit: 0, pending: 0, shipped: 0 };
+      .subscribe((res: any) => {
+        if (!res) {
+          this.tabCounts = {
+            all: 0,
+            delivered: 0,
+            cancelled: 0,
+            inTransit: 0,
+            pending: 0,
+            shipped: 0,
+          };
           return;
         }
 
+        const list: OrderRow[] = res.items ?? [];
+
+        const normalize = (s: any) =>
+          String(s ?? '').trim().replace(/\s+/g, '').toLowerCase();
+
+        const countBy = (key: string) =>
+          list.filter((x) => normalize(x.status) === normalize(key)).length;
+
         this.tabCounts = {
-          all: x.all.totalCount ?? 0,
-          delivered: x.delivered.totalCount ?? 0,
-          cancelled: x.cancelled.totalCount ?? 0,
-          inTransit: x.inTransit.totalCount ?? 0,
-          pending: x.pending.totalCount ?? 0,
-          shipped: x.shipped.totalCount ?? 0,
+          all: list.length,
+          delivered: countBy('Delivered'),
+          cancelled: countBy('Cancelled'),
+          inTransit: countBy('InTransit'),
+          pending: countBy('Pending'),
+          shipped: countBy('Shipped'),
         };
       });
   }
+
 
   private mapTabToApiStatus(tab: OrderStatusTab): OrderStatusApi {
     if (tab === 'delivered') return 'Delivered';
@@ -492,4 +490,12 @@ export class OrdersList implements OnInit, OnDestroy {
   get canConfirmUpload(): boolean {
     return this.uploads.length > 0 && !this.isAnyUploading() && !this.hasFailedUploads && this.allUploadsDone;
   }
+
+
+
+  goEdit(row: OrderRow) {
+    if (!row?.id) return;
+    this.router.navigate(['/dashboard/orders', row.id, 'edit']);
+  }
+
 }

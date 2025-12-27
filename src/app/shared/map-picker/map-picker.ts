@@ -32,6 +32,18 @@ export class MapPickerComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initMap();
+
+    window.addEventListener('map:setCenter', (e: any) => {
+  const coords = e.detail;
+  if (!coords) return;
+
+  const latlng: L.LatLngExpression = [coords.lat, coords.lng];
+
+  this.map.setView(latlng, 15);
+  this.setMarker(latlng);
+  this.emitLocation(latlng);
+});
+
   }
 
   private initMap() {
@@ -45,22 +57,25 @@ export class MapPickerComponent implements AfterViewInit {
     }).addTo(this.map);
 
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const userLoc: L.LatLngExpression = [
-            pos.coords.latitude,
-            pos.coords.longitude,
-          ];
-          this.map.setView(userLoc, 14);
-          this.setMarker(userLoc);
-          this.emitLocation(userLoc);
-        },
-        () => {
+   if (navigator.geolocation && !this.marker) {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      // ✅ لو في marker اتحدد قبل ما يرجع geolocation -> خلاص متعملش حاجة
+      if (this.marker) return;
 
-        }
-      );
-    }
+      const userLoc: L.LatLngExpression = [
+        pos.coords.latitude,
+        pos.coords.longitude,
+      ];
+
+      this.map.setView(userLoc, 14);
+      this.setMarker(userLoc);
+      this.emitLocation(userLoc);
+    },
+    () => {}
+  );
+}
+
 
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {

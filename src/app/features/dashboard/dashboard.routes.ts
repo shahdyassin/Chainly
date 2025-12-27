@@ -17,7 +17,6 @@ export const DASHBOARD_ROUTES: Routes = [
         component: HomeDashboard,
         data: { title: 'Dashboard' },
       },
-
       {
         path: 'production-lines',
         data: { title: 'Production Lines' },
@@ -47,36 +46,23 @@ export const DASHBOARD_ROUTES: Routes = [
         data: { title: 'Suppliers / Supplier Info' },
       },
       {
-        path: 'suppliers/import-files',
-        loadComponent: () =>
-          import('../suppliers/pages/import-files/import-files').then((m) => m.ImportFiles),
-        data: { title: 'Suppliers / Import Files' },
-      },
-      {
-        path: 'suppliers/supplier-add',
-        loadComponent: () =>
-          import('../suppliers/pages/supplier-add/supplier-add').then((m) => m.SupplierAdd),
-        data: { title: 'Suppliers / Supplier Info' },
-      },
-      {
-        path: 'suppliers/supplier-edit/:id',
-        loadComponent: () =>
-          import('../suppliers/pages/supplier-edit/supplier-edit').then((m) => m.SupplierEdit),
-        data: { title: 'Suppliers / Supplier Info' },
-      },
-      {
         path: 'orders',
         loadComponent: () =>
           import('../orders/pages/orders-list/orders-list').then((m) => m.OrdersList),
         data: { title: 'Orders' },
       },
       {
+        path: 'orders/:id/edit',
+        loadComponent: () =>
+          import('../orders/pages/order-edit/order-edit').then((m) => m.OrderEdit),
+        data: { title: 'Orders / Order Details / Edit Order' },
+      },
+      {
         path: 'orders/:id',
         loadComponent: () =>
-          import('../orders/pages/order-details/order-details')
-            .then(m => m.OrderDetails),
+          import('../orders/pages/order-details/order-details').then((m) => m.OrderDetails),
         data: { title: 'Orders / Order Details' },
-      }
+      },
     ],
   },
 ];

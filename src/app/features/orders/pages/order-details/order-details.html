@@ -17,10 +17,11 @@
     </div>
 
     <div class="actions">
-      <button class="btn-outline" type="button">
-        <img src="/icons/orders/edit.svg" alt="Edit">
-        Edit
-      </button>
+      <button class="btn-outline" type="button" (click)="goEdit()">
+  <img src="/icons/orders/edit.svg" alt="Edit">
+  Edit
+</button>
+
 
       <button class="btn-outline danger" type="button" (click)="openDelete()">
         <img src="/icons/orders/delete.svg" alt="Delete">
@@ -41,15 +42,18 @@
   <div class="od-card tracking-card">
     <div class="tracking-title">Order Tracking</div>
 
-    <div class="timeline" *ngIf="trackings.length; else emptyTrack">
+    <div class="timeline" *ngIf="reversedTrackings.length; else emptyTrack">
 
-      <div class="track" *ngFor="let t of trackings.slice().reverse(); let i = index">
+      <div class="track" *ngFor="let t of reversedTrackings; let i = index">
 
         <div class="stepper">
           <div class="circle" [ngClass]="statusClass(t.status)">
             <img class="status-icon" [ngClass]="statusClass(t.status)" [src]="getStatusIcon(t.status)" alt="">
           </div>
-          <div class="line" *ngIf="i !== trackings.length - 1"></div>
+
+
+          <div class="line" [ngClass]="statusClass(reversedTrackings[i + 1]?.status || '')"
+            *ngIf="i !== reversedTrackings.length - 1"></div>
         </div>
 
 
@@ -60,8 +64,10 @@
 
             <div class="track-date">
               <img src="/icons/orders/calender.svg" alt="">
-              {{ t.date | date:'dd.MM.yyyy' }}
+              {{ (t.date | date:'dd.MM.yyyy') || '-' }}
             </div>
+
+
           </div>
 
           <div class="table-box">
@@ -73,7 +79,7 @@
                   Location
                 </td>
 
-                 <td class="val">
+                <td class="val">
                   <span class="val-text">{{ t.location || '-' }}</span>
                 </td>
 

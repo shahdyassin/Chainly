@@ -1,4 +1,3 @@
-
 .od-page {
   padding: 24px;
   background: #f6f7f7;
@@ -9,7 +8,6 @@
   align-items: stretch;
 }
 
-
 .od-header {
   width: 100%;
   display: flex;
@@ -18,7 +16,6 @@
   gap: 20px;
   margin-bottom: 18px;
 }
-
 
 .left .title-row {
   display: flex;
@@ -44,7 +41,6 @@
     color: #999999;
   }
 }
-
 
 .actions {
   display: flex;
@@ -100,7 +96,6 @@
   }
 }
 
-
 .pill {
   height: 24px;
   padding: 15px 16px;
@@ -116,7 +111,6 @@
   &.pending   { background: #FFC297; color: #2E2E2E; }
   &.cancelled { background: #FFC6C6; color: #2E2E2E; }
 }
-
 
 .od-card {
   width: 100%;
@@ -135,7 +129,6 @@
   margin-left: -5px;
 }
 
-
 .timeline {
   display: flex;
   flex-direction: column;
@@ -143,17 +136,26 @@
 }
 
 .track {
+  position: relative;
   display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 14px;
-  align-items: start;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
+  align-items: stretch;
 }
 
+.track::before {
+  display: none !important;
+}
 
 .stepper {
+  position: relative;
+  width: 36px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: stretch;
+  height: 100%;
+  z-index: 2;
 }
 
 .circle {
@@ -163,12 +165,17 @@
   background: #f1f5f9;
   display: grid;
   place-items: center;
-  margin-top: 10px;
+  position: relative;
+  z-index: 3;
+  margin-top: 0;
 
   img {
     width: 16px;
     height: 16px;
+    display: block;
+    object-fit: contain;
   }
+
 
   &.delivered { background: #DAF1EE; }
   &.shipped   { background: #FFEEBB; }
@@ -177,26 +184,37 @@
   &.cancelled { background: #fee2e2; }
 }
 
-.line {
-  width: 2px;
-  flex: 1;
-  background: #cfe7ff;
-  margin-top: 6px;
+
+.circle .status-icon.intransit {
+  width: 26px !important;
+  height: 26px !important;
 }
 
+
+.line {
+  width: 3px;
+  flex: 1;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: #cfe7ff;
+}
+
+.line.delivered { background: #A9E7DD; }
+.line.shipped   { background: #F6D36D; }
+.line.intransit { background: #8FD1F1; }
+.line.pending   { background: #ffedd5; }
+.line.cancelled { background: #fee2e2; }
 
 .status-icon.pending,
 .status-icon.cancelled {
-  filter: grayscale(1) brightness(0);
+  filter: grayscale(1) brightness(0) opacity(0.75);
 }
-
 
 .track-card {
   background: #f4f4f4;
   border-radius: 18px;
   padding: 14px;
 }
-
 
 .track-head {
   display: flex;
@@ -216,16 +234,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #777;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666666;
 
   img {
-    width: 14px;
-    height: 14px;
+    width: 20px;
+    height: 20px;
   }
 }
-
 
 .table-box {
   background: #fff;
@@ -250,11 +267,19 @@
 
 .track-table td {
   padding: 16px;
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 .track-table td.val {
-  width: auto;
+  width: 100% !important;
+   vertical-align: top !important;
+  padding-top: 16px !important;
+}
+
+.track-table td.val .val-text {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  line-height: 1.4;
 }
 
 .lbl {
@@ -276,29 +301,23 @@
   border-right: 1px solid #E6E6E6;
 }
 
-
 .val {
   text-align: left !important;
   padding-left: 18px !important;
-  vertical-align: middle;
+  vertical-align: top !important;
 }
-
-
-
 
 .val-text {
   display: block;
   width: 100%;
   text-align: left;
+  margin-top: 0;
 }
-
-
 
 .track-table td.val[colspan] {
   text-align: left !important;
   padding-left: 18px !important;
 }
-
 
 .action {
   width: 160px;
@@ -317,6 +336,7 @@
   align-items: center;
   gap: 6px;
   opacity: 1;
+  margin-right: 10px;
 
   img {
     width: 18px;
@@ -328,7 +348,6 @@
   }
 }
 
-
 .empty-track-card {
   border: 1px solid #e5e7eb;
   border-radius: 16px;
@@ -339,7 +358,6 @@
   font-size: 14px;
   font-weight: 500;
 }
-
 
 
 .orders-delete-backdrop {
@@ -430,12 +448,10 @@
   cursor: not-allowed;
 }
 
-
-
 .map-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -449,7 +465,7 @@
   background: #fff;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
 }
 
 .map-head {
@@ -482,4 +498,178 @@
 .map-container {
   width: 100%;
   height: 520px;
+}
+.track-table td.val,
+.track-table td.val[colspan] {
+  text-align: left !important;
+}
+
+.track-table td.val .val-text {
+  text-align: left !important;
+  justify-content: flex-start !important;
+}
+
+@media (max-width: 900px) {
+  .od-page {
+    padding: 16px;
+  }
+
+  .od-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .od-card {
+    padding: 18px;
+  }
+
+  .track {
+    grid-template-columns: 30px 1fr;
+  }
+
+  .circle {
+    width: 30px;
+    height: 30px;
+  }
+
+  .line {
+    width: 2px;
+  }
+
+  .lbl {
+    width: 140px;
+    font-size: 13px;
+  }
+
+  .track-table td {
+    padding: 14px;
+  }
+
+  .action {
+    width: 130px;
+  }
+
+  .map-btn {
+    font-size: 13px;
+  }
+
+  .map-container {
+    height: 420px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .od-page {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .sub {
+    font-size: 14px;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+
+  .btn-outline {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .nav-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .od-card {
+    padding: 14px;
+  }
+
+  .tracking-title {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .track {
+    grid-template-columns: 28px 1fr;
+    gap: 8px;
+  }
+
+  .circle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .circle img {
+    width: 14px;
+    height: 14px;
+  }
+
+  .line {
+    margin-top: 8px;
+  }
+
+
+  .track-table,
+  .track-table tbody,
+  .track-table tr,
+  .track-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .track-table tr {
+    padding: 10px 0;
+  }
+
+  .track-table td.lbl {
+    border-right: none;
+    padding-bottom: 8px;
+    width: 100%;
+  }
+
+  .track-table td.val {
+    padding-top: 0 !important;
+    padding-left: 16px !important;
+    width: 100% !important;
+  }
+
+  .track-table td.action {
+    text-align: left;
+    padding-left: 16px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .map-btn {
+    margin-right: 0;
+  }
+
+  .map-modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 18px;
+  }
+
+  .map-container {
+    height: 340px;
+  }
+
+  .orders-delete-modal {
+    width: 100%;
+    padding: 22px 18px;
+  }
 }

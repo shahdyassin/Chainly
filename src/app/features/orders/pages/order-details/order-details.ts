@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subject, switchMap } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
+import { Subject, switchMap, map, of } from 'rxjs';
+import { finalize, takeUntil, catchError } from 'rxjs/operators';
 import { OrdersService, OrderRow } from '../../../../core/services/orders.service';
 
 type TrackingItem = {
@@ -10,7 +10,9 @@ type TrackingItem = {
   location: string;
   scannedBy: string;
   notes: string;
-  date: string;
+  date: Date | null;
+  latitude?: number;
+  longitude?: number;
 };
 
 @Component({
@@ -28,7 +30,9 @@ export class OrderDetails implements OnInit, OnDestroy {
 
   orderIdNum = 0;
   order: OrderRow | null = null;
+
   trackings: TrackingItem[] = [];
+  reversedTrackings: TrackingItem[] = [];
 
   allOrderIds: number[] = [];
   currentIndex = -1;
@@ -36,13 +40,43 @@ export class OrderDetails implements OnInit, OnDestroy {
   isDeleteOpen = false;
   isDeleting = false;
 
-
+  // ✅ map
   isMapOpen = false;
-  currentMapLocation: { lat: number; lng: number; address: string } | null = null;
+  currentMapLocation: { lat: number; lng: number; address: string } | null =
+    null;
   private map: any = null;
   private marker: any = null;
 
+  // ✅✅✅ Smart Tracking Fetch (NO ERRORS, NO 404 spam)
+ private getTrackingSmart(o: OrderRow) {
+  const stored = localStorage.getItem(`order_tracking_id_${o.id}`);
+  const storedId = Number(stored ?? 0);
+
+  const companyId = Number(o.companyOrderId ?? 0);
+  const orderId = Number(o.orderId ?? 0);
+
+  // ✅ خلي candidates بس أرقام صحيحة ومش صفر
+  const candidates = [storedId, companyId]
+    .filter((x) => Number.isFinite(x) && x > 0);
+
+  if (!candidates.length) return of(null);
+
+  const tryOne = (i: number): any =>
+    this.api.getOrderWithTracking(candidates[i]).pipe(
+      catchError((err) => {
+        // ✅ لو 404 جرب الرقم اللي بعده
+        if (i + 1 < candidates.length) return tryOne(i + 1);
+        return of(null);
+      })
+    );
+
+  return tryOne(0);
+}
+
+
+
   ngOnInit() {
+    // ✅ keep ids for prev/next nav
     this.api
       .getOrderIdsForNav('')
       .pipe(takeUntil(this.destroy$))
@@ -63,39 +97,97 @@ export class OrderDetails implements OnInit, OnDestroy {
 
           this.order = null;
           this.trackings = [];
+          this.reversedTrackings = [];
 
-          return this.api.getOrderById(id);
+          return this.api.getOrders({ pageNumber: 1, pageSize: 500 }).pipe(
+            map((res) => {
+              const arr = res.items ?? [];
+              return arr.find((x) => x.id === id) ?? null;
+            }),
+            switchMap((o) => {
+              this.order = o;
+
+              if (!o) return of(null);
+
+              console.log('ORDER FOUND:', o);
+
+              // ✅ smart tracking
+              return this.getTrackingSmart(o);
+            })
+          );
         })
       )
       .subscribe({
-        next: (o) => {
-          this.order = o;
-
-          const cid = Number(o?.companyOrderId ?? 0);
-          if (!cid) {
+        next: (res: any) => {
+          if (!res) {
             this.trackings = [];
+            this.reversedTrackings = [];
             return;
           }
 
-          this.api
-            .getOrderTracking(cid)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (list) => {
-                this.trackings = (list ?? []).map((x: any) => ({
-                  status: String(x.status ?? '').trim(),
-                  location: String(x.location ?? '').trim(),
-                  scannedBy: String(x.scannedBy ?? '').trim(),
-                  notes: String(x.notes ?? '').trim(),
-                  date: String(x.date ?? '').trim(),
-                }));
-              },
-              error: () => (this.trackings = []),
-            });
+const bestTrackingId = Number(res.companyOrderId ?? 0);
+
+if (bestTrackingId > 0 && this.order) {
+  localStorage.setItem(
+    `order_tracking_id_${this.order.id}`,
+    String(bestTrackingId)
+  );
+}
+
+
+
+          const trackings = Array.isArray(res.trackings) ? res.trackings : [];
+          const last = trackings.length ? trackings[trackings.length - 1] : null;
+
+          // ✅ update UI from tracking response
+          if (this.order) {
+           this.order.companyOrderId = Number(res.companyOrderId ?? this.order.companyOrderId ?? 0);
+
+            this.order.publicCode = String(res.code ?? this.order.publicCode ?? '-');
+
+            this.order.status = String(last?.status ?? this.order.status ?? 'Pending');
+
+          }
+
+         this.trackings = trackings.map((x: any) => ({
+  status: String(x.status ?? '').trim(),
+  location: String(x.location ?? '').trim(),
+
+  // ✅ اسم الشخص من أي مصدر
+  scannedBy: String(
+    x.updatedBy?.fullName ??
+    x.updatedBy?.name ??
+    x.scannedBy ??
+    x.user?.fullName ??
+    x.user?.name ??
+    ''
+  ).trim(),
+
+  notes: String(x.notes ?? '').trim(),
+
+  // ✅ التاريخ من أي مصدر
+  date: this.parseTrackingDate(
+    String(
+      x.timestamp ??
+      x.date ??
+      x.updatedAt ??
+      x.createdAt ??
+      ''
+    ).trim()
+  ),
+
+  latitude: Number(x.latitude ?? 0),
+  longitude: Number(x.longitude ?? 0),
+}));
+
+
+          this.reversedTrackings = this.trackings.slice().reverse();
         },
-        error: () => {
+        error: (err) => {
+          console.error(err);
           this.order = null;
           this.trackings = [];
+          this.reversedTrackings = [];
         },
       });
   }
@@ -105,6 +197,50 @@ export class OrderDetails implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private parseTrackingDate(raw: string): Date | null {
+    if (!raw) return null;
+
+    const match = raw.match(
+      /(\d{1,2})\s+([A-Za-z]{3,})\.?\s+(\d{4})\s*-\s*(\d{1,2}):(\d{2})(AM|PM)/i
+    );
+
+    if (!match) {
+      const d = new Date(raw);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    const day = Number(match[1]);
+    const monthName = match[2].toLowerCase().slice(0, 3);
+    const year = Number(match[3]);
+    let hour = Number(match[4]);
+    const minute = Number(match[5]);
+    const ampm = match[6].toUpperCase();
+
+    const months: any = {
+      jan: 0,
+      feb: 1,
+      mar: 2,
+      apr: 3,
+      may: 4,
+      jun: 5,
+      jul: 6,
+      aug: 7,
+      sep: 8,
+      oct: 9,
+      nov: 10,
+      dec: 11,
+    };
+
+    const month = months[monthName];
+    if (month === undefined) return null;
+
+    if (ampm === 'PM' && hour < 12) hour += 12;
+    if (ampm === 'AM' && hour === 12) hour = 0;
+
+    return new Date(year, month, day, hour, minute);
+  }
+
+  // ✅ nav
   canPrev() {
     return this.currentIndex > 0;
   }
@@ -125,6 +261,7 @@ export class OrderDetails implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/orders', id]);
   }
 
+  // ✅ delete
   openDelete() {
     this.isDeleteOpen = true;
   }
@@ -155,6 +292,7 @@ export class OrderDetails implements OnInit, OnDestroy {
       });
   }
 
+  // ✅ status helpers
   statusClass(status: string) {
     const k = String(status ?? '').trim().replace(/\s+/g, '').toLowerCase();
     if (k === 'delivered') return 'delivered';
@@ -170,9 +308,15 @@ export class OrderDetails implements OnInit, OnDestroy {
     return `/icons/orders/${s || 'pending'}.svg`;
   }
 
-
+  // ✅ map
   openMap(t: TrackingItem) {
     if (!t.location) return;
+
+    if (t.latitude && t.longitude) {
+      this.currentMapLocation = { lat: t.latitude, lng: t.longitude, address: t.location };
+      this.showMap();
+      return;
+    }
 
     const coordMatch = t.location.match(/([\d.]+),\s*([\d.]+)/);
     if (coordMatch) {
@@ -195,10 +339,7 @@ export class OrderDetails implements OnInit, OnDestroy {
 
   private showMap() {
     this.isMapOpen = true;
-
-    setTimeout(() => {
-      this.initMap();
-    }, 50);
+    setTimeout(() => this.initMap(), 50);
   }
 
   closeMap() {
@@ -247,10 +388,12 @@ export class OrderDetails implements OnInit, OnDestroy {
         .bindPopup(`<b>${this.currentMapLocation!.address}</b>`)
         .openPopup();
 
-
-      setTimeout(() => {
-        this.map.invalidateSize();
-      }, 200);
+      setTimeout(() => this.map.invalidateSize(), 200);
     });
+  }
+
+  goEdit() {
+    if (!this.orderIdNum) return;
+    this.router.navigate(['/dashboard/orders', this.orderIdNum, 'edit']);
   }
 }

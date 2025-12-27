@@ -29,6 +29,9 @@ export class DashboardShell implements OnInit {
 
   breadcrumbTitle = 'Dashboard';
 
+
+  private currentParams: Record<string, any> = {};
+
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -49,7 +52,17 @@ export class DashboardShell implements OnInit {
 
   private setTitleFromRoute() {
     let current: ActivatedRoute | null = this.route;
-    while (current?.firstChild) current = current.firstChild;
+    this.currentParams = {};
+
+    while (current?.firstChild) {
+      current = current.firstChild;
+
+
+      this.currentParams = {
+        ...this.currentParams,
+        ...(current.snapshot.params || {}),
+      };
+    }
 
     const title = current?.snapshot.data?.['title'];
     this.breadcrumbTitle = title ? String(title) : 'Dashboard';
@@ -63,24 +76,37 @@ export class DashboardShell implements OnInit {
       .filter(Boolean);
   }
 
+
   get breadcrumbs(): Crumb[] {
     const parts = this.toParts(this.breadcrumbTitle);
+    const id = this.currentParams['id'];
+
 
     if (!parts.length) return [{ label: 'Dashboard', link: ['/dashboard'] }];
 
-    const first = parts[0];
-    const firstLink =
-  first.toLowerCase() === 'orders'     ? ['/dashboard/orders'] :
-  first.toLowerCase() === 'suppliers'  ? ['/dashboard/suppliers'] :
-  first.toLowerCase() === 'supplies'   ? ['/dashboard/supplies-list'] :
-  first.toLowerCase() === 'dashboard'  ? ['/dashboard'] :
-  undefined;
-
-
     const crumbs: Crumb[] = [];
-    crumbs.push({ label: first, link: firstLink });
 
-    for (let i = 1; i < parts.length; i++) crumbs.push({ label: parts[i] });
+    for (let i = 0; i < parts.length; i++) {
+      const label = parts[i].toLowerCase();
+
+
+      if (label === 'orders') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/orders'] });
+        continue;
+      }
+
+
+      if (label === 'order details') {
+        crumbs.push({
+          label: parts[i],
+          link: id ? ['/dashboard/orders', id] : undefined,
+        });
+        continue;
+      }
+
+
+      crumbs.push({ label: parts[i] });
+    }
 
     return crumbs;
   }
