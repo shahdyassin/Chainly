@@ -279,13 +279,15 @@
         class="panel-footer pager rising-pager"
         *ngIf="hasRisingDemands && risingPagesTotal > 1"
       >
+
         <button
-          class="pager-arrow"
-          (click)="prevRisingPage()"
-          [disabled]="risingPageIndex === 0"
-        >
-          &lt;
-        </button>
+  class="pager-arrow"
+  (click)="prevRisingPage()"
+  [disabled]="risingPageIndex === 0"
+>
+  <img src="/icons/dashboard/left.svg" alt="Prev" />
+</button>
+
 
         <span
           class="pager-dot"
@@ -294,13 +296,14 @@
           (click)="goToRisingPage(i)"
         ></span>
 
-        <button
-          class="pager-arrow"
-          (click)="nextRisingPage()"
+<button
+  class="pager-arrow"
+ (click)="nextRisingPage()"
           [disabled]="risingPageIndex === risingPagesTotal - 1"
-        >
-          &gt;
-        </button>
+>
+  <img src="/icons/dashboard/right.svg" alt="Prev" />
+</button>
+
       </div>
     </div>
   </section>
@@ -405,13 +408,14 @@
         class="panel-footer pager insights-pager"
         *ngIf="insightsTotalPages >= 1"
       >
-        <button
-          class="pager-arrow"
-          (click)="prevInsightsPage()"
-          [disabled]="insightsPageIndex === 1"
-        >
-          &lt;
-        </button>
+<button
+  class="pager-arrow"
+  (click)="prevInsightsPage()"
+  [disabled]="insightsPageIndex === 1"
+>
+  <img src="/icons/dashboard/left.svg" alt="Prev" />
+</button>
+
 
         <span
           class="pager-dot"
@@ -420,13 +424,14 @@
           (click)="goToInsightsPage(p)"
         ></span>
 
-        <button
-          class="pager-arrow"
-          (click)="nextInsightsPage()"
-          [disabled]="insightsPageIndex === insightsTotalPages"
-        >
-          &gt;
-        </button>
+<button
+  class="pager-arrow"
+  (click)="nextInsightsPage()"
+  [disabled]="insightsPageIndex === insightsTotalPages"
+>
+  <img src="/icons/dashboard/right.svg" alt="Next" />
+</button>
+
       </div>
     </div>
 
@@ -551,36 +556,43 @@
       </div>
 
 
-      <div class="modal-backdrop" *ngIf="isDeleteModalOpen">
-        <div class="modal-card">
-          <div class="modal-icon">
-            <span>!</span>
-          </div>
-          <h4>Delete Order</h4>
-          <p>
-            Are you sure you want to delete Order
-            <strong>#{{ orderToDelete?.orderId }}</strong>?
-            This action cannot be undone.
-          </p>
+<div class="orders-delete-backdrop" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
+  <div class="orders-delete-modal" (click)="$event.stopPropagation()">
 
-          <div class="modal-actions">
-            <button class="btn-secondary" (click)="closeDeleteModal()">
-              Cancel
-            </button>
-            <button class="btn-danger" (click)="confirmDelete()">Delete</button>
-          </div>
-        </div>
-      </div>
+    <div class="del-ico-wrap">
+      <img class="del-ico" src="/icons/orders/warning.svg" alt="warn" />
+    </div>
 
-      
+    <div class="del-title">Delete Order</div>
+
+    <div class="del-desc">
+      Are you sure you want to delete <b>Order #{{ orderToDelete?.orderId }}</b>?<br />
+      This action cannot be undone.
+    </div>
+
+    <div class="del-actions">
+      <button class="del-cancel" type="button" (click)="closeDeleteModal()" [disabled]="isDeleting">
+        Cancel
+      </button>
+
+      <button class="del-confirm" type="button" (click)="confirmDelete()" [disabled]="isDeleting">
+        Delete
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+
       <div class="panel-footer orders-pager" *ngIf="totalPages > 1">
-        <button
-          class="pager-arrow"
-          (click)="goToPage(currentPage - 1)"
-          [disabled]="currentPage === 1"
-        >
-          &lt;
-        </button>
+<button
+  class="pager-arrow"
+  (click)="goToPage(currentPage - 1)"
+  [disabled]="currentPage === 1"
+>
+  <img src="/icons/dashboard/left.svg" alt="Prev" />
+</button>
 
         <span
           class="pager-dot"
@@ -588,14 +600,13 @@
           [class.active]="p === currentPage"
           (click)="goToPage(p)"
         ></span>
-
-        <button
-          class="pager-arrow"
-          (click)="goToPage(currentPage + 1)"
-          [disabled]="currentPage === totalPages"
-        >
-          &gt;
-        </button>
+<button
+  class="pager-arrow"
+  (click)="goToPage(currentPage + 1)"
+  [disabled]="currentPage === totalPages"
+>
+  <img src="/icons/dashboard/right.svg" alt="Next" />
+</button>
       </div>
     </div>
   </section>

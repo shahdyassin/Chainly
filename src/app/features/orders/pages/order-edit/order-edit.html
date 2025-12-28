@@ -142,14 +142,16 @@
               </div>
 
               <div class="track-mid ref date-cell">
-                <input class="track-value ref" type="text" [value]="formatDisplayDate(t.date)" readonly />
+                <input class="track-value ref" type="text" [value]="formatDisplayDate(t.date)" disabled />
               </div>
 
               <div class="track-right ref date-right">
-                <button type="button" class="date-ico-btn" (click)="toggleCalendar(i, $event); $event.stopPropagation()"
-                  [disabled]="!t.isEditing">
-                  <img src="/icons/orders/calender.svg" alt="calendar" />
-                </button>
+                <button type="button" class="date-ico-btn"
+  disabled
+  (click)="$event.preventDefault(); $event.stopPropagation()">
+  <img src="/icons/orders/calender.svg" alt="calendar" />
+</button>
+
 
                 <div class="calendar-dropdown tracking-cal" *ngIf="openedCalendarIndex === i"
                  [ngStyle]="calendarPos"

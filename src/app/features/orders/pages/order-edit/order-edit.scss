@@ -508,6 +508,10 @@
   width: 20px;
   height: 20px;
 }
+.date-ico-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 
 .calendar-dropdown.tracking-cal {
@@ -857,7 +861,7 @@
     right: auto !important;
     transform: translateX(-50%) !important;
 
-    top: 55% !important;       
+    top: 55% !important;
     z-index: 999999999 !important;
   }
 }

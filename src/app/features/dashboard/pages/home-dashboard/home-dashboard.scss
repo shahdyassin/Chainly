@@ -708,10 +708,38 @@
 }
 
 .pager-arrow {
-  border: none;
-  background: transparent;
-  color: #9ca3af;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+
+
+
+  img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.85;
+  }
+
+  &:hover:not(:disabled) {
+    background: #ffffff;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+
+    img {
+      opacity: 0.4;
+    }
+  }
 }
 
 
@@ -1228,88 +1256,92 @@
 
 
 
-.modal-backdrop {
+.orders-delete-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.35);
+  background: rgba(0, 0, 0, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 500;
+  padding: 18px;
+  z-index: 999999;
 }
 
-.modal-card {
-  width: 320px;
-  max-width: 90%;
+.orders-delete-modal {
+  width: 580px;
+  max-width: calc(100% - 32px);
   background: #ffffff;
-  border-radius: 18px;
-  padding: 18px 20px 16px;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+  border-radius: 26px;
+  border: 1px solid #e6e6e6;
+  padding: 28px 28px 22px;
   text-align: center;
 }
 
-.modal-icon {
+.del-ico-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: rgba(255, 59, 48, 0.18);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px;
+}
+
+.del-ico {
   width: 40px;
   height: 40px;
-  border-radius: 999px;
-  margin: 0 auto 10px;
-  background: #fee2e2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b91c1c;
-  font-weight: 700;
-  font-size: 18px;
 }
 
-.modal-card h4 {
-  margin: 0 0 6px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #111827;
+.del-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #4D4D4D;
+  margin-bottom: 10px;
 }
 
-.modal-card p {
-  margin: 0 0 14px;
-  font-size: 13px;
-  color: #4b5563;
+.del-desc {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666666;
+  line-height: 1.45;
+  margin-bottom: 22px;
 
-  strong {
-    font-weight: 700;
+  b {
+    color: #4D4D4D;
+    font-weight: 800;
   }
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+.del-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
 }
 
-.btn-secondary,
-.btn-danger {
-  border-radius: 999px;
-  font-size: 13px;
-  padding: 6px 16px;
+.del-cancel,
+.del-confirm {
+  height: 56px;
+  border-radius: 18px;
+  border: 0;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  border: none;
 }
 
-.btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+.del-cancel {
+  background: #F2F2F2;
+  color: #666666;
 }
 
-.btn-secondary:hover {
-  background: #e5e7eb;
-}
-
-.btn-danger {
-  background: #ef4444;
+.del-confirm {
+  background: #FF392B;
   color: #ffffff;
 }
 
-.btn-danger:hover {
-  background: #731414;
+.del-cancel:disabled,
+.del-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 

@@ -139,7 +139,10 @@
       </div>
 
       <div class="middle">
-        <button class="nav-btn" type="button" (click)="prevPage()" [disabled]="pageNumber === 1">‹</button>
+        <button class="nav-icon" type="button" (click)="prevPage()" [disabled]="pageNumber === 1">
+  <img src="/icons/dashboard/left.svg" alt="Prev" />
+</button>
+
 
         <ng-container *ngFor="let p of pagesArray">
           <button *ngIf="isNumber(p)" class="page-btn" [class.active]="p === pageNumber" type="button"
@@ -149,7 +152,10 @@
           <span *ngIf="!isNumber(p)" class="dots">…</span>
         </ng-container>
 
-        <button class="nav-btn" type="button" (click)="nextPage()" [disabled]="pageNumber === totalPages">›</button>
+         <button class="nav-icon" type="button" (click)="nextPage()" [disabled]="pageNumber === totalPages">
+  <img src="/icons/dashboard/right.svg" alt="Next" />
+</button>
+
       </div>
 
       <div class="right">

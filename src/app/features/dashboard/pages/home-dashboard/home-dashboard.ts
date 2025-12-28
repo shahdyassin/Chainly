@@ -151,6 +151,9 @@ export class HomeDashboard implements OnInit, AfterViewInit {
   allStatuses: StatusOption[] = [];
   selectedStatusKeys: string[] = [];
 
+  isDeleting = false;
+
+
   totalOrdersChartOptions: LineChartOptions = {
     series: [{ name: 'Total Orders', data: [] }],
     chart: { type: 'bar', height: 350, toolbar: { show: false }, zoom: { enabled: false } },
@@ -557,26 +560,29 @@ export class HomeDashboard implements OnInit, AfterViewInit {
     });
   }
 
-  confirmDelete() {
-    if (!this.orderToDelete) return;
-    const orderKey = this.orderToDelete.id;
+ confirmDelete() {
+  if (!this.orderToDelete) return;
 
-    this.dashboardApi.deleteOrder(orderKey).subscribe({
-      next: () => {
-        this.isDeleteModalOpen = false;
-        this.orderToDelete = null;
+  this.isDeleting = true;
+  const orderKey = this.orderToDelete.id;
 
-        this.loadOrdersList(this.currentPage, this.searchText, this.selectedStatusKeys);
-        this.loadOrdersSummary();
-        this.loadMonthlyStats();
-      },
-      error: (err) => {
-        console.error('delete order error', err);
-        this.isDeleteModalOpen = false;
-        this.orderToDelete = null;
-      },
-    });
-  }
+  this.dashboardApi.deleteOrder(orderKey).subscribe({
+    next: () => {
+      this.isDeleting = false;
+      this.closeDeleteModal();
+
+      this.loadOrdersList(this.currentPage, this.searchText, this.selectedStatusKeys);
+      this.loadOrdersSummary();
+      this.loadMonthlyStats();
+    },
+    error: (err) => {
+      console.error('delete order error', err);
+      this.isDeleting = false;
+      this.closeDeleteModal();
+    },
+  });
+}
+
 getDemandTrendClass(value: number | string | null | undefined): string {
   const num = this.normalizeNumber(value);
   if (num > 0) return 'demand-up';
@@ -852,16 +858,19 @@ renderPercent(value: number | string | null | undefined): string {
     });
   }
 
-  // Navigation
   onViewAllOrders() {
-    this.router.navigate(['/orders']);
+    this.router.navigate(['/dashboard/orders']);
   }
-  onViewOrder(order: Order) {
-    this.router.navigate(['/orders'], { queryParams: { orderId: order.orderId, mode: 'view' } });
-  }
-  onEditOrder(order: Order) {
-    this.router.navigate(['/orders'], { queryParams: { orderId: order.orderId, mode: 'edit' } });
-  }
+onViewOrder(order: Order) {
+  if (!order?.id) return;
+  this.router.navigate(['/dashboard/orders', order.id]);
+}
+
+onEditOrder(order: Order) {
+  if (!order?.id) return;
+  this.router.navigate(['/dashboard/orders', order.id, 'edit']);
+}
+
   openDeleteModal(order: Order) {
     this.orderToDelete = order;
     this.isDeleteModalOpen = true;

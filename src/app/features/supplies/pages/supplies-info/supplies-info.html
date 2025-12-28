@@ -4,13 +4,15 @@
       <h2>{{ materialName }}</h2>
 
       <div class="nav">
-        <button class="nav-btn" type="button" (click)="goPrevMaterial()" [disabled]="!canPrev">
-          &lt;
-        </button>
+       <button class="nav-icon" type="button" (click)="goPrevMaterial()" [disabled]="!canPrev">
+  <img src="/icons/dashboard/left.svg" alt="Prev" />
+</button>
 
-        <button class="nav-btn" type="button" (click)="goNextMaterial()" [disabled]="!canNext">
-          &gt;
-        </button>
+
+<button class="nav-icon" type="button" (click)="goNextMaterial()" [disabled]="!canNext">
+  <img src="/icons/dashboard/right.svg" alt="Next" />
+</button>
+
       </div>
     </div>
 
@@ -126,9 +128,10 @@
       </div>
 
       <div class="middle">
-        <button class="nav-btn" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
-          &lt;
-        </button>
+<button class="nav-icon" type="button" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
+  <img src="/icons/dashboard/left.svg" alt="Prev" />
+</button>
+
 
         <button
           *ngFor="let p of pagesArray"
@@ -139,9 +142,10 @@
           {{ p }}
         </button>
 
-        <button class="nav-btn" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">
-          &gt;
-        </button>
+ <button class="nav-icon" type="button" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">
+  <img src="/icons/dashboard/right.svg" alt="Next" />
+</button>
+
       </div>
 
       <div class="right">

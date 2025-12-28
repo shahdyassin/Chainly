@@ -244,7 +244,38 @@ table {
       &.active { border-color: #3ea397; color: #3ea397; font-weight: 800; }
     }
 
-    .nav-btn { font-weight: 700; font-size: 14px; line-height: 1; }
+     .nav-icon {
+      width: 40px;
+      min-width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 20px;
+        height: 20px;
+        opacity: 0.85;
+      }
+
+      &:hover:not(:disabled) {
+        background: #ffffff;
+      }
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+
+        img { opacity: 0.45; }
+      }
+    }
   }
 
   .right {

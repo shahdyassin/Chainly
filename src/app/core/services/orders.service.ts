@@ -96,7 +96,7 @@ export class OrdersService {
     }
 
     const q = String(search ?? '').trim();
-    if (q) params = params.set('search', q); 
+    if (q) params = params.set('search', q);
 
     return this.http
       .get<any>(`${API_BASE}/api/Orders`, { params })
@@ -150,7 +150,7 @@ export class OrdersService {
             location: String(x?.location ?? '').trim(),
             scannedBy: String(x?.updatedBy?.fullName ?? '').trim(),
             notes: String(x?.notes ?? '').trim(),
-            date: String(x?.timestamp ?? '').trim(),
+            date: x?.timestamp ?? '',
             latitude: Number(x?.latitude ?? 0),
             longitude: Number(x?.longitude ?? 0),
           }));

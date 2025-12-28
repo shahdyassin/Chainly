@@ -151,7 +151,7 @@ export class OrderEdit implements OnInit, OnDestroy {
                         ''
                     ).trim(),
                     notes: String(x.notes ?? '').trim(),
-                    date: this.parseTrackingDate(String(x.timestamp ?? '').trim()),
+                    date: this.parseTrackingDate(x.date || x.timestamp || ''),
                     latitude: Number(x.latitude ?? 0),
                     longitude: Number(x.longitude ?? 0),
                     isEditing: false,
@@ -209,7 +209,7 @@ private refreshTrackingUntilUpdated(trackingId: number, expectedNotes: string) {
                   ''
                 ).trim(),
                 notes: String(x.notes ?? '').trim(),
-                date: this.parseTrackingDate(String(x.timestamp ?? '').trim()),
+                date: this.parseTrackingDate(x.timestamp || x.date || ''),
                 latitude: Number(x.latitude ?? 0),
                 longitude: Number(x.longitude ?? 0),
                 isEditing: false,
@@ -346,6 +346,7 @@ saveOrder() {
       longitude: Number(t.longitude ?? 0),
       status: this.mapStatusToNumber(t.status),
       notes: t.notes,
+       timestamp: t.date ? t.date.toISOString() : null
     };
 
 const expectedNotes = t.notes;
@@ -381,13 +382,54 @@ this.api.updateTracking(t.id, payload).subscribe({
     );
   }
 
-  private parseTrackingDate(raw: string): Date | null {
-    if (!raw) return null;
-    const d = new Date(raw);
-    return isNaN(d.getTime()) ? null : d;
+private parseTrackingDate(raw: any): Date | null {
+  if (!raw) return null;
+
+
+  const dateObj = new Date(raw);
+  if (!isNaN(dateObj.getTime())) {
+    return dateObj;
   }
 
+  try {
 
+    const cleaned = String(raw).replace(/\./g, '').trim();
+
+    const parts = cleaned.split(' - ');
+    if (parts.length < 2) return null;
+
+    const datePart = parts[0];
+    const timePart = parts[1];
+
+    const dateSegments = datePart.split(' ');
+    if (dateSegments.length < 3) return null;
+
+    const day = Number(dateSegments[0]);
+    const monthStr = dateSegments[1];
+    const year = Number(dateSegments[2]);
+
+
+    const timeMatch = timePart.match(/(\d{1,2}):(\d{2})(AM|PM)/i);
+    if (!timeMatch) return null;
+
+    let hours = Number(timeMatch[1]);
+    const minutes = Number(timeMatch[2]);
+    const ampm = timeMatch[3].toUpperCase();
+
+    if (ampm === 'PM' && hours < 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const monthIndex = months.findIndex(m => m.toLowerCase() === monthStr.toLowerCase());
+
+    if (monthIndex === -1) return null;
+
+    return new Date(year, monthIndex, day, hours, minutes);
+  } catch (err) {
+    console.error("Error parsing date:", raw, err);
+    return null;
+  }
+}
   statusClass(status: string) {
     const k = String(status ?? '').trim().replace(/\s+/g, '').toLowerCase();
     if (k === 'delivered') return 'delivered';
@@ -422,15 +464,24 @@ this.api.updateTracking(t.id, payload).subscribe({
     t.date = isNaN(d.getTime()) ? null : d;
   }
 
-  formatDisplayDate(date: any): string {
-    if (!date) return '';
-    const d = new Date(date);
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const yyyy = d.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
-  }
+formatDisplayDate(date: any): string {
+  if (!date) return '';
+  const d = new Date(date);
 
+  const dateStr = d.toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric'
+  });
+
+  const timeStr = d.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+
+  return `${dateStr} ${timeStr}`;
+}
   async openMapForTracking(index: number) {
     if (!this.trackings[index]?.isEditing) return;
 
