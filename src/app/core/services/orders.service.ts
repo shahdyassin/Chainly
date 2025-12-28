@@ -17,13 +17,8 @@ export type OrderStatusTab =
   | 'pending'
   | 'shipped';
 
-export type OrderStatusApi =
-  | 'Delivered'
-  | 'Cancelled'
-  | 'InTransit'
-  | 'Pending'
-  | 'Shipped'
-  | null;
+export type OrderStatusApi = number | null;
+
 
 export type OrderRow = {
   id: number;
@@ -95,17 +90,20 @@ export class OrdersService {
       .set('pageNumber', String(pageNumber))
       .set('pageSize', String(safeSize));
 
-    if (status) params = params.set('status', status);
+
+    if (status !== null && status !== undefined) {
+      params = params.set('status', String(status));
+    }
 
     const q = String(search ?? '').trim();
-    if (q) params = params.set('search', q);
+    if (q) params = params.set('search', q); 
 
     return this.http
       .get<any>(`${API_BASE}/api/Orders`, { params })
       .pipe(map((res) => this.normalizePagedResponse(res)));
   }
 
-  
+
   getOrderById(id: number): Observable<OrderRow> {
     if (!id || id <= 0) return throwError(() => new Error('Invalid order ID'));
 

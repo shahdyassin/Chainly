@@ -60,7 +60,7 @@ export class MapPickerComponent implements AfterViewInit {
    if (navigator.geolocation && !this.marker) {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      // ✅ لو في marker اتحدد قبل ما يرجع geolocation -> خلاص متعملش حاجة
+      
       if (this.marker) return;
 
       const userLoc: L.LatLngExpression = [

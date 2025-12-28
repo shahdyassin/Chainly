@@ -120,7 +120,7 @@
   overflow: hidden;
   background: #ffffff;
 
-  /* ✅ مهم للموبايل */
+
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -245,7 +245,7 @@ table {
   &:active { transform: none !important; }
 }
 
-/* ✅ Empty داخل الجدول */
+
 .empty-row td {
   padding: 0 !important;
   border-bottom: 0 !important;

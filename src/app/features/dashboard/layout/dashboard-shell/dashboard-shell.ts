@@ -90,19 +90,63 @@ export class DashboardShell implements OnInit {
       const label = parts[i].toLowerCase();
 
 
-      if (label === 'orders') {
-        crumbs.push({ label: parts[i], link: ['/dashboard/orders'] });
-        continue;
-      }
+if (label === 'suppliers') {
+  crumbs.push({ label: parts[i], link: ['/dashboard/suppliers'] });
+  continue;
+}
 
+if (label === 'import files') {
+  crumbs.push({ label: parts[i], link: ['/dashboard/suppliers/import-files'] });
+  continue;
+}
 
-      if (label === 'order details') {
-        crumbs.push({
-          label: parts[i],
-          link: id ? ['/dashboard/orders', id] : undefined,
-        });
-        continue;
-      }
+if (label === 'supplier add') {
+  crumbs.push({ label: parts[i], link: ['/dashboard/suppliers/supplier-add'] });
+  continue;
+}
+
+if (label === 'supplier edit') {
+  crumbs.push({ label: parts[i], link: id ? ['/dashboard/suppliers/supplier-edit', id] : undefined });
+  continue;
+}
+
+if (label === 'supplier info') {
+  crumbs.push({ label: parts[i], link: id ? ['/dashboard/suppliers/supplier-info', id] : undefined });
+  continue;
+}
+if (label === 'supplies') {
+  crumbs.push({ label: parts[i], link: ['/dashboard/supplies-list'] });
+  continue;
+}
+
+if (label === 'supply info') {
+  crumbs.push({
+    label: parts[i],
+    link: id ? ['/dashboard/supplies-list/supplies-info', id] : undefined,
+  });
+  continue;
+}
+if (label === 'orders') {
+  crumbs.push({ label: parts[i], link: ['/dashboard/orders'] });
+  continue;
+}
+
+if (label === 'order details') {
+  crumbs.push({
+    label: parts[i],
+    link: id ? ['/dashboard/orders', id] : undefined,
+  });
+  continue;
+}
+
+if (label === 'edit order') {
+  crumbs.push({
+    label: parts[i],
+    link: id ? ['/dashboard/orders', id, 'edit'] : undefined,
+  });
+  continue;
+}
+
 
 
       crumbs.push({ label: parts[i] });

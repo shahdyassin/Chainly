@@ -26,7 +26,6 @@ type UploadItem = {
 };
 
 type ImportStep = 'instructions' | 'upload' | 'success';
-
 @Component({
   selector: 'app-orders-list',
   standalone: true,
@@ -221,42 +220,82 @@ export class OrdersList implements OnInit, OnDestroy {
     return '';
   }
 
+  private normalizeStatus(s: any) {
+  return String(s ?? '').trim().replace(/\s+/g, '').toLowerCase();
+}
+
+private tabToStatusText(tab: OrderStatusTab): string | null {
+  if (tab === 'pending') return 'pending';
+  if (tab === 'shipped') return 'shipped';
+  if (tab === 'inTransit') return 'intransit';
+  if (tab === 'delivered') return 'delivered';
+  if (tab === 'cancelled') return 'cancelled';
+  return null;
+}
+
+
 
   private reloadAll() {
     this.loadOrders();
     this.loadTabCounts();
   }
 
-  private loadOrders() {
-    const apiStatus = this.mapTabToApiStatus(this.activeTab);
+ private loadOrders() {
+  const apiStatus = this.mapTabToApiStatus(this.activeTab);
 
-    this.ordersApi
-      .getOrders({
-        pageNumber: this.pageNumber,
-        pageSize: this.pageSize,
-        status: apiStatus,
-        search: this.searchText,
-      })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          this.orders = res.items ?? [];
 
+  const isAll = this.activeTab === 'all';
+
+  const serverPageNumber = isAll ? this.pageNumber : 1;
+  const serverPageSize   = isAll ? this.pageSize   : 500;
+
+  this.ordersApi
+    .getOrders({
+      pageNumber: serverPageNumber,
+      pageSize: serverPageSize,
+      status: apiStatus,
+      search: this.searchText,
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (res) => {
+        const list = res.items ?? [];
+
+        const need = this.tabToStatusText(this.activeTab);
+        const filtered = !need
+          ? list
+          : list.filter(x => this.normalizeStatus(x.status) === need);
+
+
+        if (isAll) {
+          this.orders = filtered;
           this.totalCount = res.totalCount ?? 0;
           this.totalPages = res.totalPages ?? 1;
+          return;
+        }
 
 
-          if (this.pageNumber > this.totalPages) {
-            this.pageNumber = this.totalPages;
-          }
-        },
-        error: () => {
-          this.orders = [];
-          this.totalCount = 0;
-          this.totalPages = 1;
-        },
-      });
-  }
+        this.totalCount = filtered.length;
+        this.totalPages = Math.max(1, Math.ceil(filtered.length / this.pageSize));
+
+        const start = (this.pageNumber - 1) * this.pageSize;
+        const end = start + this.pageSize;
+
+        this.orders = filtered.slice(start, end);
+
+
+        if (this.pageNumber > this.totalPages) {
+          this.pageNumber = this.totalPages;
+        }
+      },
+
+      error: () => {
+        this.orders = [];
+        this.totalCount = 0;
+        this.totalPages = 1;
+      },
+    });
+}
 
   private filterByActiveTab(items: OrderRow[]): OrderRow[] {
     if (this.activeTab === 'all') return items;
@@ -274,7 +313,7 @@ export class OrdersList implements OnInit, OnDestroy {
     const q = this.searchText;
 
     this.ordersApi
-      .getOrders({ pageNumber: 1, pageSize: 500, search: q }) 
+      .getOrders({ pageNumber: 1, pageSize: 500, search: q })
       .pipe(
         takeUntil(this.destroy$),
         catchError(() => of(null))
@@ -312,14 +351,14 @@ export class OrdersList implements OnInit, OnDestroy {
   }
 
 
-  private mapTabToApiStatus(tab: OrderStatusTab): OrderStatusApi {
-    if (tab === 'delivered') return 'Delivered';
-    if (tab === 'cancelled') return 'Cancelled';
-    if (tab === 'inTransit') return 'InTransit';
-    if (tab === 'pending') return 'Pending';
-    if (tab === 'shipped') return 'Shipped';
-    return null;
-  }
+ private mapTabToApiStatus(tab: OrderStatusTab): OrderStatusApi {
+  if (tab === 'pending') return 0;
+  if (tab === 'shipped') return 1;
+  if (tab === 'inTransit') return 2;
+  if (tab === 'delivered') return 3;
+  if (tab === 'cancelled') return 4;
+  return null;
+}
 
 
   openImport() {

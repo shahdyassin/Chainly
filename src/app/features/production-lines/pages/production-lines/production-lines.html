@@ -16,7 +16,7 @@
       </button>
     </div>
 
-    <!-- ✅ الجدول دايمًا ظاهر -->
+
     <div class="table-wrap">
       <table>
         <thead>
@@ -47,7 +47,7 @@
           </tr>
         </thead>
 
-        <!-- ✅ لو فيه داتا -->
+
         <tbody *ngIf="hasData; else emptyBody">
           <tr *ngFor="let row of items; let i = index">
             <td class="col-check"><input type="checkbox" /></td>
@@ -67,7 +67,7 @@
           </tr>
         </tbody>
 
-        <!-- ✅ لو مفيش داتا -->
+
         <ng-template #emptyBody>
           <tbody>
             <tr class="empty-row">
@@ -80,7 +80,7 @@
       </table>
     </div>
 
-    <!-- ✅ الـ pager زي ما هو -->
+
     <div class="pager">
       <div class="left">
         Showing
@@ -124,7 +124,7 @@
   </div>
 </div>
 
-<!-- Add/Edit Modal -->
+
 <div class="pl-backdrop" *ngIf="isAddEditOpen" (click)="closeAddEdit()">
   <div class="pl-modal" (click)="$event.stopPropagation()">
     <div class="pl-modal-top-icon" [class.edit]="mode === 'edit'">
@@ -160,7 +160,7 @@
   </div>
 </div>
 
-<!-- Delete Modal -->
+
 <div class="pl-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
   <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
     <div class="pl-modal-top-icon danger">

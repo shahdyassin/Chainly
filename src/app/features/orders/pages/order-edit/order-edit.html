@@ -94,7 +94,7 @@
 
           </div>
 
-
+<div class="track-form-wrap">
           <div class="track-form ref">
 
 
@@ -124,7 +124,11 @@
               </div>
 
               <div class="track-mid ref">
-                <input class="track-value ref" type="text" [(ngModel)]="t.scannedBy" [readonly]="!t.isEditing" />
+                <input class="track-value ref" type="text"
+  [(ngModel)]="t.scannedBy"
+  disabled
+/>
+
               </div>
 
               <div class="track-right ref"></div>
@@ -148,6 +152,7 @@
                 </button>
 
                 <div class="calendar-dropdown tracking-cal" *ngIf="openedCalendarIndex === i"
+                 [ngStyle]="calendarPos"
                   (click)="$event.stopPropagation()">
                   <div class="calendar-header">
                     <button class="calendar-nav-btn" type="button" (click)="prevMonthTracking()">‹</button>
@@ -193,6 +198,8 @@
             </div>
 
           </div>
+          </div>
+        </div>
         </div>
       </div>
     </div>
@@ -221,5 +228,3 @@
       </button>
     </div>
   </div>
-
-</div>

@@ -273,8 +273,8 @@ saveOrder() {
 
   this.isSaving = true;
 
-  const newCompanyId = Number(String(this.form.companyOrderId || '').trim());
-  const oldCompanyId = Number(this.originalCompanyOrderId);
+  const newCompanyId = Number(this.form.companyOrderId);
+  const oldCompanyId = this.originalCompanyOrderId;
 
   const payload = {
     companyOrderId: newCompanyId,
@@ -284,47 +284,38 @@ saveOrder() {
     status: this.mapStatusToNumber(this.form.status),
   };
 
+
   this.api.updateOrder(oldCompanyId, payload).subscribe({
     next: () => {
-      console.log("✅ PUT DONE");
+      console.log("✅ Order Updated Successfully");
 
 
-      this.api.getOrderWithTracking(newCompanyId)
-.subscribe({
+      this.api.getOrderWithTracking(newCompanyId).subscribe({
         next: (res: any) => {
-          console.log("✅ REFRESH TRACKING DONE", res);
+          console.log("✅ Fresh Tracking Data Received", res);
 
-          this.form.companyOrderId = String(res.companyOrderId ?? newCompanyId);
-          this.form.publicCode = String(res.code ?? '');
 
-          this.originalCompanyOrderId = Number(res.companyOrderId ?? newCompanyId);
-          this.currentTrackingCompanyId = this.originalCompanyOrderId;
+          this.originalCompanyOrderId = newCompanyId;
 
-          localStorage.setItem(
-            `order_tracking_id_${this.order!.id}`,
-            String(this.originalCompanyOrderId)
-          );
 
-          this.isSaving = false;
-
-          // refresh page
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate(['/dashboard/orders', this.order!.id]);
+            this.router.navigate(['/dashboard/orders', this.orderIdNum]);
           });
         },
         error: (err) => {
-          console.error("❌ refresh tracking failed", err);
+          console.error("❌ Error fetching new tracking", err);
+
+          this.router.navigate(['/dashboard/orders', this.orderIdNum]);
           this.isSaving = false;
         }
       });
     },
     error: (err) => {
-      console.error("❌ update order error", err);
+      console.error("❌ Update Order Failed", err);
       this.isSaving = false;
     }
   });
 }
-
 
 
 

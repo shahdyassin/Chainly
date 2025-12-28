@@ -38,6 +38,25 @@ export const DASHBOARD_ROUTES: Routes = [
         data: { title: 'Suppliers' },
       },
       {
+        path: 'suppliers/import-files',
+        loadComponent: () =>
+          import('../suppliers/pages/import-files/import-files').then((m) => m.ImportFiles),
+        data: { title: 'Suppliers / Import Files' },
+      },
+      {
+        path: 'suppliers/supplier-edit/:id',
+        loadComponent: () =>
+          import('../suppliers/pages/supplier-edit/supplier-edit').then((m) => m.SupplierEdit),
+        data: { title: 'Suppliers / Supplier Info' },
+      },
+      {
+        path: 'suppliers/supplier-add',
+        loadComponent: () =>
+          import('../suppliers/pages/supplier-add/supplier-add').then((m) => m.SupplierAdd),
+        data: { title: 'Suppliers / Supplier Info' },
+      },
+
+      {
         path: 'suppliers/supplier-info/:id',
         loadComponent: () =>
           import('../suppliers/pages/suppliers-info/suppliers-info').then(
