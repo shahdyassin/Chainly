@@ -7,19 +7,23 @@
   border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.footer .text-teal {
-  color: #3EA397;
-  font-style: bold;
-}
-
-.footer-logo {
-  font-size: 1.75rem;
-  font-weight: 500;
-  color: #e6eef0;
-}
-
 .footer-logo-img {
-  height: 60px;
+  display: none;
+}
+
+.footer .text-teal {
+  display: none;
+}
+
+.footer-mark-img {
+  height: 40px;
+  width: 40px;
+  display: block;
+  background: transparent !important;
+}
+
+.footer-word-img {
+  height: 18px;
   width: auto;
   display: block;
 }

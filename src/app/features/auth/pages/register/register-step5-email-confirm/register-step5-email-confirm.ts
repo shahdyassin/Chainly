@@ -1,4 +1,3 @@
-// src/app/features/auth/pages/register/register-step5-email-confirm.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -93,7 +92,7 @@ export class RegisterStep5EmailConfirm implements OnInit {
         next: () => {
           this.loading = false;
 
-          // ✅ اعتبريه Logged in بالبيانات اللي جمعتيها في خطوات الريجستر
+          
           this.auth.setAuthFromRegister();
           this.auth.clearRegisterData();
 

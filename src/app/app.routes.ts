@@ -1,4 +1,3 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { AUTH_ROUTES } from './features/auth/auth.routes';
 import { DASHBOARD_ROUTES } from './features/dashboard/dashboard.routes';
@@ -19,7 +18,7 @@ export const routes: Routes = [
 
   {
     path: 'dashboard',
-    canActivate: [AuthGuard],   
+    canActivate: [AuthGuard],
     children: DASHBOARD_ROUTES,
   },
 

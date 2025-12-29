@@ -60,7 +60,7 @@ export class Login {
       next: (res) => {
         this.loading = false;
 
-        // عدّلي ده حسب شكل الريسبونس الحقيقي لو مختلف
+
        this.authService.setAuthSession({
   fullName: res.fullName,
   email: res.email,
