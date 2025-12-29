@@ -24,25 +24,24 @@
 .logo-row {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 14px;
   margin-bottom: 10px;
   border-bottom: 1px solid #e5e7eb;
-  margin-left: -3px;
-  margin-top: -7px;
+  padding-bottom: 10px;
 }
 
-.logo img {
-  width: 55px;
-  height: 55px;
-  object-fit: contain;
+.logo .logo-mark {
+  width: 35px;
+  height: 35px;
 }
 
-.logo-text {
-  font-family: 'Urbanist', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  color: #3ea397;
+.logo .logo-word {
+  height: 12px;
+  width: auto;
+  margin-left: 7px;
+  margin-top: 2px;
 }
+
 
 .logo-mini-btn {
   margin-left: auto;
@@ -360,6 +359,38 @@
   .shell.sidebar-collapsed .user-card {
     justify-content: center;
   }
+
+ .shell.sidebar-collapsed .logo-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.shell.sidebar-collapsed .logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.shell.sidebar-collapsed .logo .logo-mark {
+  width: 20px;
+  height: 20px;
+}
+
+.shell.sidebar-collapsed .logo .logo-word {
+  height: 14px;
+  margin: 0;
+}
+
+.shell.sidebar-collapsed .logo-mini-btn {
+  margin-left: 0;
+  margin-right: 0;
+  align-self: center;
+}
+
+
 }
 
 
@@ -439,11 +470,15 @@
     border-bottom: 1px solid #e5e7eb;
   }
 
-  .logo img {
+  .logo .logo-mark {
     width: 45px;
     height: 45px;
   }
 
+  .logo .logo-word {
+    height: 22px;
+    width: auto;
+  }
   .nav {
     gap: 10px;
   }

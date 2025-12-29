@@ -36,13 +36,23 @@
 }
 
 .brand-logo-img {
-  margin-right: -0.5rem;
-  height: 60px;
-  width: 60px;
+  display: none;
 }
 
 .brand-text {
-  color: #3EA397;
+  display: none;
+}
+
+.brand-mark-img {
+  height: 42px;
+  width: 42px;
+  display: block;
+}
+
+.brand-word-img {
+  height: 12px;
+  width: auto;
+  display: block;
 }
 
 

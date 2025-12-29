@@ -1,15 +1,16 @@
 <div class="shell" [class.sidebar-collapsed]="isSidebarCollapsed">
   <aside class="sidebar">
-    <div class="logo-row">
-      <div class="logo">
-        <img src="/images/logo.png" alt="Chainly" />
-      </div>
-      <span class="logo-text">Chainly</span>
+<div class="logo-row">
+  <div class="logo">
+    <img class="logo-mark" src="/images/logo.svg" alt="Chainly mark" />
+    <img class="logo-word" src="/images/name.svg" alt="Chainly" />
+  </div>
 
-      <button class="logo-mini-btn" (click)="toggleSidebar()">
-        <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
-      </button>
-    </div>
+  <button class="logo-mini-btn" (click)="toggleSidebar()">
+    <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
+  </button>
+</div>
+
 
     <nav class="nav">
       <div class="nav-group">
