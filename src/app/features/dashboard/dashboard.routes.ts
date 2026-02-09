@@ -82,6 +82,14 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../orders/pages/order-details/order-details').then((m) => m.OrderDetails),
         data: { title: 'Orders / Order Details' },
       },
+      {
+        path: 'rising-demands',
+        loadComponent: () =>
+          import('../rising-demands/pages/rising-demands/rising-demands').then(
+            (m) => m.RisingDemands
+          ),
+        data: { title: 'Rising Demands' },
+      },
     ],
   },
 ];
