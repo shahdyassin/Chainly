@@ -1,0 +1,234 @@
+<div class="orders-page">
+  <div class="orders-card">
+    <div class="orders-toolbar">
+      <div class="orders-search">
+        <img class="ico" src="/icons/users/search.svg" />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Search with Name or Email..." />
+      </div>
+      <div class="role-filter" (click)="toggleRoleDropdown()" [class.open]="showRoleDropdown">
+
+
+        <span class="label">
+          {{ selectedRoles.length ? selectedRoles.join(', ') : 'Role' }}
+        </span>
+
+        <img class="arrow" src="/icons/users/arrowDown.svg" />
+
+
+        <div class="role-dropdown" *ngIf="showRoleDropdown" (click)="$event.stopPropagation()">
+
+          <div class="role-item" *ngFor="let role of roles" (click)="toggleRole(role, $event)">
+
+            <input type="checkbox" [checked]="isRoleSelected(role)" />
+            <span>{{ role }}</span>
+            <span class="count">{{ getRoleCount(role) }}</span>
+          </div>
+
+          <div class="role-clear" *ngIf="selectedRoles.length" (click)="clearRoles($event)">
+            Clear Selection
+          </div>
+
+        </div>
+      </div>
+
+
+
+      <button class="btn-invite" (click)="openInviteModal()">
+        <img src="/icons/users/invitation.svg" />
+        <span>Send Invitation</span>
+      </button>
+
+
+      <button class="btn-manage" (click)="goToRoles()">
+        <img src="/icons/users/manage.svg" />
+        <span>Manage Roles</span>
+      </button>
+
+
+
+    </div>
+
+
+    <div class="orders-tabs">
+      <button class="tab" [class.active]="statusFilter==='all'" (click)="setStatusFilter('all')">
+        All <span class="count">({{ totalCount }})</span>
+      </button>
+
+      <button class="tab" [class.active]="statusFilter==='active'" (click)="setStatusFilter('active')">
+        Active <span class="count">({{ activeCount }})</span>
+      </button>
+
+      <button class="tab" [class.active]="statusFilter==='inactive'" (click)="setStatusFilter('inactive')">
+        Inactive <span class="count">({{ inactiveCount }})</span>
+      </button>
+    </div>
+
+
+
+    <div class="orders-table-wrap">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" /></th>
+            <th class="col-no">No.</th>
+
+            <th>
+              <div class="th-inner"><img src="/icons/users/user.svg" /><span>User</span></div>
+            </th>
+            <th>
+              <div class="th-inner"><img src="/icons/users/email.svg" /><span>Email</span></div>
+            </th>
+            <th>
+              <div class="th-inner"><img src="/icons/users/role.svg" /><span>Roles</span></div>
+            </th>
+            <th>
+              <div class="th-inner"><img src="/icons/users/status.svg" /><span>Status</span></div>
+            </th>
+            <th>
+              <div class="th-inner"><img src="/icons/users/activate.svg" /><span>Activate</span></div>
+            </th>
+            <th class="col-actions">
+              <div class="th-inner th-actions"><img src="/icons/users/actions.svg" /><span>Actions</span></div>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="users.length; else emptyState">
+          <tr *ngFor="let u of users; let i = index">
+            <td class="col-check"><input type="checkbox" /></td>
+            <td class="col-no">{{ startIndex + i + 1 }}.</td>
+            <td class="user-cell">
+              <div class="user-info">
+                <div class="user-avatar">
+                  <img src="/icons/users/username.svg" alt="user" />
+                </div>
+                <span class="user-name">{{ u.name }}</span>
+              </div>
+            </td>
+
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+
+            <td>
+              <span class="status" [class.inactive]="u.status==='Inactive'">{{u.status}}</span>
+            </td>
+
+            <td>
+              <label class="switch">
+                <input type="checkbox" [ngModel]="u.active" (ngModelChange)="onToggleStatus(u, $event)" />
+
+
+                <span class="slider"></span>
+              </label>
+            </td>
+
+            <td class="col-actions">
+              <button class="icon-btn">
+                <img src="/icons/users/edit.svg" />
+              </button>
+
+              <button class="icon-btn" (click)="openDeleteModal(u)">
+                <img src="/icons/users/delete.svg" />
+              </button>
+
+            </td>
+
+
+          </tr>
+        </tbody>
+
+        <ng-template #emptyState>
+          <tbody>
+            <tr>
+              <td class="empty-cell" colspan="8">
+                <div class="empty">
+                  <div class="empty-text">No data to show</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+
+
+    <div class="orders-pager" *ngIf="totalPages > 1">
+      <div class="left">
+        Showing {{ totalCount ? (startIndex + 1) : 0 }} : {{ endIndex }} of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+        <button class="nav-icon" (click)="prevPage()" [disabled]="pageNumber===1">
+          <img src="/icons/raising-demand/left.svg" />
+        </button>
+
+        <ng-container *ngFor="let p of pagesArray">
+          <button *ngIf="isNumber(p)" class="page-btn" [class.active]="p===pageNumber" (click)="goToPage(p)">
+            {{ p }}
+          </button>
+          <span *ngIf="!isNumber(p)" class="dots">…</span>
+        </ng-container>
+
+        <button class="nav-icon" (click)="nextPage()" [disabled]="pageNumber===totalPages">
+          <img src="/icons/raising-demand/right.svg" />
+        </button>
+      </div>
+
+      <div class="right">
+        <span>Go to page</span>
+        <input type="number" [ngModel]="pageNumber" (ngModelChange)="goToPage($event)" />
+      </div>
+    </div>
+
+  </div>
+
+  <div class="invite-backdrop" *ngIf="showInviteModal" (click)="closeInviteModal()">
+    <div class="invite-modal" (click)="$event.stopPropagation()">
+
+      <div class="invite-top-icon">
+        <img src="/icons/users/sendInvitation.svg" />
+      </div>
+
+      <div class="invite-title">Send Invitation</div>
+
+      <div class="invite-field">
+        <div class="invite-label">
+          <img src="/icons/users/employeeEmail.svg" />
+          Insert the employee's email address
+        </div>
+
+        <input type="email" [(ngModel)]="inviteEmail" placeholder="Employee’s email" />
+      </div>
+
+      <button class="invite-send-btn" [disabled]="!inviteEmail" (click)="sendInvitation()">
+        Send
+      </button>
+
+    </div>
+  </div>
+
+
+  <div class="pl-backdrop" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
+
+      <div class="pl-modal-top-icon danger">
+        <img src="/icons/users/warning.svg" />
+      </div>
+
+      <h3>Delete User</h3>
+
+      <p class="danger-text">
+        Are you sure you want to delete <b>{{ selectedUser?.name }}</b>?<br />
+        <span>This action cannot be undone.</span>
+      </p>
+
+      <div class="danger-actions">
+        <button class="btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+        <button class="btn-danger" (click)="confirmDeleteUser()">Delete</button>
+      </div>
+
+    </div>
+  </div>
+
+
+</div>

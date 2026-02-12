@@ -1,0 +1,73 @@
+<div class="roles-page">
+  <div class="roles-card">
+
+    <div class="roles-toolbar">
+      <div class="toolbar-actions">
+        <button class="btn-outline">
+          <img src="/icons/users/addRole.svg" />
+          Add New Role
+        </button>
+
+        <button class="btn-outline">
+          <img src="/icons/users/editRole.svg" />
+          Edit
+        </button>
+      </div>
+    </div>
+
+
+    <div class="roles-matrix">
+
+
+      <div class="permissions-list">
+
+        <div class="permission-search">
+          <img src="/icons/users/search.svg" />
+          <input placeholder="Search with Permission Name.." />
+        </div>
+
+        <div class="perm-group" *ngFor="let group of permissionGroups">
+          <div class="group-title" (mouseenter)="hoveredRow = group.rowIndex" (mouseleave)="hoveredRow = null"
+            (click)="toggleGroup(group)">
+
+            <img class="arrow" [class.open]="group.open" src="/icons/users/arrowDown.svg" />
+            <span>{{ group.name }}</span>
+          </div>
+
+          <div class="perm-items" *ngIf="group.open">
+            <div class="perm-item" *ngFor="let p of group.permissions">
+              {{ p }}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="roles-columns">
+
+
+        <div class="roles-header-row">
+          <div class="role-col" *ngFor="let role of roles">
+            <span>{{ role }}</span>
+            <img src="/icons/users/more.svg" />
+          </div>
+        </div>
+
+
+        <div class="roles-body-scroll">
+          <div class="roles-body">
+            <div class="role-row" *ngFor="let row of matrix; let i = index" [class.row-hover]="hoveredRow === i">
+
+              <div class="role-cell" *ngFor="let role of roles">
+                <input type="checkbox" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

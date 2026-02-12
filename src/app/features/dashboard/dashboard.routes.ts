@@ -90,6 +90,22 @@ export const DASHBOARD_ROUTES: Routes = [
           ),
         data: { title: 'Rising Demands' },
       },
+      {
+        path: 'users-list',
+        loadComponent: () =>
+          import('../users/pages/users-list/users-list').then(
+            (m) => m.UsersList
+          ),
+        data: { title: 'Users Management' },
+      },
+      {
+        path: 'roles-list',
+        loadComponent: () =>
+          import('../users/pages/roles-list/roles-list').then(
+            (m) => m.RolesList
+          ),
+        data: { title: 'Users Management / Roles' },
+      },
     ],
   },
 ];

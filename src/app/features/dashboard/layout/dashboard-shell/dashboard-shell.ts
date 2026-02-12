@@ -146,8 +146,10 @@ if (label === 'edit order') {
   });
   continue;
 }
-
-
+if (label === 'users management') {
+  crumbs.push({ label: parts[i], link: ['/dashboard/users-list'] });
+  continue;
+}
 
       crumbs.push({ label: parts[i] });
     }
