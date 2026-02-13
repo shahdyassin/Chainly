@@ -36,8 +36,7 @@ export class UsersList implements OnInit {
   inactiveCount = 0;
 
 
-  roles: string[] = [];
-  selectedRoles: string[] = [];
+  roles: { id: number; name: string }[] = [];
   selectedRoleId?: number;
   showRoleDropdown = false;
 
@@ -54,6 +53,7 @@ export class UsersList implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loadRoles();
     this.loadUsers();
   }
 
@@ -61,6 +61,11 @@ export class UsersList implements OnInit {
     this.router.navigate(['/dashboard/roles-list']);
   }
 
+  loadRoles() {
+    this.usersService.getRoles().subscribe(res => {
+      this.roles = res.items;
+    });
+  }
 
   loadUsers() {
     const isActive =
@@ -85,13 +90,6 @@ export class UsersList implements OnInit {
 
           this.activeCount = res.activeUsersCount;
           this.inactiveCount = res.inactiveUsersCount;
-
-
-          const allRoles = res.items
-            .flatMap(u => u.roles || []);
-
-          this.roles = [...new Set(allRoles)];
-
           this.users = res.items.map(u => ({
             id: u.id,
             name: u.fullName,
@@ -127,26 +125,11 @@ export class UsersList implements OnInit {
     this.showRoleDropdown = !this.showRoleDropdown;
   }
 
-  isRoleSelected(role: string): boolean {
-    return this.selectedRoles.includes(role);
-  }
 
-  toggleRole(role: string, e: Event) {
-    e.stopPropagation();
-
-    if (this.isRoleSelected(role)) {
-      this.selectedRoles = this.selectedRoles.filter(r => r !== role);
-    } else {
-      this.selectedRoles.push(role);
-    }
-
-    this.pageNumber = 1;
-    this.loadUsers();
-  }
 
   clearRoles(e: Event) {
     e.stopPropagation();
-    this.selectedRoles = [];
+    this.selectedRoleId = undefined;
     this.loadUsers();
   }
 
@@ -250,4 +233,18 @@ export class UsersList implements OnInit {
       }
     });
   }
+
+  selectRole(role: any, e: Event) {
+    e.stopPropagation();
+
+    this.selectedRoleId = role.id;
+    this.pageNumber = 1;
+    this.loadUsers();
+    this.showRoleDropdown = false;
+  }
+  get selectedRoleName(): string {
+    const role = this.roles.find(r => r.id === this.selectedRoleId);
+    return role ? role.name : 'Role';
+  }
+
 }

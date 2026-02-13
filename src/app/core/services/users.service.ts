@@ -32,6 +32,7 @@ export interface PagedResponse<T> {
 export class UsersService {
 
   private baseUrl = 'https://chainly.azurewebsites.net/api/Users';
+  private rolesUrl = 'https://chainly.azurewebsites.net/api/Roles';
 
   constructor(private http: HttpClient) { }
 
@@ -77,5 +78,8 @@ export class UsersService {
     });
   }
 
+  getRoles() {
+    return this.http.get<any>(this.rolesUrl);
+  }
 }
 
