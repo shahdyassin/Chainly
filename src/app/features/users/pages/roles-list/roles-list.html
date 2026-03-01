@@ -1,73 +1,188 @@
-<div class="roles-page">
-  <div class="roles-card">
+<div class="page">
+  <div class="card">
+    <div class="toolbar">
+      <div class="search-box">
+        <img class="search-ico" src="/icons/roles/search.svg" />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Search with Role's Name..." />
+      </div>
 
-    <div class="roles-toolbar">
-      <div class="toolbar-actions">
-        <button class="btn-outline">
-          <img src="/icons/users/addRole.svg" />
-          Add New Role
+      <button class="btn-add" (click)="openAdd()">
+        <img src="/icons/roles/addNewRole.svg" />
+        <span>Add New Role</span>
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" /></th>
+
+            <th class="col-no">No.</th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/roles/roleTable.svg" />
+                <span>Role</span>
+              </div>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/roles/actions.svg" />
+                <span>Actions</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="items.length; else emptyBody">
+          <tr *ngFor="let role of items; let i = index">
+
+            <td class="col-check"><input type="checkbox" /></td>
+
+            <td class="col-no">
+              {{ (pageNumber - 1) * pageSize + (i + 1) }}.
+            </td>
+
+            <td class="td-title">
+              {{ role.name }}
+            </td>
+
+            <td class="col-actions">
+              <button class="icon-btn">
+                <img src="/icons/roles/view.svg" />
+              </button>
+
+              <button class="icon-btn">
+                <img src="/icons/roles/edit.svg" />
+              </button>
+
+              <button class="icon-btn" (click)="openDelete(role)">
+                <img src="/icons/roles/delete.svg" />
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+
+        <ng-template #emptyBody>
+          <tbody>
+            <tr class="empty-row">
+              <td class="empty-cell" colspan="4">
+                <div class="empty">No data to show</div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+
+      </table>
+    </div>
+    <div class="pager">
+
+      <div class="left">
+        Showing
+        {{ items.length ? ((pageNumber - 1) * pageSize + 1) : 0 }}
+        ::
+        {{ (pageNumber - 1) * pageSize + items.length }}
+        of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+
+        <button class="nav-btn nav-icon" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
+          <img src="/icons/roles/left.svg" />
         </button>
 
-        <button class="btn-outline">
-          <img src="/icons/users/editRole.svg" />
-          Edit
+        <button *ngFor="let p of pagesArray" (click)="goToPage(p)" [class.active]="p === pageNumber">
+          {{ p }}
         </button>
+
+        <button class="nav-btn nav-icon" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">
+          <img src="/icons/roles/right.svg" />
+        </button>
+      </div>
+      <div class="right">
+        <span>Go to page</span>
+        <input type="number" [value]="pageNumber" (change)="goToPage($any($event.target).valueAsNumber)" />
       </div>
     </div>
-
-
-    <div class="roles-matrix">
-
-
-      <div class="permissions-list">
-
-        <div class="permission-search">
-          <img src="/icons/users/search.svg" />
-          <input placeholder="Search with Permission Name.." />
+    <div class="roles-backdrop" *ngIf="showAddModal" (click)="closeAdd()">
+      <div class="roles-modal" (click)="$event.stopPropagation()">
+        <div class="modal-top">
+          <div class="modal-icon">
+            <img src="/icons/roles/add.svg" />
+          </div>
+          <h2>Add New Role</h2>
         </div>
 
-        <div class="perm-group" *ngFor="let group of permissionGroups">
-          <div class="group-title" (mouseenter)="hoveredRow = group.rowIndex" (mouseleave)="hoveredRow = null"
-            (click)="toggleGroup(group)">
+        <div class="modal-field">
+          <label>
+            <img src="/icons/roles/role.svg" />
+            Role Name
+          </label>
 
-            <img class="arrow" [class.open]="group.open" src="/icons/users/arrowDown.svg" />
-            <span>{{ group.name }}</span>
-          </div>
+          <input type="text" [(ngModel)]="newRoleName" placeholder="Enter role name" />
+        </div>
 
-          <div class="perm-items" *ngIf="group.open">
-            <div class="perm-item" *ngFor="let p of group.permissions">
-              {{ p }}
-            </div>
-          </div>
+        <button class="confirm-btn" (click)="confirmAdd()" [disabled]="isSubmitting || !newRoleName.trim()">
+          {{ isSubmitting ? 'Creating...' : 'Confirm' }}
+        </button>
+
+      </div>
+    </div>
+    <div class="roles-backdrop" *ngIf="showSuccessModal">
+      <div class="roles-success-modal">
+
+        <div class="success-icon-wrap">
+          <img src="/icons/roles/success.svg" />
+        </div>
+
+        <h2 class="success-title">Success!</h2>
+
+        <p class="success-text">
+          <b>{{ createdRoleName }}</b> added successfully. You can customize permissions
+          from the Roles settings.
+        </p>
+
+        <div class="success-actions">
+          <button class="success-cancel" (click)="closeSuccess()">
+            Cancel
+          </button>
+
+          <button class="success-edit" (click)="goToPermissions()">
+            Edit Permissions
+          </button>
         </div>
 
       </div>
+    </div>
+    <div class="pl-backdrop" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+      <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
 
-
-      <div class="roles-columns">
-
-
-        <div class="roles-header-row">
-          <div class="role-col" *ngFor="let role of roles">
-            <span>{{ role }}</span>
-            <img src="/icons/users/more.svg" />
-          </div>
+        <div class="pl-modal-top-icon danger">
+          <img src="/icons/roles/warning.svg" />
         </div>
 
+        <h3>Delete Role</h3>
 
-        <div class="roles-body-scroll">
-          <div class="roles-body">
-            <div class="role-row" *ngFor="let row of matrix; let i = index" [class.row-hover]="hoveredRow === i">
+        <p class="danger-text">
+          Are you sure you want to delete
+          <b>{{ selectedRole?.name }}</b>?<br />
+          <span>This action cannot be undone.</span>
+        </p>
 
-              <div class="role-cell" *ngFor="let role of roles">
-                <input type="checkbox" />
-              </div>
-            </div>
-          </div>
+        <div class="danger-actions">
+          <button class="btn-cancel" (click)="closeDeleteModal()">
+            Cancel
+          </button>
+
+          <button class="btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+            {{ isDeleting ? 'Deleting...' : 'Delete' }}
+          </button>
         </div>
 
       </div>
-
     </div>
   </div>
 </div>
