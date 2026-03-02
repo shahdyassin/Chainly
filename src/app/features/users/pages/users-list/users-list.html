@@ -110,7 +110,7 @@
             </td>
 
             <td class="col-actions">
-              <button class="icon-btn">
+              <button class="icon-btn" (click)="openEditModal(u)">
                 <img src="/icons/users/edit.svg" />
               </button>
 
@@ -215,4 +215,38 @@
       </div>
 
     </div>
+
   </div>
+  <div class="invite-backdrop" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="invite-modal" (click)="$event.stopPropagation()">
+
+      <div class="invite-top-icon">
+        <img src="/icons/roles/editAssignedRole.svg" />
+      </div>
+
+      <div class="invite-title">Edit Assigned Role</div>
+
+      <div class="invite-field">
+        <div class="invite-label">
+          <img src="/icons/roles/role.svg" />
+          Role
+        </div>
+
+        <div class="custom-dropdown" [class.open]="showEditDropdown">
+  <div class="dropdown-selected" (click)="toggleEditDropdown(); $event.stopPropagation()">
+    {{ getSelectedEditRoleName() }}
+    <img src="/icons/users/arrowDown.svg" class="arrow" />
+  </div>
+
+  <div class="dropdown-menu" *ngIf="showEditDropdown">
+    <div class="dropdown-item" *ngFor="let role of roles" (click)="selectEditRole(role)">
+      {{ role.name }}
+    </div>
+  </div>
+</div>
+
+      </div>
+      <button class="invite-send-btn" [disabled]="!selectedEditRoleId" (click)="confirmEditRole()">
+        Confirm
+      </button>
+    </div>

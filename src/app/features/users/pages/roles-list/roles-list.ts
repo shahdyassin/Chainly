@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { RolesService, ApiRole } from '../../../../core/services/roles.service';
 
 @Component({
@@ -34,7 +35,10 @@ export class RolesList implements OnInit {
   selectedRole: ApiRole | null = null;
   isDeleting = false;
 
-  constructor(private rolesService: RolesService) { }
+  constructor(private rolesService: RolesService,
+    private router: Router
+  ) { }
+
 
   ngOnInit(): void {
     this.loadRoles();
@@ -88,13 +92,17 @@ export class RolesList implements OnInit {
 
     this.rolesService.createRole(roleName)
       .subscribe({
-        next: () => {
+        next: (createdRole) => {
+
           this.isSubmitting = false;
           this.showAddModal = false;
 
           this.createdRoleName = roleName;
-          this.showSuccessModal = true;
 
+
+          this.selectedRole = createdRole;
+
+          this.showSuccessModal = true;
           this.newRoleName = '';
           this.loadRoles();
         },
@@ -141,10 +149,29 @@ export class RolesList implements OnInit {
   }
 
   goToPermissions() {
+    if (!this.selectedRole) return;
+
     this.showSuccessModal = false;
-    console.log('Navigate to permissions page');
 
+    this.router.navigate(
+      ['/dashboard/roles-list', this.selectedRole.id, 'edit']
+    );
+  }
 
-    // this.router.navigate(['/roles/permissions']);
+  viewRole(role: ApiRole) {
+    this.router.navigate(
+      ['/dashboard/roles-list', role.id],
+      {
+        state: { roleName: role.name }
+      }
+    );
+  }
+  editRole(role: ApiRole) {
+    this.router.navigate(
+      ['/dashboard/roles-list', role.id, 'edit'],
+      {
+        state: { roleName: role.name }
+      }
+    );
   }
 }

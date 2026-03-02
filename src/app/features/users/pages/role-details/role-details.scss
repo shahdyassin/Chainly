@@ -1,0 +1,270 @@
+.role-page {
+  padding: 24px;
+  background: #f9f9f9;
+  min-height: 100vh;
+}
+
+.role-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.role-title {
+  font-family: 'lufga';
+  font-size: 28px;
+  font-weight: 500;
+  color: #2E2E2E;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-light {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  font-weight: 500;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+
+  img {
+    width: 20px;
+  }
+
+  &.danger {
+    color: #1A1A1A;
+  }
+}
+
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  img {
+    width: 18px;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.permission-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e6e6e6;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  color: #4D4D4D;
+
+  img {
+    transition: transform 0.25s ease;
+  }
+
+  img.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.card-body {
+  margin-top: 16px;
+}
+
+.inner-box {
+  border-radius: 20px;
+  border: 1px solid #e6e6e6;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 14px;
+  cursor: pointer;
+
+  img {
+    transition: transform 0.2s ease;
+  }
+
+  img.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.section-body {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.perm-item {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #999999;
+  transition: all 0.2s ease;
+}
+
+.check-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #cfcfcf;
+  color: #999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  img {
+    width: 11px;
+    opacity: 0;
+  }
+}
+
+.perm-item.active {
+  background: #3ea397;
+  color: #fff;
+  border-color: #3ea397;
+
+  .check-box {
+    border-color: #fff;
+
+    img {
+      opacity: 1;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+
+.pl-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 999999 !important;
+}
+
+.pl-modal {
+  width: 440px;
+  max-width: calc(100% - 32px);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 22px;
+  text-align: center;
+}
+
+.pl-modal-top-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.danger {
+    background: #FFDADA;
+  }
+
+  img {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+.pl-modal h3 {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #4d4d4d;
+}
+
+.danger-text {
+  margin: 6px 0 16px;
+  color: #666666;
+  font-size: 14px;
+  font-weight: 400;
+
+  b {
+    color: #4d4d4d;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  span {
+    display: block;
+    margin-top: 4px;
+    color: #666666;
+  }
+}
+
+.danger-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-cancel {
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: #F2F2F2;
+  color: #666666;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.btn-danger {
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: #FF392B;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+}
+

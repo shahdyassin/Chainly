@@ -106,6 +106,20 @@ export const DASHBOARD_ROUTES: Routes = [
           ),
         data: { title: 'Users Management / Roles' },
       },
+      {
+        path: 'roles-list/:id',
+        loadComponent: () =>
+          import('../users/pages/role-details/role-details')
+            .then(m => m.RoleDetails),
+        data: { title: 'Users Management / Roles' }
+      },
+      {
+        path: 'roles-list/:id/edit',
+        loadComponent: () =>
+          import('../users/pages/role-edit/role-edit')
+            .then(m => m.RoleEdit),
+        data: { title: 'Users Management / Roles ' }
+      }
     ],
   },
 ];

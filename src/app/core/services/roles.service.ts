@@ -15,6 +15,18 @@ export interface PagedRolesResponse {
   totalPages: number;
 }
 
+export interface RolePermission {
+  name: string;
+  isAssigned: boolean;
+}
+
+export interface RoleDetailsResponse {
+  name: string;
+  permissions: {
+    [module: string]: RolePermission[];
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -41,8 +53,19 @@ export class RolesService {
     return this.http.get<PagedRolesResponse>(this.rolesUrl, { params });
   }
 
+  getRoleById(roleId: number): Observable<RoleDetailsResponse> {
+    return this.http.get<RoleDetailsResponse>(`${this.rolesUrl}/${roleId}`);
+  }
+
   createRole(name: string): Observable<ApiRole> {
     return this.http.post<ApiRole>(this.rolesUrl, { name });
+  }
+
+  updateRole(roleId: number, body: any) {
+    return this.http.put(
+      `${this.rolesUrl}/${roleId}`,
+      body
+    );
   }
 
   deleteRole(roleId: number) {

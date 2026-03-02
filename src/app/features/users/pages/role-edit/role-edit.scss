@@ -1,0 +1,275 @@
+.edit-page {
+  padding: 24px;
+  background: #f9f9f9;
+}
+
+.edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.role-title {
+  font-family: 'lufga';
+  font-size: 28px;
+  font-weight: 500;
+  color: #2E2E2E;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-discard,
+.btn-confirm {
+  height: 40px;
+  padding: 0 22px;
+  border-radius: 12px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.btn-discard {
+  background: #F73E5E;
+  color: #fff;
+
+  &:hover {
+    background: #e04345;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.btn-confirm {
+  background: #3ea397;
+  color: #fff;
+
+  &:hover {
+    background: #35988c;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.select-all-global {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  background: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #999999;
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: all 0.2s ease;
+}
+
+.select-all-global .check-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+
+  img {
+    width: 12px;
+    opacity: 0;
+  }
+}
+
+.select-all-global.active {
+  color: #3ea397;
+}
+
+.select-all-global.active .check-box {
+  border-color: #3ea397;
+}
+
+.select-all-global.active .check-box img {
+  opacity: 1;
+  filter: brightness(0) saturate(100%) invert(48%) sepia(23%) saturate(693%) hue-rotate(120deg) brightness(92%) contrast(88%);
+}
+
+.permission-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e6e6e6;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  color: #4D4D4D;
+}
+
+.card-body {
+  margin-top: 16px;
+}
+
+// .inner-wrapper {
+//   background: #ffffff;
+//   border-radius: 20px;
+//   padding: 20px 22px;
+//   border: 1px solid #f0f0f0;
+// }
+
+
+.inner-box {
+  border-radius: 20px;
+  border: 1px solid #e6e6e6;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+.select-all-section {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #999999;
+  cursor: pointer;
+  flex-basis: 100%;
+}
+
+.select-all-section.active {
+  color: #3ea397;
+}
+
+.select-all-section.active .check-box {
+  border-color: #3ea397;
+}
+
+.select-all-section.active .check-box img {
+  opacity: 1;
+}
+
+// .inner-box {
+//   display: flex;
+//   gap: 12px;
+//   flex-wrap: wrap;
+// }
+
+.perm-item {
+  padding: 8px 16px;
+  border-radius: 12px;
+  // background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #999999;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.perm-item.active {
+  background: #3ea397;
+  color: #ffffff;
+  border-color: #3ea397;
+}
+
+.check-box {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid #999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+
+  img {
+    width: 12px;
+    opacity: 0;
+    filter: none;
+  }
+}
+
+.perm-item.active .check-box {
+  background: transparent;
+  border-color: white;
+}
+
+.perm-item.active .check-box img {
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 768px) {
+
+  .edit-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-discard,
+  .btn-confirm {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .select-all-global {
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .select-all-global {
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .inner-box {
+    gap: 10px;
+  }
+
+  .perm-item {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+
+}

@@ -63,6 +63,14 @@ export class UsersService {
     return this.http.get<PagedResponse<ApiUser>>(this.baseUrl, { params });
   }
 
+  updateUser(userId: number, body: any) {
+    return this.http.put(
+      `${this.baseUrl}/${userId}`,
+      body,
+      { responseType: 'text' }
+    );
+  }
+
   updateUserActivation(userId: number, isActive: boolean) {
     return this.http.patch(
       `${this.baseUrl}/${userId}/activation`,

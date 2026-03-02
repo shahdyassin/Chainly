@@ -80,6 +80,7 @@ export class DashboardShell implements OnInit {
   get breadcrumbs(): Crumb[] {
     const parts = this.toParts(this.breadcrumbTitle);
     const id = this.currentParams['id'];
+    const roleName = history.state?.roleName;
 
 
     if (!parts.length) return [{ label: 'Dashboard', link: ['/dashboard'] }];
@@ -90,68 +91,76 @@ export class DashboardShell implements OnInit {
       const label = parts[i].toLowerCase();
 
 
-if (label === 'suppliers') {
-  crumbs.push({ label: parts[i], link: ['/dashboard/suppliers'] });
-  continue;
-}
+      if (label === 'suppliers') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/suppliers'] });
+        continue;
+      }
 
-if (label === 'import files') {
-  crumbs.push({ label: parts[i], link: ['/dashboard/suppliers/import-files'] });
-  continue;
-}
+      if (label === 'import files') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/suppliers/import-files'] });
+        continue;
+      }
 
-if (label === 'supplier add') {
-  crumbs.push({ label: parts[i], link: ['/dashboard/suppliers/supplier-add'] });
-  continue;
-}
+      if (label === 'supplier add') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/suppliers/supplier-add'] });
+        continue;
+      }
 
-if (label === 'supplier edit') {
-  crumbs.push({ label: parts[i], link: id ? ['/dashboard/suppliers/supplier-edit', id] : undefined });
-  continue;
-}
+      if (label === 'supplier edit') {
+        crumbs.push({ label: parts[i], link: id ? ['/dashboard/suppliers/supplier-edit', id] : undefined });
+        continue;
+      }
 
-if (label === 'supplier info') {
-  crumbs.push({ label: parts[i], link: id ? ['/dashboard/suppliers/supplier-info', id] : undefined });
-  continue;
-}
-if (label === 'supplies') {
-  crumbs.push({ label: parts[i], link: ['/dashboard/supplies-list'] });
-  continue;
-}
+      if (label === 'supplier info') {
+        crumbs.push({ label: parts[i], link: id ? ['/dashboard/suppliers/supplier-info', id] : undefined });
+        continue;
+      }
+      if (label === 'supplies') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/supplies-list'] });
+        continue;
+      }
 
-if (label === 'supply info') {
-  crumbs.push({
-    label: parts[i],
-    link: id ? ['/dashboard/supplies-list/supplies-info', id] : undefined,
-  });
-  continue;
-}
-if (label === 'orders') {
-  crumbs.push({ label: parts[i], link: ['/dashboard/orders'] });
-  continue;
-}
+      if (label === 'supply info') {
+        crumbs.push({
+          label: parts[i],
+          link: id ? ['/dashboard/supplies-list/supplies-info', id] : undefined,
+        });
+        continue;
+      }
+      if (label === 'orders') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/orders'] });
+        continue;
+      }
 
-if (label === 'order details') {
-  crumbs.push({
-    label: parts[i],
-    link: id ? ['/dashboard/orders', id] : undefined,
-  });
-  continue;
-}
+      if (label === 'order details') {
+        crumbs.push({
+          label: parts[i],
+          link: id ? ['/dashboard/orders', id] : undefined,
+        });
+        continue;
+      }
 
-if (label === 'edit order') {
-  crumbs.push({
-    label: parts[i],
-    link: id ? ['/dashboard/orders', id, 'edit'] : undefined,
-  });
-  continue;
-}
-if (label === 'users management') {
-  crumbs.push({ label: parts[i], link: ['/dashboard/users-list'] });
-  continue;
-}
+      if (label === 'edit order') {
+        crumbs.push({
+          label: parts[i],
+          link: id ? ['/dashboard/orders', id, 'edit'] : undefined,
+        });
+        continue;
+      }
+      if (label === 'users management') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/users-list'] });
+        continue;
+      }
+      if (label === 'roles') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/roles-list'] });
+        continue;
+      }
+
 
       crumbs.push({ label: parts[i] });
+    }
+    if (roleName) {
+      crumbs.push({ label: roleName });
     }
 
     return crumbs;

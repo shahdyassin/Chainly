@@ -47,6 +47,12 @@ export class UsersList implements OnInit {
   showInviteModal = false;
   inviteEmail = '';
 
+  showEditModal = false;
+selectedEditUser: User | null = null;
+selectedEditRoleId?: number;
+
+showEditDropdown = false;
+
   constructor(
     private router: Router,
     private usersService: UsersService
@@ -246,5 +252,68 @@ export class UsersList implements OnInit {
     const role = this.roles.find(r => r.id === this.selectedRoleId);
     return role ? role.name : 'Role';
   }
+
+
+  openEditModal(user: User) {
+  this.selectedEditUser = user;
+
+
+  const currentRole = this.roles.find(r => user.role.includes(r.name));
+  this.selectedEditRoleId = currentRole?.id;
+
+  this.showEditModal = true;
+}
+
+closeEditModal() {
+  this.showEditModal = false;
+  this.selectedEditUser = null;
+  this.selectedEditRoleId = undefined;
+}
+
+confirmEditRole() {
+  if (!this.selectedEditUser || !this.selectedEditRoleId) return;
+
+  const selectedRole = this.roles.find(r => r.id === this.selectedEditRoleId);
+
+  if (!selectedRole) return;
+
+  const body = {
+    fullName: this.selectedEditUser.name,
+    email: this.selectedEditUser.email,
+    password: null,
+    confirmPassword: null,
+    isActive: this.selectedEditUser.active,
+    roles: [selectedRole.name]
+  };
+
+  this.usersService
+    .updateUser(this.selectedEditUser.id, body)
+    .subscribe({
+      next: () => {
+        this.closeEditModal();
+        this.loadUsers();
+      },
+      error: (err) => {
+        console.error('Failed to update user', err);
+      }
+    });
+}
+
+toggleEditDropdown() {
+  // console.log('clicked');
+  // console.log(this.roles);
+  this.showEditDropdown = !this.showEditDropdown;
+}
+
+selectEditRole(role: any) {
+  this.selectedEditRoleId = role.id;
+  this.showEditDropdown = false;
+}
+
+getSelectedEditRoleName(): string {
+  const role = this.roles.find(r => r.id === this.selectedEditRoleId);
+  return role ? role.name : 'Select Role';
+}
+
 
 }

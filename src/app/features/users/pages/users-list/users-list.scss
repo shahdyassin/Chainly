@@ -235,11 +235,13 @@
   padding: 26px 22px 22px;
   text-align: center;
   border: 1px solid #e6e6e6;
+  position: relative;
+  overflow: visible;
 }
 
 .invite-top-icon {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   border: 1px solid #CCCCCC;
   display: flex;
@@ -264,9 +266,11 @@
   text-align: left;
   border: 1px solid #e6e6e6;
   border-radius: 16px;
-  padding: 14px;
-  margin-bottom: 18px;
+  padding: 12px;
+  margin-bottom: 12px;
   background: #fff;
+  position: relative;
+  overflow: visible !important;
 }
 
 .invite-label {
@@ -296,13 +300,100 @@
   outline: none;
 }
 
-.invite-field input:hover,
+.invite-field select {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: #f3f3f3;
+  padding: 0 40px 0 14px;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
 .invite-field input:focus,
-.invite-field input:active,
-.invite-field input:focus-visible {
+.invite-field input:focus-visible,
+.invite-field input:hover,
+.invite-field input:active {
   outline: none !important;
   box-shadow: none !important;
   border: 0 !important;
+}
+
+
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.dropdown-selected {
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid #e6e6e6;
+  // background: #f8fafb;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all .2s ease;
+}
+
+.custom-dropdown.open .dropdown-selected {
+  border-color: #3ea397;
+  box-shadow: 0 0 0 3px rgba(62,163,151,0.15);
+}
+
+.dropdown-selected .arrow {
+  width: 16px;
+  opacity: 0.7;
+}
+
+.dropdown-menu {
+  position: absolute;
+  display: block;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  padding: 8px 0;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 999999;
+}
+
+.dropdown-item {
+  padding: 10px 18px;
+  font-size: 14px;
+  transition: all .15s ease;
+}
+
+.dropdown-item:hover {
+  background: #f3fbfa;
+  color: #3ea397;
+}
+
+
+.invite-field select {
+  background: #f8fafb;
+  border: 1px solid #e6e6e6;
+}
+
+.invite-field select:focus {
+  border-color: #3ea397;
+  box-shadow: 0 0 0 3px rgba(62,163,151,0.15);
 }
 
 .invite-send-btn {

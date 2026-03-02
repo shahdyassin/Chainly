@@ -1,0 +1,75 @@
+<div class="edit-page">
+
+  <div class="edit-header">
+    <h2 class="role-title">{{ roleName }}</h2>
+
+    <div class="header-actions">
+
+      <button class="btn-discard" (click)="discard()">
+        <img src="/icons/roles/discard.svg" />
+        <span>Discard Changes</span>
+      </button>
+
+      <button class="btn-confirm" (click)="confirm()">
+        <img src="/icons/roles/confirm.svg" />
+        <span>Confirm</span>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="select-all-global" [class.active]="isAllSelected()" (click)="toggleSelectAll()">
+
+    <div class="check-box">
+      <img src="/icons/roles/check.svg" />
+    </div>
+
+    <span>Select All Permissions</span>
+
+  </div>
+
+  <div class="permission-card" *ngFor="let section of permissions">
+
+    <div class="card-header" (click)="toggleSection(section)">
+
+      <span>{{ section.module }}</span>
+
+      <img src="/icons/roles/dropdown.svg" [class.rotated]="section.isOpen" />
+    </div>
+
+    <div class="card-body" *ngIf="section.isOpen">
+
+
+
+      <div class="inner-box">
+
+
+        <div class="select-all-section" [class.active]="isSectionAllSelected(section)"
+          (click)="toggleSelectAllSection(section)">
+
+          <div class="check-box">
+            <img src="/icons/roles/success.svg" />
+          </div>
+
+          <span>Select All</span>
+        </div>
+
+
+        <div class="perm-item" *ngFor="let perm of section.items" [class.active]="perm.isAssigned"
+          (click)="togglePermission(perm)">
+
+          <div class="check-box">
+            <img src="/icons/roles/success.svg" />
+          </div>
+
+          <span>{{ perm.name.split('.')[1] }}</span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

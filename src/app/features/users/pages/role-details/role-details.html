@@ -1,0 +1,90 @@
+<div class="role-page">
+
+  <div class="role-header">
+
+    <h2 class="role-title">{{ roleName }}</h2>
+
+    <div class="header-actions">
+
+      <button class="btn-light" (click)="goToEdit()">
+        <img src="/icons/roles/edit.svg" />
+        Edit
+      </button>
+
+
+      <button class="btn-light danger" (click)="openDelete()">
+        <img src="/icons/roles/delete.svg" />
+        Delete
+      </button>
+
+      <button class="nav-btn" (click)="goPrevious()" [disabled]="!hasPrevious">
+        <img src="/icons/roles/left.svg" />
+      </button>
+
+      <button class="nav-btn" (click)="goNext()" [disabled]="!hasNext">
+        <img src="/icons/roles/right.svg" />
+      </button>
+
+    </div>
+
+  </div>
+  <div *ngIf="isLoading" class="role-loading">
+    Loading permissions...
+  </div>
+  <div class="permission-card" *ngFor="let section of permissions">
+
+    <div class="card-header" (click)="toggleSection(section)">
+
+      <span class="card-title">{{ section.module }}</span>
+
+      <img src="/icons/roles/dropdown.svg" [class.rotated]="section.isOpen" />
+    </div>
+
+    <div class="card-body" *ngIf="section.isOpen">
+
+      <div class="inner-box">
+
+        <div class="perm-item" *ngFor="let perm of section.items" [class.active]="perm.isAssigned">
+
+          <div class="check-box">
+            <img src="/icons/roles/check.svg" />
+          </div>
+          <span>{{ perm.name.split('.')[1] }}</span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="pl-backdrop" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
+
+      <div class="pl-modal-top-icon danger">
+        <img src="/icons/roles/warning.svg" />
+      </div>
+
+      <h3>Delete Role</h3>
+
+      <p class="danger-text">
+        Are you sure you want to delete
+        <b>{{ selectedRole?.name }}</b>?<br />
+        <span>This action cannot be undone.</span>
+      </p>
+
+      <div class="danger-actions">
+        <button class="btn-cancel" (click)="closeDeleteModal()">
+          Cancel
+        </button>
+
+        <button class="btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+          {{ isDeleting ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
