@@ -119,6 +119,14 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../users/pages/role-edit/role-edit')
             .then(m => m.RoleEdit),
         data: { title: 'Users Management / Roles ' }
+      },
+      {
+        path: 'insights-list',
+        loadComponent: () =>
+          import('../insights/pages/insights-list/insights-list').then(
+            (m) => m.InsightsList
+          ),
+        data: { title: 'Insights' },
       }
     ],
   },
