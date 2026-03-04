@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HostListener } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { InsightsService, ReportItem } from '../../../../core/services/insights.service';
 import { ProductionLinesService, ProductionLine } from '../../../../core/services/production-lines.service';
@@ -60,7 +61,8 @@ export class InsightsList implements OnInit {
 
   constructor(
     private insightsService: InsightsService,
-    private productionLinesService: ProductionLinesService
+    private productionLinesService: ProductionLinesService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -204,7 +206,7 @@ export class InsightsList implements OnInit {
     return typeof value === 'number';
   }
 
-  
+
 
   toggleCalendar(type: 'start' | 'end') {
 
@@ -335,5 +337,13 @@ export class InsightsList implements OnInit {
       this.filterStartDate !== null ||
       this.filterEndDate !== null
     );
+  }
+
+  openReport(productionLineId: number) {
+    this.router.navigate([
+      '/dashboard/production-lines',
+      productionLineId,
+      'report'
+    ]);
   }
 }

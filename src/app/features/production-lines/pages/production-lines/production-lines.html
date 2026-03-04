@@ -3,11 +3,8 @@
     <div class="toolbar">
       <div class="search-box">
         <img class="search-ico" src="/icons/productionLine/search.svg" alt="" />
-        <input
-          [(ngModel)]="searchText"
-          (ngModelChange)="onSearchChange()"
-          placeholder="Search with Production Line..."
-        />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearchChange()"
+          placeholder="Search with Production Line..." />
       </div>
 
       <button class="btn-add" (click)="openAdd()">
@@ -56,8 +53,8 @@
             <td class="td-desc">{{ row.description }}</td>
 
             <td class="col-actions">
-               <button class="icon-btn" title="Report">
-                <img src="/icons/productionLine/report.svg" alt="Report" />
+              <button class="icon-btn" (click)="openReport(row)" title="Report">
+                <img src="/icons/productionLine/report.svg" />
               </button>
               <button class="icon-btn" (click)="openEdit(row)" title="Edit">
                 <img src="/icons/productionLine/edit.svg" alt="Edit" />
@@ -94,38 +91,22 @@
       </div>
 
       <div class="middle">
-<button
-  class="nav-btn nav-icon"
-  (click)="goToPage(pageNumber - 1)"
-  [disabled]="pageNumber === 1"
->
-  <img src="/icons/dashboard/left.svg" alt="Prev" />
-</button>
+        <button class="nav-btn nav-icon" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
+          <img src="/icons/dashboard/left.svg" alt="Prev" />
+        </button>
 
-<button
-  *ngFor="let p of pagesArray"
-  (click)="goToPage(p)"
-  [class.active]="p === pageNumber"
->
-  {{ p }}
-</button>
+        <button *ngFor="let p of pagesArray" (click)="goToPage(p)" [class.active]="p === pageNumber">
+          {{ p }}
+        </button>
 
-<button
-  class="nav-btn nav-icon"
-  (click)="goToPage(pageNumber + 1)"
-  [disabled]="pageNumber === totalPages"
->
-  <img src="/icons/dashboard/right.svg" alt="Next" />
-</button>
+        <button class="nav-btn nav-icon" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">
+          <img src="/icons/dashboard/right.svg" alt="Next" />
+        </button>
       </div>
 
       <div class="right">
         <span>Go to page</span>
-        <input
-          type="number"
-          [value]="pageNumber"
-          (change)="goToPage($any($event.target).valueAsNumber)"
-        />
+        <input type="number" [value]="pageNumber" (change)="goToPage($any($event.target).valueAsNumber)" />
       </div>
     </div>
   </div>
@@ -135,10 +116,8 @@
 <div class="pl-backdrop" *ngIf="isAddEditOpen" (click)="closeAddEdit()">
   <div class="pl-modal" (click)="$event.stopPropagation()">
     <div class="pl-modal-top-icon" [class.edit]="mode === 'edit'">
-      <img
-        [src]="mode === 'add' ? '/icons/productionLine/addproduction.svg' : '/icons/productionLine/edit.svg'"
-        alt=""
-      />
+      <img [src]="mode === 'add' ? '/icons/productionLine/addproduction.svg' : '/icons/productionLine/edit.svg'"
+        alt="" />
     </div>
 
     <h3>{{ mode === 'add' ? 'Add Production Line' : 'Edit Production Line' }}</h3>

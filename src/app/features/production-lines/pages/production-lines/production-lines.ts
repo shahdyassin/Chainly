@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ProductionLinesService, ProductionLine } from '../../../../core/services/production-lines.service';
 
@@ -13,6 +14,7 @@ import { ProductionLinesService, ProductionLine } from '../../../../core/service
 export class ProductionLines implements OnInit {
   private fb = inject(FormBuilder);
   private api = inject(ProductionLinesService);
+  private router = inject(Router);
 
   items: ProductionLine[] = [];
   hasData = false;
@@ -139,5 +141,11 @@ export class ProductionLines implements OnInit {
 
   get pagesArray(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  openReport(row: ProductionLine) {
+    this.router.navigate(
+      ['/dashboard/production-lines', row.id, 'report']
+    );
   }
 }

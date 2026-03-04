@@ -253,14 +253,14 @@
       color: #2E2E2E;
     }
 
-.actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-    padding-left: 15px;
-}
+    .actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding-left: 15px;
+    }
 
     // .btn {
     //   height: 32px;
@@ -282,39 +282,39 @@
     // }
 
     .btn {
-  height: 32px;
-  padding: 0 14px;
-  border-radius: 10px;
-  border: none;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  color: #ffffff;
-  transition: background-color 0.2s ease, transform 0.05s ease;
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #ffffff;
+      transition: background-color 0.2s ease, transform 0.05s ease;
 
-  &:hover {
-    filter: brightness(0.9);
-  }
+      &:hover {
+        filter: brightness(0.9);
+      }
 
-  &:active {
-    filter: brightness(0.85);
-    transform: scale(0.98);
-  }
+      &:active {
+        filter: brightness(0.85);
+        transform: scale(0.98);
+      }
 
-  &:focus,
-  &:focus-visible {
-    outline: none;
-    color: #ffffff;
-  }
-}
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        color: #ffffff;
+      }
+    }
 
-.btn.predict {
-  background: #3EA397;
-}
+    .btn.predict {
+      background: #3EA397;
+    }
 
-.btn.delete {
-  background: #FF392B;
-}
+    .btn.delete {
+      background: #FF392B;
+    }
 
 
 
@@ -572,9 +572,9 @@
         height: 22px;
       }
 
-        &:hover {
-    filter: brightness(0.9);
-  }
+      &:hover {
+        filter: brightness(0.9);
+      }
     }
 
 
@@ -903,9 +903,9 @@
       font-weight: 600;
       cursor: pointer;
 
-        &:hover {
-    filter: brightness(0.9);
-  }
+      &:hover {
+        filter: brightness(0.9);
+      }
     }
 
     .confirm-btn:disabled {
@@ -968,86 +968,91 @@
     .orders-delete-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.12);
+      background: rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 18px;
-      z-index: 999999;
+      z-index: 999999 !important;
     }
 
     .orders-delete-modal {
-      width: 580px;
+      width: 440px;
       max-width: calc(100% - 32px);
       background: #ffffff;
-      border-radius: 26px;
-      border: 1px solid #e6e6e6;
-      padding: 28px 28px 22px;
+      border-radius: 18px;
+      padding: 22px;
       text-align: center;
+      border: none;
     }
 
     .del-ico-wrap {
-      width: 64px;
-      height: 64px;
+      width: 54px;
+      height: 54px;
       border-radius: 999px;
-      background: rgba(255, 59, 48, 0.18);
-      display: grid;
-      place-items: center;
-      margin: 0 auto 14px;
+      margin: 0 auto 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFDADA;
     }
 
     .del-ico {
-      width: 40px;
-      height: 40px;
+      width: 34px;
+      height: 34px;
     }
 
     .del-title {
+      margin: 0 0 14px;
       font-size: 20px;
       font-weight: 600;
-      color: #4D4D4D;
-      margin-bottom: 10px;
+      color: #4d4d4d;
     }
 
     .del-desc {
-      font-size: 16px;
-      font-weight: 600;
+      margin: 6px 0 16px;
       color: #666666;
-      line-height: 1.45;
-      margin-bottom: 22px;
+      font-size: 14px;
+      font-weight: 400;
 
       b {
-        color: #4D4D4D;
-        font-weight: 800;
+        color: #4d4d4d;
+        font-weight: 600;
       }
     }
 
     .del-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .del-cancel,
-    .del-confirm {
-      height: 56px;
-      border-radius: 18px;
-      border: 0;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-        &:hover {
-    filter: brightness(0.9);
-  }
+      gap: 10px;
     }
 
     .del-cancel {
+      height: 44px;
+      border-radius: 12px;
+      border: 0;
       background: #F2F2F2;
       color: #666666;
+      font-weight: 600;
+      font-size: 16px;
+
+      &:hover {
+        background: #e0e0e0;
+      }
     }
 
     .del-confirm {
+      height: 44px;
+      border-radius: 12px;
+      border: 0;
       background: #FF392B;
-      color: #ffffff;
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+
+      &:hover {
+        background: #ba2828;
+      }
     }
 
     .del-cancel:disabled,

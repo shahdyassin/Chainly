@@ -155,6 +155,10 @@ export class DashboardShell implements OnInit {
         crumbs.push({ label: parts[i], link: ['/dashboard/roles-list'] });
         continue;
       }
+      if (label === 'production lines') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/production-lines'] });
+        continue;
+      }
 
 
       crumbs.push({ label: parts[i] });
