@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'cahinly'
           slot-name: 'Production'
-          package: ./dist/chainly_web
+          package: ./dist/Chainly_Web
