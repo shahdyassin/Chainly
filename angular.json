@@ -21,10 +21,6 @@
             "polyfills": [
               "zone.js"
             ],
-            "preserveSymlinks": true,
-            "externalDependencies": [
-              "fonts/**/*"
-            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
