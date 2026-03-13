@@ -46,7 +46,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: angular-build
-          path: dist/Chainly_Web/browser
+          path: dist
 
       - name: Login to Azure
         uses: azure/login@v2
