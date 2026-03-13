@@ -26,78 +26,74 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
-              },
+                "input": "public",
+                "output": "/"
+              }
+            ],
+            "styles": [
+              "src/styles.scss"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "800kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "40kB",
+                  "maximumError": "60kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "Chainly_Web:build:production"
+            },
+            "development": {
+              "buildTarget": "Chainly_Web:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
               {
                 "glob": "**/*",
-                "input": "src/assets",
-                "output": "/assets"
+                "input": "public"
               }
             ],
-          "styles": [
-            "src/styles.scss"
-          ]
-        },
-        "configurations": {
-          "production": {
-            "budgets": [
-              {
-                "type": "initial",
-                "maximumWarning": "800kB",
-                "maximumError": "1MB"
-              },
-              {
-                "type": "anyComponentStyle",
-                "maximumWarning": "40kB",
-                "maximumError": "60kB"
-              }
-            ],
-            "outputHashing": "all"
-          },
-          "development": {
-            "optimization": false,
-            "extractLicenses": false,
-            "sourceMap": true
+            "styles": [
+              "src/styles.scss"
+            ]
           }
-        },
-        "defaultConfiguration": "production"
-      },
-      "serve": {
-        "builder": "@angular/build:dev-server",
-        "configurations": {
-          "production": {
-            "buildTarget": "Chainly_Web:build:production"
-          },
-          "development": {
-            "buildTarget": "Chainly_Web:build:development"
-          }
-        },
-        "defaultConfiguration": "development"
-      },
-      "extract-i18n": {
-        "builder": "@angular/build:extract-i18n"
-      },
-      "test": {
-        "builder": "@angular/build:karma",
-        "options": {
-          "polyfills": [
-            "zone.js",
-            "zone.js/testing"
-          ],
-          "tsConfig": "tsconfig.spec.json",
-          "inlineStyleLanguage": "scss",
-          "assets": [
-            {
-              "glob": "**/*",
-              "input": "public"
-            }
-          ],
-          "styles": [
-            "src/styles.scss"
-          ]
         }
       }
     }
   }
-}
 }
