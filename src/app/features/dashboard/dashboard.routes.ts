@@ -141,7 +141,14 @@ export const DASHBOARD_ROUTES: Routes = [
           import('../digital-twin/pages/digital-twin-details/digital-twin-details')
             .then(m => m.DigitalTwinDetails),
         data: { title: 'Digital Twin ' }
-      }
+      },
+      {
+        path: 'camera-list',
+        loadComponent: () =>
+          import('../cameras/pages/camera-list/camera-list')
+            .then(m => m.CameraList),
+        data: { title: 'Cameras' }
+      },
     ],
   },
 ];
