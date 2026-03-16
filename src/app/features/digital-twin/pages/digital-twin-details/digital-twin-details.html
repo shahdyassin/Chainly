@@ -1,0 +1,513 @@
+<div class="report-page">
+  <div class="report-header">
+
+    <div class="header-left">
+      <h2>
+
+        <span class="line-text">
+          {{ lineText }}
+        </span>
+
+        <span *ngIf="lineNumber" class="line-number">
+          {{ lineNumber }}
+        </span>
+
+      </h2>
+    </div>
+
+    <div class="header-actions">
+
+
+
+      <button class="session-btn" [class.stop]="sessionActive" (click)="toggleSession()">
+
+        <img *ngIf="!sessionActive" src="/icons/digital-twin/startSessionPage.svg" />
+
+        <img *ngIf="sessionActive" src="/icons/digital-twin/stopSession.svg" />
+
+        {{ sessionActive ? 'Stop Session' : 'Start Session' }}
+
+      </button>
+
+
+
+      <button class="nav-btn" (click)="goPreviousLine()" [disabled]="!hasPrevActive">
+        <img src="/icons/productionLine/left.svg">
+      </button>
+
+      <button class="nav-btn" (click)="goNextLine()" [disabled]="!hasNextActive">
+        <img src="/icons/productionLine/right.svg">
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="simulation-card">
+
+    <div class="simulation-header">
+      Simulation
+    </div>
+
+    <div class="simulation-grid">
+
+
+
+      <div class="simulation-item">
+
+        <img src="/icons/digital-twin/Live.svg" class="simulation-img" />
+
+        <div class="simulation-caption">
+          Live - Camera Nu. 345678
+        </div>
+
+      </div>
+
+
+
+      <div class="simulation-item">
+
+        <img src="/icons/digital-twin/unity.svg" class="simulation-img" />
+
+        <div class="simulation-caption">
+          Simulation
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="report-top">
+
+
+    <div class="card chart-card">
+
+      <div class="gauge-section">
+
+        <div class="gauge">
+
+          <svg viewBox="0 0 200 110" class="gauge-svg">
+
+            <path d="M 20,100 A 80,80 0 0 1 180,100" class="gauge-bg" />
+
+            <path d="M 20,100 A 80,80 0 0 1 180,100" class="gauge-good"
+              [style.stroke-dasharray]="getStrokeDash(goodRatio)">
+            </path>
+
+            <path d="M 20,100 A 80,80 0 0 1 180,100" class="gauge-bad"
+              [style.stroke-dasharray]="getStrokeDash(badRatio)" [style.stroke-dashoffset]="getStrokeOffset(goodRatio)">
+            </path>
+
+          </svg>
+
+          <div class="gauge-center">
+            <div class="total">{{ totalProducts }}</div>
+            <div class="label">Total Products</div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="chart-details">
+
+        <div class="details-title">Details:</div>
+
+        <div class="details-row">
+
+          <div class="details-left">
+            <span class="dot green"></span>
+            <span class="name">Flawless</span>
+          </div>
+
+          <span class="percent">{{ goodRatio }}%</span>
+
+        </div>
+
+        <div class="details-row">
+
+          <div class="details-left">
+            <span class="dot red"></span>
+            <span class="name">Defected</span>
+          </div>
+
+          <span class="percent">{{ badRatio }}%</span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="right-cards">
+
+      <div class="card stat-card">
+
+        <div class="stat-header">
+
+          <span class="icon green-bg">
+            <img src="/icons/productionLine/flawless.svg" />
+          </span>
+
+          <span>Flawless Products</span>
+
+        </div>
+
+        <div class="stat-value">
+          {{ flawlessProducts }}
+        </div>
+
+      </div>
+
+      <div class="card stat-card">
+
+        <div class="stat-header">
+
+          <span class="icon red-bg">
+            <img src="/icons/productionLine/defected.svg" />
+          </span>
+
+          <span>Defected Products</span>
+
+        </div>
+
+        <div class="stat-value">
+          {{ defectedProducts }}
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="table-card">
+
+    <div class="table-header">
+
+      <h3>Reports</h3>
+
+      <button class="btn-filter" (click)="showFilterModal = true">
+        <img src="/icons/insights/filter.svg" />
+        <span>Filter</span>
+      </button>
+
+    </div>
+
+    <div class="orders-card">
+
+      <div class="orders-table-wrap">
+
+        <table class="orders-table">
+
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" /></th>
+              <th class="col-no">No.</th>
+
+              <th>
+                <div class="th-inner">
+                  <img src="/icons/insights/totalProducts.svg" />
+                  <span>Total Products</span>
+                </div>
+              </th>
+
+              <th>
+                <div class="th-inner">
+                  <img src="/icons/insights/defected.svg" />
+                  <span>Defected</span>
+                </div>
+              </th>
+
+              <th>
+                <div class="th-inner">
+                  <img src="/icons/insights/flawless.svg" />
+                  <span>Flawless</span>
+                </div>
+              </th>
+
+              <th>
+                <div class="th-inner">
+                  <img src="/icons/insights/date.svg" />
+                  <span>Started at</span>
+                </div>
+              </th>
+
+              <th>
+                <div class="th-inner">
+                  <img src="/icons/insights/date.svg" />
+                  <span>Ended at</span>
+                </div>
+              </th>
+
+              <th class="col-actions">
+                <div class="th-inner th-actions">
+                  <img src="/icons/insights/actions.svg" />
+                  <span>Actions</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr *ngFor="let item of pagedReports; let i = index">
+
+              <td class="col-check">
+                <input type="checkbox" />
+              </td>
+
+              <td class="col-no">
+                {{ i + 1 }}.
+              </td>
+
+              <td>{{ item.totalProducts }}</td>
+
+              <td>
+                <div class="ratio-cell defected">
+                  <span class="ratio-percent">
+                    {{ item.defectiveRatio }}%
+                  </span>
+                  <span class="ratio-count">
+                    ({{ item.defectiveProducts }})
+                  </span>
+                </div>
+              </td>
+
+              <td>
+                <div class="ratio-cell flawless">
+                  <span class="ratio-percent">
+                    {{ item.goodRatio }}%
+                  </span>
+                  <span class="ratio-count">
+                    ({{ item.goodProducts }})
+                  </span>
+                </div>
+              </td>
+
+              <td class="date-cell">{{ item.startedAt }}</td>
+
+              <td class="date-cell">{{ item.endedAt }}</td>
+
+              <td class="col-actions">
+                <button class="icon-btn" (click)="openDeleteModal(item)">
+                  <img src="/icons/productionLine/delete.svg" />
+                </button>
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+      <div class="orders-pager">
+
+        <div class="left">
+          Showing {{ totalCount ? (startIndex + 1) : 0 }}
+          ::
+          {{ endIndex }} of {{ totalCount }}
+        </div>
+
+        <div class="middle">
+
+          <button class="nav-icon" type="button" (click)="prevPage()" [disabled]="pageNumber === 1">
+            <img src="/icons/productionLine/left.svg">
+          </button>
+
+          <button *ngFor="let p of pagesArray" class="page-btn" [class.active]="p === pageNumber" type="button"
+            (click)="goToPage(p)">
+            {{ p }}
+          </button>
+
+          <button class="nav-icon" type="button" (click)="nextPage()" [disabled]="pageNumber === totalPages">
+            <img src="/icons/productionLine/right.svg">
+          </button>
+
+        </div>
+
+        <div class="right">
+          <span>Go to page</span>
+
+          <input type="number" [ngModel]="pageNumber" (ngModelChange)="goToPage($event)">
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+<div class="pl-backdrop" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+
+  <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
+
+    <div class="pl-modal-top-icon danger">
+      <img src="/icons/users/warning.svg" />
+    </div>
+
+    <h3>Delete Report</h3>
+
+    <p class="danger-text">
+
+      Are you sure you want to delete <b>Report</b> from
+
+      <b>
+        {{ formatDate(selectedReport?.startedAt) }}
+      </b>
+
+      <b>till</b>
+
+      <b>
+        {{ selectedReport?.endedAt ? formatDate(selectedReport?.endedAt) : 'Running' }}
+      </b>
+
+      ?
+
+    </p>
+
+    <p class="danger-sub">
+      This action cannot be undone.
+    </p>
+
+    <div class="danger-actions">
+      <button class="btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+      <button class="btn-danger" (click)="confirmDelete()">Delete</button>
+    </div>
+
+  </div>
+
+</div>
+<div class="pl-backdrop" *ngIf="showFilterModal" (click)="showFilterModal = false">
+
+  <div class="pl-modal" (click)="$event.stopPropagation()">
+
+    <div class="pl-modal-top-icon">
+      <img src="/icons/insights/filterBy.svg" />
+    </div>
+
+    <h3>Filter By</h3>
+
+    <div class="filter-dates">
+
+
+
+      <div class="date-picker-wrapper">
+
+        <div class="date-pill" (click)="toggleCalendar('start')">
+          <span>{{ startDateLabel }}</span>
+          <img src="/icons/insights/datePopUp.svg" />
+        </div>
+
+        <div class="calendar-dropdown" *ngIf="isStartCalendarOpen">
+
+          <div class="calendar-header">
+            <button class="calendar-nav-btn" (click)="prevMonth()">‹</button>
+
+            <div class="calendar-title">
+              {{ calendarMonthName }} {{ calendarYearNum }}
+            </div>
+
+            <button class="calendar-nav-btn" (click)="nextMonth()">›</button>
+          </div>
+
+          <div class="calendar-weekdays">
+            <span *ngFor="let d of weekDaysShort">{{ d }}</span>
+          </div>
+
+          <div class="calendar-grid">
+
+            <ng-container *ngFor="let cell of calendarCells">
+
+              <ng-container *ngIf="cell; else emptyCell">
+                <button class="calendar-day" [disabled]="endDate && cell.date > endDate"
+                  [ngClass]="{ selected: startDate && cell.date.getTime() === startDate.getTime() }"
+                  (click)="selectStartDate(cell.date)">
+                  {{ cell.day }}
+                </button>
+              </ng-container>
+
+              <ng-template #emptyCell>
+                <span class="calendar-day empty"></span>
+              </ng-template>
+
+            </ng-container>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="date-picker-wrapper">
+
+        <div class="date-pill" (click)="toggleCalendar('end')">
+          <span>{{ endDateLabel }}</span>
+          <img src="/icons/insights/datePopUp.svg" />
+        </div>
+
+        <div class="calendar-dropdown" *ngIf="isEndCalendarOpen">
+
+          <div class="calendar-header">
+            <button class="calendar-nav-btn" (click)="prevMonth()">‹</button>
+
+            <div class="calendar-title">
+              {{ calendarMonthName }} {{ calendarYearNum }}
+            </div>
+
+            <button class="calendar-nav-btn" (click)="nextMonth()">›</button>
+          </div>
+
+          <div class="calendar-weekdays">
+            <span *ngFor="let d of weekDaysShort">{{ d }}</span>
+          </div>
+
+          <div class="calendar-grid">
+
+            <ng-container *ngFor="let cell of calendarCells">
+
+              <ng-container *ngIf="cell; else emptyCell2">
+                <button class="calendar-day" [disabled]="startDate && cell.date < startDate"
+                  [ngClass]="{ selected: endDate && cell.date.getTime() === endDate.getTime() }"
+                  (click)="selectEndDate(cell.date)">
+                  {{ cell.day }}
+                </button>
+              </ng-container>
+
+              <ng-template #emptyCell2>
+                <span class="calendar-day empty"></span>
+              </ng-template>
+
+            </ng-container>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <button class="apply-filter-btn" (click)="applyFilters()">
+      Apply Filter
+    </button>
+
+    <button class="clear-filter-btn" *ngIf="hasActiveFilters" (click)="clearFilters()">
+      Clear Filter
+    </button>
+
+  </div>
+
+</div>

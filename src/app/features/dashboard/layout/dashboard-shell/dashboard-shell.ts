@@ -81,6 +81,7 @@ export class DashboardShell implements OnInit {
     const parts = this.toParts(this.breadcrumbTitle);
     const id = this.currentParams['id'];
     const roleName = history.state?.roleName;
+    const productionLineName = history.state?.productionLineName;
 
 
     if (!parts.length) return [{ label: 'Dashboard', link: ['/dashboard'] }];
@@ -159,9 +160,16 @@ export class DashboardShell implements OnInit {
         crumbs.push({ label: parts[i], link: ['/dashboard/production-lines'] });
         continue;
       }
+      if (label === 'digital twin') {
+        crumbs.push({ label: parts[i], link: ['/dashboard/digital-twin'] });
+        continue;
+      }
 
 
       crumbs.push({ label: parts[i] });
+    }
+    if (productionLineName) {
+      crumbs.push({ label: productionLineName });
     }
     if (roleName) {
       crumbs.push({ label: roleName });
@@ -172,5 +180,18 @@ export class DashboardShell implements OnInit {
 
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  formatNumbers(text: string): string {
+    return text.replace(/\d+/g, (num) => `<span class="num">${num}</span>`);
+  }
+  splitLabel(text: string) {
+    const match = text.match(/(.*?)(\d+)$/);
+    if (!match) return { word: text, number: '' };
+
+    return {
+      word: match[1],
+      number: match[2]
+    };
   }
 }

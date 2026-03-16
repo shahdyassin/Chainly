@@ -127,6 +127,20 @@ export const DASHBOARD_ROUTES: Routes = [
             (m) => m.InsightsList
           ),
         data: { title: 'Insights' },
+      },
+      {
+        path: 'digital-twin',
+        loadComponent: () =>
+          import('../digital-twin/pages/digital-twin-list/digital-twin-list')
+            .then(m => m.DigitalTwinList),
+        data: { title: 'Digital Twin' }
+      },
+      {
+        path: 'digital-twin/:id',
+        loadComponent: () =>
+          import('../digital-twin/pages/digital-twin-details/digital-twin-details')
+            .then(m => m.DigitalTwinDetails),
+        data: { title: 'Digital Twin ' }
       }
     ],
   },

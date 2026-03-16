@@ -1,36 +1,28 @@
 <div class="shell" [class.sidebar-collapsed]="isSidebarCollapsed">
   <aside class="sidebar">
-<div class="logo-row">
-  <div class="logo">
-    <img class="logo-mark" src="/images/logo.svg" alt="Chainly mark" />
-    <img class="logo-word" src="/images/name.svg" alt="Chainly" />
-  </div>
+    <div class="logo-row">
+      <div class="logo">
+        <img class="logo-mark" src="/images/logo.svg" alt="Chainly mark" />
+        <img class="logo-word" src="/images/name.svg" alt="Chainly" />
+      </div>
 
-  <button class="logo-mini-btn" (click)="toggleSidebar()">
-    <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
-  </button>
-</div>
+      <button class="logo-mini-btn" (click)="toggleSidebar()">
+        <img src="/icons/dashboard/sidebar.svg" alt="Toggle sidebar" />
+      </button>
+    </div>
 
 
     <nav class="nav">
       <div class="nav-group">
         <p class="group-title">Main</p>
 
-        <a
-          routerLink="/dashboard"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item">
           <img src="/icons/dashboard/home.svg" alt="" />
           <span>Dashboard</span>
         </a>
 
-        <a
-          routerLink="/dashboard/insights-list"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/dashboard/insights-list" routerLinkActive="active" class="nav-item">
           <img src="/icons/dashboard/insights.svg" alt="" />
           <span>Insights</span>
         </a>
@@ -96,11 +88,7 @@
     </div>
   </aside>
 
-  <div
-    class="sidebar-backdrop"
-    [class.visible]="isSidebarCollapsed"
-    (click)="toggleSidebar()"
-  ></div>
+  <div class="sidebar-backdrop" [class.visible]="isSidebarCollapsed" (click)="toggleSidebar()"></div>
 
   <div class="main">
     <header class="topbar">
@@ -110,13 +98,16 @@
         </button>
 
 
-<span class="topbar-title">
-  <ng-container *ngFor="let c of breadcrumbs; let i = index; let last = last">
-    <a *ngIf="c.link" class="crumb link" [routerLink]="c.link">{{ c.label }}</a>
-    <span *ngIf="!c.link" class="crumb">{{ c.label }}</span>
-    <span *ngIf="!last" class="sep">/</span>
-  </ng-container>
-</span>
+        <span class="topbar-title">
+          <ng-container *ngFor="let c of breadcrumbs; let i = index; let last = last">
+            <a *ngIf="c.link" class="crumb link" [routerLink]="c.link">{{ c.label }}</a>
+            <span *ngIf="!c.link" class="crumb">
+              {{ splitLabel(c.label).word }}
+              <span class="num">{{ splitLabel(c.label).number }}</span>
+            </span>
+            <span *ngIf="!last" class="sep">/</span>
+          </ng-container>
+        </span>
 
 
 

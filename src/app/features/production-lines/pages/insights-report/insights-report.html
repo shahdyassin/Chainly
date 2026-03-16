@@ -2,7 +2,16 @@
   <div class="report-header">
 
     <div class="header-left">
-      <h2> {{ summary?.productionLineName || 'Production Line' }} </h2>
+      <h2>
+        <span class="line-name">{{ getLineName(summary?.productionLineName) }}</span>
+
+        <span *ngIf="hasUnderscore(summary?.productionLineName)">
+          _
+          <span class="line-number">
+            {{ getLineNumber(summary?.productionLineName) }}
+          </span>
+        </span>
+      </h2>
 
       <div class="report-sub">
         <img src="/icons/productionLine/date.svg" class="sub-ico" />

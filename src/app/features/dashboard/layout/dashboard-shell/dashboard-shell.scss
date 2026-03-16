@@ -112,8 +112,7 @@
     color: #48a89d;
 
     img {
-      filter: brightness(0) saturate(100%) invert(36%) sepia(72%)
-        saturate(362%) hue-rotate(130deg) brightness(90%) contrast(90%);
+      filter: brightness(0) saturate(100%) invert(36%) sepia(72%) saturate(362%) hue-rotate(130deg) brightness(90%) contrast(90%);
     }
   }
 
@@ -148,8 +147,7 @@
 }
 
 .nav-item:hover img[src$='increase.svg'] {
-  filter: brightness(0) saturate(100%) invert(36%) sepia(72%) saturate(362%)
-    hue-rotate(130deg) brightness(90%) contrast(90%);
+  filter: brightness(0) saturate(100%) invert(36%) sepia(72%) saturate(362%) hue-rotate(130deg) brightness(90%) contrast(90%);
 }
 
 
@@ -231,17 +229,20 @@
   font-weight: 500;
   color: #2E2E2E;
 }
+
 .topbar-title .sep {
   margin: 0 8px;
   font-family: 'Urbanist', sans-serif;
   font-weight: 700;
   opacity: 1;
 }
+
 .crumb.link {
   cursor: pointer;
   text-decoration: none;
   color: inherit;
 }
+
 .crumb.link:hover {
   text-decoration: none;
 }
@@ -337,6 +338,10 @@
   overflow: auto;
 }
 
+.topbar-title .num {
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 600;
+}
 
 @media (min-width: 1025px) {
 
@@ -361,35 +366,35 @@
     justify-content: center;
   }
 
- .shell.sidebar-collapsed .logo-row {
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
+  .shell.sidebar-collapsed .logo-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
 
-.shell.sidebar-collapsed .logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
+  .shell.sidebar-collapsed .logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
 
-.shell.sidebar-collapsed .logo .logo-mark {
-  width: 20px;
-  height: 20px;
-}
+  .shell.sidebar-collapsed .logo .logo-mark {
+    width: 20px;
+    height: 20px;
+  }
 
-.shell.sidebar-collapsed .logo .logo-word {
-  height: 14px;
-  margin: 0;
-}
+  .shell.sidebar-collapsed .logo .logo-word {
+    height: 14px;
+    margin: 0;
+  }
 
-.shell.sidebar-collapsed .logo-mini-btn {
-  margin-left: 0;
-  margin-right: 0;
-  align-self: center;
-}
+  .shell.sidebar-collapsed .logo-mini-btn {
+    margin-left: 0;
+    margin-right: 0;
+    align-self: center;
+  }
 
 
 }
@@ -480,6 +485,7 @@
     height: 22px;
     width: auto;
   }
+
   .nav {
     gap: 10px;
   }
