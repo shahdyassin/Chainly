@@ -51,7 +51,7 @@ export class CameraList implements OnInit {
   };
 
   showLineDropdown = false;
-  selectedLineId?: number;
+  selectedAddLineId?: number;
 
   errorMessage = '';
 
@@ -117,7 +117,17 @@ export class CameraList implements OnInit {
   }
 
   openAdd() {
+
+    this.newCamera = {
+      productionLineId: 0,
+      cameraSource: ''
+    };
+
+    this.selectedAddLineId = undefined;
+    this.errorMessage = '';
+
     this.showAddModal = true;
+
   }
 
   closeAdd() {
@@ -142,7 +152,7 @@ export class CameraList implements OnInit {
             cameraSource: ''
           };
 
-          this.selectedLineId = undefined;
+          this.selectedAddLineId = undefined;
           this.loadCameras();
         },
 
@@ -164,21 +174,32 @@ export class CameraList implements OnInit {
 
   }
   selectLine(line: any, e?: Event) {
+
     e?.stopPropagation();
+
     if (this.showEditModal) {
+
       this.editCamera.productionLineId = line.id;
+      this.selectedEditLineId = line.id;
+
     } else {
+
       this.newCamera.productionLineId = line.id;
+      this.selectedAddLineId = line.id;
+
     }
-    this.selectedLineId = line.id;
+
     this.showLineDropdown = false;
+
   }
   getSelectedLineName(): string {
+
     const id = this.showEditModal
-      ? this.editCamera.productionLineId
-      : this.selectedLineId;
+      ? this.selectedEditLineId
+      : this.selectedAddLineId;
 
     const line = this.productionLines.find(l => l.id === id);
+
     return line ? line.lineName : 'Select Production Line';
   }
 
@@ -206,7 +227,7 @@ export class CameraList implements OnInit {
       productionLineId: line ? line.id : 0
     };
 
-    this.selectedLineId = this.editCamera.productionLineId;
+    this.selectedEditLineId = this.editCamera.productionLineId;
 
     this.showEditModal = true;
   }
