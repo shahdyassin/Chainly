@@ -22,6 +22,9 @@ export class DigitalTwinDetails implements OnInit {
   ngOnInit() {
 
     // this.status = history.state?.status || 'Active'
+    this.summary = {
+  productionLineName: history.state?.productionLineName
+}
 
     const stateLines = history.state?.lines as any[]
 
@@ -68,6 +71,8 @@ export class DigitalTwinDetails implements OnInit {
   pageNumber = 1
   pageSize = 5
 
+
+  summary: any;
 
   showDeleteModal = false
   showFilterModal = false
@@ -367,5 +372,29 @@ export class DigitalTwinDetails implements OnInit {
 
   nextPage() {
     if (this.pageNumber < this.totalPages) this.pageNumber++
+  }
+
+
+  formatLineName(text: string): string {
+
+    if (!text) return '';
+
+    const [name, number] = text.split('_');
+
+    return `<span class="line-name">${name}</span>_<span class="line-number">${number}</span>`;
+  }
+
+  hasUnderscore(text: string | undefined): boolean {
+    return !!text && text.includes('_');
+  }
+
+  getLineName(text: string | undefined): string {
+    if (!text) return '';
+    return text.split('_')[0];
+  }
+
+  getLineNumber(text: string | undefined): string {
+    if (!text || !text.includes('_')) return '';
+    return text.split('_')[1];
   }
 }

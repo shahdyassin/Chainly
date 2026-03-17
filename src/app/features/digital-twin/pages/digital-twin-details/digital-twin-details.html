@@ -3,15 +3,16 @@
 
     <div class="header-left">
       <h2>
-
-        <span class="line-text">
-          {{ lineText }}
+        <span class="line-name">
+          {{ getLineName(productionLineName) }}
         </span>
 
-        <span *ngIf="lineNumber" class="line-number">
-          {{ lineNumber }}
+        <span *ngIf="hasUnderscore(productionLineName)">
+          _
+          <span class="line-number">
+            {{ getLineNumber(productionLineName) }}
+          </span>
         </span>
-
       </h2>
     </div>
 
@@ -54,42 +55,42 @@
 
 
 
-<div class="simulation-item">
+      <div class="simulation-item">
 
-  <div class="simulation-image-wrapper" [class.inactive]="status === 'Inactive'">
+        <div class="simulation-image-wrapper" [class.inactive]="status === 'Inactive'">
 
-    <img src="/icons/digital-twin/Live.svg" class="simulation-img" />
+          <img src="/icons/digital-twin/Live.svg" class="simulation-img" />
 
-    <div class="simulation-overlay" *ngIf="status === 'Inactive'">
-      No live feed available.
-    </div>
+          <div class="simulation-overlay" *ngIf="status === 'Inactive'">
+            No live feed available.
+          </div>
 
-  </div>
+        </div>
 
-  <div class="simulation-caption">
-    Live - Camera Nu. 345678
-  </div>
+        <div class="simulation-caption">
+          Live - Camera Nu. 345678
+        </div>
 
-</div>
+      </div>
 
 
-<div class="simulation-item">
+      <div class="simulation-item">
 
-  <div class="simulation-image-wrapper" [class.inactive]="status === 'Inactive'">
+        <div class="simulation-image-wrapper" [class.inactive]="status === 'Inactive'">
 
-    <img src="/icons/digital-twin/unity.svg" class="simulation-img" />
+          <img src="/icons/digital-twin/unity.svg" class="simulation-img" />
 
-    <div class="simulation-overlay" *ngIf="status === 'Inactive'">
-      The Simulation is currently inactive
-    </div>
+          <div class="simulation-overlay" *ngIf="status === 'Inactive'">
+            The Simulation is currently inactive
+          </div>
 
-  </div>
+        </div>
 
-  <div class="simulation-caption">
-    Simulation
-  </div>
+        <div class="simulation-caption">
+          Simulation
+        </div>
 
-</div>
+      </div>
 
     </div>
 

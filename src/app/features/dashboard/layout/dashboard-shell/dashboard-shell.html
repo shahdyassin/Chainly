@@ -108,7 +108,14 @@
             <a *ngIf="c.link" class="crumb link" [routerLink]="c.link">{{ c.label }}</a>
             <span *ngIf="!c.link" class="crumb">
               {{ splitLabel(c.label).word }}
-              <span class="num">{{ splitLabel(c.label).number }}</span>
+
+              <ng-container *ngIf="splitLabel(c.label).underscore">
+                <span class="underscore">_</span>
+              </ng-container>
+
+              <span class="num">
+                {{ splitLabel(c.label).number }}
+              </span>
             </span>
             <span *ngIf="!last" class="sep">/</span>
           </ng-container>

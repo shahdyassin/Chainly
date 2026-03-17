@@ -186,11 +186,25 @@ export class DashboardShell implements OnInit {
     return text.replace(/\d+/g, (num) => `<span class="num">${num}</span>`);
   }
   splitLabel(text: string) {
+    if (!text) return { word: '', underscore: '', number: '' };
+
+    if (text.includes('_')) {
+      const [word, number] = text.split('_');
+
+      return {
+        word,
+        underscore: '_',
+        number
+      };
+    }
+
     const match = text.match(/(.*?)(\d+)$/);
-    if (!match) return { word: text, number: '' };
+
+    if (!match) return { word: text, underscore: '', number: '' };
 
     return {
       word: match[1],
+      underscore: '',
       number: match[2]
     };
   }
