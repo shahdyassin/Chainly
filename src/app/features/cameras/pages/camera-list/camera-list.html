@@ -1,1 +1,305 @@
-<p>camera-list works!</p>
+<div class="page">
+  <div class="card">
+
+    <div class="toolbar">
+
+      <div class="search-box">
+        <img class="search-ico" src="/icons/camera/search.svg" />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearchChange()"
+          placeholder="Search with Production Line..." />
+      </div>
+
+      <button class="btn-add" (click)="openAdd()">
+        <img src="/icons/camera/add.svg" />
+        <span>Add Camera</span>
+      </button>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+
+            <th class="col-check">
+              <input type="checkbox">
+            </th>
+
+            <th class="col-no">No.</th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/camera/productionLine.svg">
+                <span>Production Line</span>
+              </div>
+            </th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/camera/cameraSource.svg">
+                <span>Camera Source</span>
+              </div>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/camera/actions.svg">
+                <span>Actions</span>
+              </div>
+            </th>
+
+          </tr>
+        </thead>
+
+
+        <tbody *ngIf="cameras?.length; else emptyBody">
+
+          <tr *ngFor="let camera of cameras; let i = index">
+
+            <td class="col-check">
+              <input type="checkbox">
+            </td>
+
+            <td class="col-no">
+              {{ (pageNumber - 1) * pageSize + (i + 1) }}.
+            </td>
+
+            <td class="td-title">
+              {{ camera.productionLineName }}
+            </td>
+
+            <td class="td-desc">
+              {{ camera.cameraSource }}
+            </td>
+
+            <td class="col-actions">
+
+              <button class="icon-btn" (click)="openEdit(camera)">
+                <img src="/icons/camera/edit.svg">
+              </button>
+
+              <button class="icon-btn" (click)="openDelete(camera)">
+                <img src="/icons/camera/delete.svg">
+              </button>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+
+        <ng-template #emptyBody>
+          <tbody>
+            <tr class="empty-row">
+              <td colspan="5" class="empty-cell">
+                <div class="empty">
+                  No data to show
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+
+      </table>
+
+    </div>
+
+
+    <div class="pager">
+
+      <div class="left">
+        Showing
+        {{ cameras.length ? ((pageNumber - 1) * pageSize + 1) : 0 }}
+        ::
+        {{ (pageNumber - 1) * pageSize + cameras.length }}
+        of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+
+        <button class="nav-btn nav-icon" (click)="prevPage()" [disabled]="pageNumber === 1">
+
+          <img src="/icons/dashboard/left.svg">
+
+        </button>
+
+        <button class="active">
+          {{ pageNumber }}
+        </button>
+
+        <button class="nav-btn nav-icon" (click)="nextPage()" [disabled]="pageNumber === totalPages">
+
+          <img src="/icons/dashboard/right.svg">
+
+        </button>
+
+      </div>
+
+      <div class="right">
+
+        <span>Go to page</span>
+
+        <input type="number" [(ngModel)]="pageNumber" (change)="loadCameras()" />
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+<div class="pl-backdrop" *ngIf="showAddModal" (click)="closeAdd()">
+
+
+  <div class="pl-modal" (click)="onModalClick($event)">
+
+    <div class="pl-modal-top-icon">
+      <img src="/icons/camera/addPopUp.svg">
+    </div>
+
+    <h3>Add Camera</h3>
+
+    <div class="pl-modal-form">
+
+      <div class="pl-field-group">
+
+
+        <div class="pl-field-item">
+
+          <div class="pl-field-label">
+            <img src="/icons/camera/cameraPopUp.svg">
+            <span>Camera Source</span>
+          </div>
+
+          <input [(ngModel)]="newCamera.cameraSource" />
+
+        </div>
+
+
+        <div class="pl-field-item">
+
+          <div class="pl-field-label">
+            <img src="/icons/camera/productionLinePopUp.svg">
+            <span>Production Line</span>
+          </div>
+
+          <div class="custom-dropdown">
+
+            <div class="dropdown-selected" (click)="toggleLineDropdown($event)">
+              {{ getSelectedLineName() }}
+              <img src="/icons/users/arrowDown.svg" class="arrow" />
+            </div>
+
+            <div class="dropdown-menu" *ngIf="showLineDropdown">
+
+              <div class="dropdown-item" *ngFor="let line of productionLines" (click)="selectLine(line, $event)">
+                {{ line.lineName }}
+              </div>
+
+            </div>
+
+          </div>
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+        </div>
+
+      </div>
+
+      <button class="btn-confirm" (click)="confirmAdd()">
+        Confirm
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+<div class="pl-backdrop" *ngIf="showEditModal" (click)="closeEdit()">
+
+  <div class="pl-modal" (click)="$event.stopPropagation()">
+
+    <div class="pl-modal-top-icon">
+      <img src="/icons/camera/editPopUp.svg">
+    </div>
+
+    <h3>Edit</h3>
+
+    <div class="pl-modal-form">
+
+      <div class="pl-field-group">
+
+        <div class="pl-field-item">
+
+          <div class="pl-field-label">
+            <img src="/icons/camera/cameraPopUp.svg">
+            <span>Camera Source</span>
+          </div>
+
+          <input [(ngModel)]="editCamera.cameraSource" />
+
+        </div>
+
+        <div class="pl-field-item">
+
+          <div class="pl-field-label">
+            <img src="/icons/camera/productionLinePopUp.svg">
+            <span>Production Line</span>
+          </div>
+
+          <div class="custom-dropdown">
+
+            <div class="dropdown-selected" (click)="toggleLineDropdown($event)">
+              {{ getSelectedLineName() }}
+              <img src="/icons/camera/dropdown.svg" class="arrow" />
+            </div>
+
+            <div class="dropdown-menu" *ngIf="showLineDropdown">
+
+              <div class="dropdown-item" *ngFor="let line of productionLines" (click)="selectLine(line, $event)">
+                {{ line.lineName }}
+              </div>
+
+            </div>
+
+          </div>
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+        </div>
+
+      </div>
+
+      <button class="btn-confirm" (click)="confirmEdit()">
+        Confirm
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+<div class="pl-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
+  <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
+    <div class="pl-modal-top-icon danger">
+      <img src="/icons/productionLine/wrong.svg" alt="" />
+    </div>
+
+    <h3>Delete Camera</h3>
+
+    <p class="danger-text">
+      Are you sure you want to delete camera
+      <b>{{ selectedCamera?.cameraSource }}</b>?<br />
+      <span>This action cannot be undone.</span>
+    </p>
+
+    <div class="danger-actions">
+      <button class="btn-cancel" type="button" (click)="closeDelete()">Cancel</button>
+      <button class="btn-danger" type="button" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
