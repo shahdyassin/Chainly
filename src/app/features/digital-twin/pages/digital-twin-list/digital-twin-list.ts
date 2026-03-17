@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common'
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms'
 import { ProductionLine, ProductionLinesService } from '../../../../core/services/production-lines.service'
 import { Router } from '@angular/router'
+import { DigitalTwinService } from '../../../../core/services/digital-twin.service'
 interface Line {
   name: string
+  description?: string
   status: 'Active' | 'Inactive'
   session: boolean
   id?: number
@@ -21,9 +23,12 @@ export class DigitalTwinList {
   private router = inject(Router)
   private fb = inject(FormBuilder)
   private api = inject(ProductionLinesService)
+  private digitalTwinService = inject(DigitalTwinService)
 
 
-
+  lines: any[] = []
+  totalCount = 0
+  totalPages = 0
   searchText = ''
 
   pageNumber = 1
@@ -38,6 +43,10 @@ export class DigitalTwinList {
     description: ['']
   })
 
+  ngOnInit() {
+    this.loadLines()
+  }
+
   openAdd() {
     this.mode = 'add'
     this.form.reset()
@@ -50,7 +59,7 @@ export class DigitalTwinList {
 
     this.form.patchValue({
       lineName: line.name,
-      description: ''
+      description: line.description || ''
     })
 
     this.isAddEditOpen = true
@@ -67,15 +76,15 @@ export class DigitalTwinList {
 
       this.api.create(payload).subscribe(() => {
         this.isAddEditOpen = false
+        this.loadLines()
       })
 
     } else if (this.selected?.id) {
 
       this.api.update(this.selected.id, payload).subscribe(() => {
         this.isAddEditOpen = false
+        this.loadLines()
       })
-
-
 
     }
 
@@ -94,6 +103,7 @@ export class DigitalTwinList {
 
       this.api.delete(this.selected.id).subscribe(() => {
         this.isDeleteOpen = false
+        this.loadLines()
       })
 
     }
@@ -108,38 +118,31 @@ export class DigitalTwinList {
     this.isDeleteOpen = false
   }
 
-  get totalPages() {
-    return Math.ceil(this.lines.length / this.pageSize)
-  }
 
-  get pagedLines() {
-    const start = (this.pageNumber - 1) * this.pageSize
-    return this.lines.slice(start, start + this.pageSize)
-  }
 
-  get startIndex() {
-    return (this.pageNumber - 1) * this.pageSize
-  }
-
-  get endIndex() {
-    return Math.min(this.startIndex + this.pageSize, this.lines.length)
+  onSearch() {
+    this.pageNumber = 1
+    this.loadLines()
   }
 
   nextPage() {
     if (this.pageNumber < this.totalPages) {
       this.pageNumber++
+      this.loadLines()
     }
   }
 
   prevPage() {
     if (this.pageNumber > 1) {
       this.pageNumber--
+      this.loadLines()
     }
   }
 
   goToPage(p: number) {
     if (p >= 1 && p <= this.totalPages) {
       this.pageNumber = p
+      this.loadLines()
     }
   }
 
@@ -148,21 +151,27 @@ export class DigitalTwinList {
     line.status = line.session ? 'Active' : 'Inactive'
   }
 
-  lines: Line[] = [
 
-    { id: 1, name: 'Production Line 01', status: 'Active', session: true },
-    { id: 2, name: 'Production Line 02', status: 'Active', session: true },
-    { id: 3, name: 'Production Line 03', status: 'Inactive', session: false },
-    { id: 4, name: 'Production Line 04', status: 'Active', session: true },
-    { id: 5, name: 'Production Line 05', status: 'Active', session: true },
-    { id: 6, name: 'Production Line 06', status: 'Active', session: true },
-    { id: 7, name: 'Production Line 07', status: 'Active', session: true },
-    { id: 8, name: 'Production Line 08', status: 'Inactive', session: false },
-    { id: 9, name: 'Production Line 09', status: 'Active', session: true },
-    { id: 10, name: 'Production Line 10', status: 'Active', session: true },
-    { id: 11, name: 'Production Line 11', status: 'Active', session: true }
+  loadLines() {
 
-  ]
+    this.digitalTwinService
+      .getProductionLines(this.pageNumber, this.pageSize, this.searchText)
+      .subscribe((res: any) => {
+        this.lines = res.items.map((item: any) => ({
+          id: item.productionLineId,
+          name: item.productionLineName,
+          description: item.productionLineDescription,
+          status: item.active ? 'Active' : 'Inactive',
+          session: item.active
+        }))
+
+        this.totalCount = res.totalCount
+        this.totalPages = res.totalPages
+
+      })
+
+  }
+
 
   openDetails(line: Line) {
 

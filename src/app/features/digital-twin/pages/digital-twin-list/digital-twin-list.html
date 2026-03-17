@@ -5,7 +5,7 @@
 
       <div class="orders-search">
         <img class="ico" src="/icons/digital-twin/search.svg" />
-        <input [(ngModel)]="searchText" placeholder="Search with Production Line..." />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearch()" placeholder="Search with Production Line..." />
       </div>
 
       <button class="btn-invite" (click)="openAdd()">
@@ -39,6 +39,13 @@
 
             <th>
               <div class="th-inner">
+                <img src="/icons/productionLine/description.svg" />
+                <span>Description</span>
+              </div>
+            </th>
+
+            <th>
+              <div class="th-inner">
                 <img src="/icons/digital-twin/status.svg" />
                 <span>Status</span>
               </div>
@@ -63,7 +70,7 @@
 
         <tbody *ngIf="lines.length; else emptyState">
 
-          <tr *ngFor="let line of pagedLines; let i=index">
+          <tr *ngFor="let line of lines; let i=index">
 
             <td class="col-check">
               <input type="checkbox" />
@@ -75,6 +82,10 @@
 
             <td class="line-name">
               {{ line.name }}
+            </td>
+
+            <td class="line-desc">
+              {{ line.description || '-' }}
             </td>
 
             <td>
@@ -122,7 +133,7 @@
 
           <tbody>
             <tr>
-              <td class="empty-cell" colspan="6">
+              <td class="empty-cell" colspan="7">
 
                 <div class="empty">
                   <div class="empty-text">
@@ -143,7 +154,10 @@
     <div class="orders-pager">
 
       <div class="left">
-        Showing {{ startIndex + 1 }} : {{ endIndex }} of {{ lines.length }}
+        Showing {{ (pageNumber - 1) * pageSize + 1 }}
+        :
+        {{ (pageNumber - 1) * pageSize + lines.length }}
+        of {{ totalCount }}
       </div>
 
       <div class="middle">
