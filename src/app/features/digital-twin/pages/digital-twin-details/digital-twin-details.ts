@@ -18,13 +18,15 @@ interface Line {
 })
 export class DigitalTwinDetails implements OnInit {
 
+  status = 'Active'
   ngOnInit() {
 
-    const navigation = this.router.getCurrentNavigation();
-    const stateLines = history.state?.lines as any[];
+    // this.status = history.state?.status || 'Active'
+
+    const stateLines = history.state?.lines as any[]
 
     if (stateLines) {
-      this.lines = stateLines;
+      this.lines = stateLines
     } else {
       this.lines = [
         { id: 1, name: 'Production Line 01', status: 'Active' },
@@ -42,11 +44,21 @@ export class DigitalTwinDetails implements OnInit {
     }
 
     this.route.paramMap.subscribe(params => {
-      const idParam = params.get('id');
+
+      const idParam = params.get('id')
+
       if (idParam) {
-        const id = Number(idParam);
-        this.currentIndex = this.lines.findIndex(l => l.id === id);
+
+        const id = Number(idParam)
+
+        this.currentIndex = this.lines.findIndex(l => l.id === id)
+
+        if (this.currentIndex !== -1) {
+          this.status = this.lines[this.currentIndex].status
+        }
+
       }
+
     });
   }
 
@@ -136,22 +148,18 @@ export class DigitalTwinDetails implements OnInit {
 
   goPreviousLine() {
 
-    for (let i = this.currentIndex - 1; i >= 0; i--) {
-      if (this.lines[i].status === 'Active') {
-        this.navigateToLine(this.lines[i]);
-        return;
-      }
+    if (this.currentIndex > 0) {
+      this.navigateToLine(this.lines[this.currentIndex - 1])
     }
+
   }
 
   goNextLine() {
 
-    for (let i = this.currentIndex + 1; i < this.lines.length; i++) {
-      if (this.lines[i].status === 'Active') {
-        this.navigateToLine(this.lines[i]);
-        return;
-      }
+    if (this.currentIndex < this.lines.length - 1) {
+      this.navigateToLine(this.lines[this.currentIndex + 1])
     }
+
   }
 
 
@@ -159,19 +167,18 @@ export class DigitalTwinDetails implements OnInit {
     this.router.navigate(['/dashboard/digital-twin', line.id], {
       state: {
         productionLineName: line.name,
-        lines: this.lines
+        lines: this.lines,
+        status: line.status
       }
     });
   }
 
   get hasPrevActive(): boolean {
-
-    return this.lines.slice(0, this.currentIndex).some(l => l.status === 'Active');
+    return this.currentIndex > 0
   }
 
   get hasNextActive(): boolean {
-
-    return this.lines.slice(this.currentIndex + 1).some(l => l.status === 'Active');
+    return this.currentIndex < this.lines.length - 1
   }
 
   getStrokeDash(ratio: number) {

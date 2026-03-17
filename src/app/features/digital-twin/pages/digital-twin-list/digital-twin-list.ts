@@ -23,6 +23,7 @@ export class DigitalTwinList {
   private api = inject(ProductionLinesService)
 
 
+
   searchText = ''
 
   pageNumber = 1
@@ -170,7 +171,8 @@ export class DigitalTwinList {
       {
         state: {
           productionLineName: line.name,
-          lines: this.lines
+          lines: this.lines,
+          status: line.status
         }
       }
     )
