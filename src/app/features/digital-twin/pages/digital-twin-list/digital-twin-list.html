@@ -82,6 +82,10 @@
 
             <td class="line-name">
               {{ line.name }}
+
+               <div class="line-error" *ngIf="line.error">
+    {{ line.error }}
+  </div>
             </td>
 
             <td class="line-desc">
@@ -99,7 +103,11 @@
             <td>
 
               <label class="switch">
-                <input type="checkbox" [checked]="line.session" (change)="toggleSession(line)" />
+                <input
+  type="checkbox"
+  [checked]="line.session"
+  (change)="toggleSession(line, $event)"
+/>
                 <span class="slider"></span>
               </label>
 
@@ -151,6 +159,7 @@
 
     </div>
 
+
     <div class="orders-pager">
 
       <div class="left">
@@ -189,7 +198,9 @@
 
     </div>
 
+
   </div>
+
 </div>
 <div class="pl-backdrop" *ngIf="isAddEditOpen" (click)="closeAddEdit()">
   <div class="pl-modal" (click)="$event.stopPropagation()">

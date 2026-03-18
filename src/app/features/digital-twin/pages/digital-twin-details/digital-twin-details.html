@@ -57,11 +57,11 @@
 
       <div class="simulation-item">
 
-        <div class="simulation-image-wrapper" [class.inactive]="status === 'Inactive'">
+        <div class="simulation-image-wrapper" [class.inactive]="!sessionActive">
 
           <img src="/icons/digital-twin/Live.svg" class="simulation-img" />
 
-          <div class="simulation-overlay" *ngIf="status === 'Inactive'">
+          <div class="simulation-overlay" *ngIf="!sessionActive">
             No live feed available.
           </div>
 
@@ -76,11 +76,11 @@
 
       <div class="simulation-item">
 
-        <div class="simulation-image-wrapper" [class.inactive]="status === 'Inactive'">
+        <div class="simulation-image-wrapper" [class.inactive]="!sessionActive">
 
           <img src="/icons/digital-twin/unity.svg" class="simulation-img" />
 
-          <div class="simulation-overlay" *ngIf="status === 'Inactive'">
+          <div class="simulation-overlay" *ngIf="!sessionActive">
             The Simulation is currently inactive
           </div>
 
@@ -274,7 +274,7 @@
             </tr>
           </thead>
 
-          <tbody>
+          <tbody *ngIf="pagedReports.length > 0; else emptyState">
 
             <tr *ngFor="let item of pagedReports; let i = index">
 
@@ -322,7 +322,31 @@
 
             </tr>
 
+
+
           </tbody>
+
+          <ng-template #emptyState>
+            <tbody>
+              <tr>
+                <td colspan="8" class="empty-cell">
+
+                  <div class="empty-state">
+
+
+
+                    <div class="empty-title">
+                      No Data to show
+                    </div>
+
+
+
+                  </div>
+
+                </td>
+              </tr>
+            </tbody>
+          </ng-template>
 
         </table>
 
