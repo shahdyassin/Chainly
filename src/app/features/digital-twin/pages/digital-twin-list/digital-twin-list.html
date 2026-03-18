@@ -1,0 +1,266 @@
+<div class="orders-page">
+  <div class="orders-card">
+
+    <div class="orders-toolbar">
+
+      <div class="orders-search">
+        <img class="ico" src="/icons/digital-twin/search.svg" />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearch()" placeholder="Search with Production Line..." />
+      </div>
+
+      <button class="btn-invite" (click)="openAdd()">
+        <img src="/icons/digital-twin/add.svg" />
+        <span>Add Production Line</span>
+      </button>
+
+    </div>
+
+    <div class="orders-table-wrap">
+
+      <table class="orders-table">
+
+        <thead>
+          <tr>
+
+            <th class="col-check">
+              <input type="checkbox" />
+            </th>
+
+            <th class="col-no">
+              No.
+            </th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/digital-twin/productionLine.svg" />
+                <span>Production Line</span>
+              </div>
+            </th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/productionLine/description.svg" />
+                <span>Description</span>
+              </div>
+            </th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/digital-twin/status.svg" />
+                <span>Status</span>
+              </div>
+            </th>
+
+            <th>
+              <div class="th-inner">
+                <img src="/icons/digital-twin/startSession.svg" />
+                <span>Start / Stop Session</span>
+              </div>
+            </th>
+
+            <th class="col-actions">
+              <div class="th-inner th-actions">
+                <img src="/icons/digital-twin/actions.svg" />
+                <span>Actions</span>
+              </div>
+            </th>
+
+          </tr>
+        </thead>
+
+        <tbody *ngIf="lines.length; else emptyState">
+
+          <tr *ngFor="let line of lines; let i=index">
+
+            <td class="col-check">
+              <input type="checkbox" />
+            </td>
+
+            <td class="col-no">
+              {{ i + 1 }}.
+            </td>
+
+            <td class="line-name">
+              {{ line.name }}
+
+               <div class="line-error" *ngIf="line.error">
+    {{ line.error }}
+  </div>
+            </td>
+
+            <td class="line-desc">
+              {{ line.description || '-' }}
+            </td>
+
+            <td>
+
+              <span class="status" [class.inactive]="line.status === 'Inactive'">
+                {{ line.status }}
+              </span>
+
+            </td>
+
+            <td>
+
+              <label class="switch">
+                <input
+  type="checkbox"
+  [checked]="line.session"
+  (change)="toggleSession(line, $event)"
+/>
+                <span class="slider"></span>
+              </label>
+
+            </td>
+
+            <td class="col-actions">
+
+              <div class="actions-wrap">
+
+                <button class="icon-btn" (click)="openDetails(line)">
+                  <img src="/icons/digital-twin/eye.svg" />
+                </button>
+
+                <button class="icon-btn" (click)="openEdit(line)">
+                  <img src="/icons/digital-twin/edit.svg" />
+                </button>
+
+                <button class="icon-btn" (click)="openDelete(line)">
+                  <img src="/icons/digital-twin/delete.svg" />
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+        <ng-template #emptyState>
+
+          <tbody>
+            <tr>
+              <td class="empty-cell" colspan="7">
+
+                <div class="empty">
+                  <div class="empty-text">
+                    No data to show
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+          </tbody>
+
+        </ng-template>
+
+      </table>
+
+    </div>
+
+
+    <div class="orders-pager">
+
+      <div class="left">
+        Showing {{ (pageNumber - 1) * pageSize + 1 }}
+        :
+        {{ (pageNumber - 1) * pageSize + lines.length }}
+        of {{ totalCount }}
+      </div>
+
+      <div class="middle">
+
+        <button class="nav-icon" (click)="prevPage()" [disabled]="pageNumber === 1">
+          <img src="/icons/digital-twin/left.svg" />
+        </button>
+
+
+
+        <button class="page-btn" *ngFor="let p of [].constructor(totalPages); let i=index"
+          [class.active]="pageNumber === i + 1" (click)="goToPage(i + 1)">
+          {{ i + 1 }}
+        </button>
+
+
+
+        <button class="nav-icon" (click)="nextPage()" [disabled]="pageNumber === totalPages">
+          <img src="/icons/digital-twin/right.svg" />
+        </button>
+
+      </div>
+
+      <div class="right">
+        <span>Go to page</span>
+
+        <input type="number" [ngModel]="pageNumber" (ngModelChange)="goToPage($event)" min="1" [max]="totalPages" />
+      </div>
+
+    </div>
+
+
+  </div>
+
+</div>
+<div class="pl-backdrop" *ngIf="isAddEditOpen" (click)="closeAddEdit()">
+  <div class="pl-modal" (click)="$event.stopPropagation()">
+
+    <div class="pl-modal-top-icon">
+      <img [src]="mode === 'add'
+        ? '/icons/productionLine/addproduction.svg'
+        : '/icons/productionLine/edit.svg'" />
+    </div>
+
+    <h3>{{ mode === 'add' ? 'Add Production Line' : 'Edit Production Line' }}</h3>
+
+    <form class="pl-modal-form" [formGroup]="form">
+
+      <div class="pl-field">
+        <div class="pl-field-label">
+          <img src="/icons/productionLine/production.svg" />
+          <span>Production Line Name</span>
+        </div>
+
+        <input formControlName="lineName" />
+      </div>
+
+      <div class="pl-field">
+        <div class="pl-field-label">
+          <img src="/icons/productionLine/description.svg" />
+          <span>Description</span>
+        </div>
+
+        <input formControlName="description" />
+      </div>
+
+      <button class="btn-confirm" type="button" (click)="confirmAddEdit()">
+        Confirm
+      </button>
+
+    </form>
+
+  </div>
+</div>
+<div class="pl-backdrop" *ngIf="isDeleteOpen" (click)="closeDelete()">
+
+  <div class="pl-modal pl-modal-danger" (click)="$event.stopPropagation()">
+
+    <div class="pl-modal-top-icon danger">
+      <img src="/icons/productionLine/wrong.svg" />
+    </div>
+
+    <h3>Delete Production Line</h3>
+
+    <p class="danger-text">
+      Are you sure you want to delete <b>{{ selected?.name }}</b>?<br />
+      <span>This action cannot be undone.</span>
+    </p>
+
+    <div class="danger-actions">
+      <button class="btn-cancel" (click)="closeDelete()">Cancel</button>
+      <button class="btn-danger" (click)="confirmDelete()">Delete</button>
+    </div>
+
+  </div>
+
+</div>

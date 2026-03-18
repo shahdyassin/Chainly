@@ -89,6 +89,10 @@
         width: 16px;
         height: 16px;
       }
+
+      &:hover {
+        background: #f9fafb;
+      }
     }
 
     .orders-tabs {
@@ -293,7 +297,7 @@
       transition: background-color 0.2s ease, transform 0.05s ease;
 
       &:hover {
-        filter: brightness(0.9);
+        filter: brightness(0.98);
       }
 
       &:active {
@@ -309,14 +313,196 @@
     }
 
     .btn.predict {
-      background: #3EA397;
+      background: #DAF1EE;
+      color: #3EA397;
     }
 
     .btn.delete {
       background: #FF392B;
     }
 
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: #F9F9F9;
 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+
+      img {
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover {
+        background: #ECEFF1;
+      }
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .filter-btn {
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid #e6e6e6;
+      background: #fff;
+      padding: 0 14px;
+
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      font-size: 14px;
+      font-weight: 600;
+      color: #4d4d4d;
+      cursor: pointer;
+
+      img {
+        width: 20px;
+        height: 20px;
+      }
+
+      &:hover {
+        background: #f9fafb;
+      }
+    }
+
+
+    .filter-range {
+      display: flex;
+      gap: 12px;
+
+      input {
+        flex: 1;
+        height: 44px;
+        border-radius: 12px;
+        border: 1px solid #e6e6e6;
+        padding: 0 12px;
+        font-size: 14px;
+        outline: none;
+        // background: #f9f9f9;
+
+
+        &:hover,
+        &:focus,
+        &:active {
+          border: 1px solid #e6e6e6 !important;
+          box-shadow: none !important;
+          outline: none !important;
+        }
+      }
+    }
+
+    .clear-filter-popup {
+      margin-top: 10px;
+      width: 100%;
+      height: 52px;
+      border-radius: 16px;
+      border: none;
+
+      background: #E5E5E5;
+      color: #4D4D4D;
+
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:hover {
+        background: #d1d1d1;
+      }
+    }
+
+
+
+
+    .filter-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 999999;
+    }
+
+    .filter-modal {
+      width: 480px;
+      max-width: calc(100% - 32px);
+      background: #fff;
+      border-radius: 22px;
+      border: 1px solid #cccccc;
+      padding: 18px;
+    }
+
+    .filter-top {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .filter-top img {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid #cccccc;
+      padding: 6px;
+    }
+
+    .filter-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #4D4D4D;
+    }
+
+    .filter-box {
+      border: 1px solid #E6E6E6;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .filter-box-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666666;
+      margin-bottom: 8px;
+
+      img {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .filter-confirm-btn {
+      width: 100%;
+      height: 52px;
+      border-radius: 16px;
+      border: none;
+      background: #3ea397;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:hover {
+        filter: brightness(0.9);
+      }
+    }
 
 
     .empty-cell {
@@ -472,7 +658,7 @@
 
     .orders-import-modal {
       position: relative;
-      width: 560px;
+      width: 500px;
       max-width: calc(100% - 32px);
       background: #ffffff;
       border-radius: 22px;
@@ -1141,6 +1327,66 @@
       }
     }
 
+    @media (max-width: 768px) {
+
+      .orders-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .toolbar-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+      }
+
+      .filter-btn,
+      .import-btn {
+        flex: 1;
+        justify-content: center;
+      }
+
+      .orders-table {
+        min-width: 720px;
+        font-size: 13px;
+      }
+
+      .orders-table thead th {
+        padding: 10px 10px;
+      }
+
+      .orders-table tbody td {
+        padding: 10px 10px;
+      }
+
+      .actions {
+        gap: 6px;
+      }
+
+      .btn.predict {
+        padding: 0 10px;
+        font-size: 12px;
+      }
+
+      .icon-btn {
+        width: 32px;
+        height: 32px;
+      }
+
+      .orders-pager {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        text-align: center;
+      }
+
+      .orders-pager .middle {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+    }
+
     @media (max-width: 520px) {
       .orders-page {
         padding: 14px 12px;
@@ -1148,5 +1394,54 @@
 
       .orders-card {
         padding: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .filter-backdrop {
+        align-items: center;
+        padding: 16px;
+      }
+
+      .filter-modal {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 22px;
+        padding: 20px 16px 24px;
+      }
+
+      .filter-box {
+        padding: 14px;
+      }
+
+      .filter-range {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+
+      .filter-range input {
+        width: 100% !important;
+        height: 48px !important;
+        border-radius: 12px !important;
+        font-size: 15px !important;
+        padding: 0 14px !important;
+        box-sizing: border-box !important;
+        flex: unset !important;
+      }
+
+      .filter-confirm-btn {
+        height: 52px;
+        border-radius: 14px;
+        font-size: 16px;
+      }
+
+      .orders-import-modal {
+        width: 100%;
+        padding: 16px;
+      }
+
+      .drop-zone {
+        height: 200px;
       }
     }

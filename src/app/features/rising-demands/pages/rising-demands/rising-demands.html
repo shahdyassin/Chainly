@@ -3,33 +3,23 @@
     <div class="orders-toolbar">
       <div class="orders-search">
         <img class="ico" src="/icons/raising-demand/search.svg" />
-        <input [(ngModel)]="searchText"
-               (ngModelChange)="onSearchChange()"
-               placeholder="Search with Product Name..." />
+        <input [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" placeholder="Search with Product Name..." />
       </div>
 
-      <button class="import-btn"(click)="openImport()">
-        <img class="ico" src="/icons/raising-demand/import.svg" />
-        <span>Import File</span>
-      </button>
+      <div class="toolbar-actions">
+
+        <button class="filter-btn" (click)="openFilter()">
+          <img src="/icons/raising-demand/filter.svg" />
+          <span>Filter</span>
+        </button>
+
+        <button class="import-btn" (click)="openImport()">
+          <img class="ico" src="/icons/raising-demand/import.svg" />
+          <span>Import File</span>
+        </button>
+
+      </div>
     </div>
-
-
-    <div class="orders-tabs">
-      <button class="tab" [class.active]="stockFilter==='all'" (click)="setStockFilter('all')">
-        All <span class="count">({{ totalCount }})</span>
-      </button>
-      <button class="tab" [class.active]="stockFilter==='in'" (click)="setStockFilter('in')">
-        In-Stock <span class="count">({{ inStockCount }})</span>
-      </button>
-      <button class="tab" [class.active]="stockFilter==='out'" (click)="setStockFilter('out')">
-        Out of Stock <span class="count">({{ outStockCount }})</span>
-      </button>
-      <button class="tab" [class.active]="stockFilter==='low'" (click)="setStockFilter('low')">
-        Low Stock <span class="count">({{ lowStockCount }})</span>
-      </button>
-    </div>
-
 
     <div class="orders-table-wrap">
       <table class="orders-table">
@@ -37,8 +27,12 @@
           <tr>
             <th class="col-check"><input type="checkbox" /></th>
             <th class="col-no">No.</th>
-            <th><div class="th-inner"><img src="/icons/raising-demand/productId.svg" /> <span>Product ID</span></div></th>
-            <th><div class="th-inner"><img src="/icons/raising-demand/name.svg" /> <span>Name</span></div></th>
+            <th>
+              <div class="th-inner"><img src="/icons/raising-demand/productId.svg" /> <span>Product ID</span></div>
+            </th>
+            <th>
+              <div class="th-inner"><img src="/icons/raising-demand/name.svg" /> <span>Name</span></div>
+            </th>
 
             <th class="sortable" (click)="toggleSort()">
               <div class="th-inner stock-header">
@@ -46,17 +40,15 @@
                   <img src="/icons/raising-demand/in-stock.svg" />
                   <span>In-Stock</span>
                 </div>
-                <img class="sort-icon"
-                     src="/icons/raising-demand/sort.svg"
-                     [class.active]="sortDirection !== ''"
-                     [class.desc]="sortDirection==='desc'" />
+                <img class="sort-icon" src="/icons/raising-demand/sort.svg" [class.active]="sortDirection !== ''"
+                  [class.desc]="sortDirection==='desc'" />
               </div>
             </th>
 
             <th>
               <div class="th-inner th-actions">
-                <img src="/icons/raising-demand/prediction.svg" />
-                <span>Predictions</span>
+                <img src="/icons/raising-demand/more.svg" />
+                <span>Actions</span>
               </div>
             </th>
           </tr>
@@ -72,7 +64,9 @@
             <td class="col-actions">
               <div class="actions">
                 <button class="btn predict" (click)="predictProduct(p)">Predict</button>
-                <button class="btn delete" (click)="deleteProduct(p)">Delete</button>
+                <button class="icon-btn delete-btn" (click)="deleteProduct(p)">
+                  <img src="/icons/raising-demand/delete.svg" />
+                </button>
               </div>
             </td>
           </tr>
@@ -104,9 +98,7 @@
         </button>
 
         <ng-container *ngFor="let p of pagesArray">
-          <button *ngIf="isNumber(p)" class="page-btn"
-                  [class.active]="p===pageNumber"
-                  (click)="goToPage(p)">
+          <button *ngIf="isNumber(p)" class="page-btn" [class.active]="p===pageNumber" (click)="goToPage(p)">
             {{ p }}
           </button>
           <span *ngIf="!isNumber(p)" class="dots">…</span>
@@ -141,8 +133,8 @@
       </div>
 
       <div class="prediction-result"
-           [ngClass]="{'trend-up': predictionTrend==='up','trend-down': predictionTrend==='down'}"
-           *ngIf="!predictionLoading">
+        [ngClass]="{'trend-up': predictionTrend==='up','trend-down': predictionTrend==='down'}"
+        *ngIf="!predictionLoading">
         <img *ngIf="predictionTrend==='up'" src="/icons/raising-demand/increase.svg" />
         <img *ngIf="predictionTrend==='down'" src="/icons/raising-demand/decrease.svg" class="trend-icon" />
         {{ predictionResult }}
@@ -235,10 +227,7 @@
 
       <ng-template #uploadTpl>
 
-        <div class="drop-zone"
-             (click)="fileInput.click()"
-             (drop)="onDropFile($event)"
-             (dragover)="onDragOver($event)">
+        <div class="drop-zone" (click)="fileInput.click()" (drop)="onDropFile($event)" (dragover)="onDragOver($event)">
 
           <div class="drop-ico-wrap">
             <img class="drop-ico" src="/icons/raising-demand/drop.svg" />
@@ -251,8 +240,7 @@
 
           <div class="drop-sub">Max file size up to 1 GB</div>
 
-          <input #fileInput type="file" accept=".xlsx,.xls"
-                 (change)="onBrowseFile($event)" hidden multiple />
+          <input #fileInput type="file" accept=".xlsx,.xls" (change)="onBrowseFile($event)" hidden multiple />
         </div>
 
 
@@ -260,10 +248,8 @@
           <div class="uploads-title">Uploads</div>
 
           <div class="uploads-list">
-            <div class="upload-item"
-                 *ngFor="let item of uploads; trackBy: trackByUploadId"
-                 [class.failed]="item.state === 'failed'"
-                 [class.uploading]="item.state === 'uploading'">
+            <div class="upload-item" *ngFor="let item of uploads; trackBy: trackByUploadId"
+              [class.failed]="item.state === 'failed'" [class.uploading]="item.state === 'uploading'">
 
               <div class="left">
                 <img class="file-ico" src="/icons/raising-demand/file.svg" />
@@ -330,10 +316,7 @@
             </div>
           </div>
 
-          <button class="confirm-btn"
-                  type="button"
-                  (click)="confirmUpload()"
-                  [disabled]="!canConfirmUpload">
+          <button class="confirm-btn" type="button" (click)="confirmUpload()" [disabled]="!canConfirmUpload">
             Confirm
           </button>
         </div>
@@ -344,7 +327,41 @@
   </div>
 </div>
 
+<div class="filter-backdrop" *ngIf="showFilterPopup" (click)="closeFilter()">
 
+  <div class="filter-modal" (click)="$event.stopPropagation()">
 
+    <div class="filter-top">
+      <img src="/icons/raising-demand/filterBy.svg" />
+      <div class="filter-title">Filter By</div>
+    </div>
 
+    <div class="filter-box">
 
+      <div class="filter-box-title">
+        <img src="/icons/raising-demand/in-stock.svg" />
+        <span>In Stock</span>
+      </div>
+
+      <div class="filter-range">
+
+        <input type="number" placeholder="Min" min="0" [(ngModel)]="tempMin" />
+
+        <input type="number" placeholder="Max" min="0" [(ngModel)]="tempMax" />
+
+      </div>
+
+    </div>
+
+    <button class="filter-confirm-btn" (click)="applyFilter()"
+      [disabled]="tempMin !== undefined && tempMax !== undefined && tempMin > tempMax">
+      Confirm
+    </button>
+
+    <button *ngIf="hasActiveFilters" class="clear-filter-popup" (click)="clearFilters()">
+      Clear Filter
+    </button>
+
+  </div>
+
+</div>

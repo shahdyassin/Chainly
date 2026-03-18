@@ -113,7 +113,7 @@
     &:hover,
     &:active {
       transform: none !important;
-      filter: none !important;
+      filter: brightness(0.92);
     }
   }
 }
@@ -429,8 +429,8 @@ table {
   justify-content: center;
 
   img {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
   }
 
   &.danger {
@@ -577,11 +577,19 @@ table {
 .btn-cancel {
   background: #f2f2f2;
   color: #666666;
+
+    &:hover {
+      background: #e5e5e5;
+    }
 }
 
 .btn-danger {
   background: #ff392b;
   color: #ffffff;
+
+    &:hover {
+      background: #ff1a0d;
+    }
 }
 
 @media (max-width: 800px) {

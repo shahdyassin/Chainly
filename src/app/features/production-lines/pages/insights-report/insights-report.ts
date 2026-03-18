@@ -502,4 +502,27 @@ export class InsightsReport implements OnInit {
 
     this.loadInsights();
   }
+
+  formatLineName(text: string): string {
+
+    if (!text) return '';
+
+    const [name, number] = text.split('_');
+
+    return `<span class="line-name">${name}</span>_<span class="line-number">${number}</span>`;
+  }
+
+  hasUnderscore(text: string | undefined): boolean {
+    return !!text && text.includes('_');
+  }
+
+  getLineName(text: string | undefined): string {
+    if (!text) return '';
+    return text.split('_')[0];
+  }
+
+  getLineNumber(text: string | undefined): string {
+    if (!text || !text.includes('_')) return '';
+    return text.split('_')[1];
+  }
 }

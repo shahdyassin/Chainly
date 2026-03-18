@@ -1,5 +1,4 @@
 
-@use 'sass:color';
 
 /* Leaflet styles */
 @import "leaflet/dist/leaflet.css";
@@ -79,7 +78,7 @@ body {
   border: none;
 
   &:hover {
-    background-color: color.adjust($primary-color, $lightness: -10%);
+    background-color: darken($primary-color, 10%);
     color: white;
   }
 }
@@ -119,7 +118,7 @@ body {
     border-radius: 5px;
 
     &:hover {
-      background: color.adjust(#2a6f67, $lightness: -10%);
+      background: darken(#2a6f67, 10%);
     }
   }
 }
@@ -183,7 +182,7 @@ a {
   transition: color 0.3s ease;
 
   &:hover {
-    color: color.adjust($primary-color, $lightness: -10%);
+    color: darken($primary-color, 10%);
   }
 }
 

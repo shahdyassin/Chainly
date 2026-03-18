@@ -55,6 +55,16 @@ export class RisingDemands implements OnInit {
   uploads: UploadItem[] = [];
   uploadIdCounter = 0;
 
+  showFilterPopup = false;
+
+  minStock?: number;
+  maxStock?: number;
+
+  tempMin?: number;
+  tempMax?: number;
+
+  hasActiveFilters = false;
+
   constructor(private productsService: ProductsService) { }
 
   ngOnInit(): void {
@@ -64,26 +74,27 @@ export class RisingDemands implements OnInit {
 
 
   loadProducts(): void {
-    let minStock: number | undefined;
-    let maxStock: number | undefined;
-
-    switch (this.stockFilter) {
-      case 'in': minStock = 1; break;
-      case 'out': maxStock = 0; break;
-      case 'low': minStock = 1; maxStock = 10; break;
-    }
 
     this.productsService
-      .getProducts(this.pageNumber, this.pageSize, this.searchText, this.sortDirection, minStock, maxStock)
+      .getProducts(
+        this.pageNumber,
+        this.pageSize,
+        this.searchText,
+        this.sortDirection,
+        this.minStock,
+        this.maxStock
+      )
       .subscribe(res => {
+
         this.products = res.items ?? [];
+
         this.totalCount = res.totalCount;
         this.totalPages = res.totalPages;
         this.pageNumber = res.pageNumber;
-        this.calculateCounts();
-      });
-  }
 
+      });
+
+  }
   calculateCounts() {
     this.productsService.getProducts(1, 1000, '').subscribe(res => {
       const items = res.items ?? [];
@@ -274,7 +285,7 @@ export class RisingDemands implements OnInit {
 
   get canConfirmUpload() {
     return this.uploads.some(u => u.state === 'uploaded') &&
-           !this.uploads.some(u => u.state === 'uploading');
+      !this.uploads.some(u => u.state === 'uploading');
   }
 
   trackByUploadId(i: number, item: UploadItem) {
@@ -283,5 +294,51 @@ export class RisingDemands implements OnInit {
 
   formatSize(bytes: number) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  openFilter() {
+    this.tempMin = this.minStock;
+    this.tempMax = this.maxStock;
+    this.showFilterPopup = true;
+  }
+
+  closeFilter() {
+    this.showFilterPopup = false;
+  }
+
+  applyFilter() {
+
+    if (
+      this.tempMin !== undefined &&
+      this.tempMax !== undefined &&
+      this.tempMin > this.tempMax
+    ) {
+      alert("Min stock cannot be greater than Max stock");
+      return;
+    }
+
+    this.minStock = this.tempMin;
+    this.maxStock = this.tempMax;
+
+    this.hasActiveFilters =
+      this.minStock !== undefined ||
+      this.maxStock !== undefined;
+
+    this.pageNumber = 1;
+    this.showFilterPopup = false;
+
+    this.loadProducts();
+  }
+
+  clearFilters() {
+    this.minStock = undefined;
+    this.maxStock = undefined;
+
+    this.tempMin = undefined;
+    this.tempMax = undefined;
+
+    this.hasActiveFilters = false;
+
+    this.loadProducts();
   }
 }
