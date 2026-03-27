@@ -7,9 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     permissions:
+      id-token: write
       contents: read
 
     steps:
@@ -27,26 +29,6 @@ jobs:
 
       - name: Build Angular production
         run: npm run build -- --configuration production
-
-      - name: Upload Angular build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: angular-build
-          path: dist
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: angular-build
-          path: dist
 
       - name: Login to Azure
         uses: azure/login@v2
