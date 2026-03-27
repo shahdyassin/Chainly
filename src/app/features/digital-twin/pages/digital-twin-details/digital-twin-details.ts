@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DigitalTwinService } from '../../../../core/services/digital-twin.service';
 import { RealtimeService } from '../../../../core/services/realtime.service';
 import { Subject, takeUntil } from 'rxjs';
+import { FirebaseService } from '../../../../core/services/firebase.service';
+import { getDatabase, ref, onChildAdded } from 'firebase/database'
 
 interface Line {
   id: number;
@@ -30,6 +32,7 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
   private currentLineId: number | null = null;
   private realtimeInitialized = false;
   private zone = inject(NgZone);
+  private firebase = inject(FirebaseService)
 
 
   lines: Line[] = [];
@@ -77,12 +80,9 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+
     this.summary = { productionLineName: history.state?.productionLineName };
     const routeId = Number(this.route.snapshot.paramMap.get('id'));
-    const savedReport = localStorage.getItem(`report_${routeId}`);
-
-    
-
     const stateLines = history.state?.lines;
     if (stateLines?.length) {
       this.lines = stateLines;
@@ -109,6 +109,7 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
             this.goodRatio = Math.round((data.goodCount / data.totalCount) * 100);
             this.badRatio = Math.round((data.defectCount / data.totalCount) * 100);
           }
+          this.sendToSimulation(data.isDefect ?? false)
         });
       });
   }
@@ -132,9 +133,6 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
     if (!token) return;
 
 
-    await this.realtime.startConnection(token);
-
-
     this.digitalTwinService
       .getReportsByLine(current.id, 1, 1)
       .subscribe(async (res: any) => {
@@ -149,14 +147,20 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
           const reportId = runningReport.reportId;
 
           current.reportId = reportId;
+          this.listenToFirebase(reportId.toString())
+          localStorage.setItem(`report_${current.id}`, reportId.toString());
 
           const reportDetails: any = await this.digitalTwinService
             .getReportDetails(reportId)
             .toPromise();
 
+          this.applySummary(reportDetails?.summary ?? reportDetails);
+
           const productionLineId =
             reportDetails.productionLineId ||
             reportDetails.productionLine?.id;
+
+          await this.realtime.startConnection(token);
 
           await this.realtime.joinLine(productionLineId);
           this.currentLineId = productionLineId;
@@ -173,6 +177,29 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
 
       });
   }
+
+
+  listenToFirebase(reportId: string) {
+  const db = getDatabase()
+  const reportRef = ref(db, reportId)
+
+  onChildAdded(reportRef, (snapshot) => {
+    const data = snapshot.val()
+
+    console.log('firebase Received:', data)
+
+    this.sendToSimulation(data.defect)
+  })
+}
+
+
+// testUnity() {
+//   (window as any).unityInstance.SendMessage(
+//     'BoxSpawner',
+//     'ReceiveBox',
+//     'true'
+//   )
+// }
 
 
 
@@ -216,6 +243,7 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
 
           const reportId = +res.report_id;
           currentLine.reportId = reportId;
+          this.listenToFirebase(reportId.toString())
 
           localStorage.setItem(`report_${currentLine.id}`, reportId.toString());
 
@@ -224,9 +252,17 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
             .getReportDetails(reportId)
             .toPromise();
 
+          this.applySummary(reportDetails?.summary ?? reportDetails);
+
           const productionLineId =
             reportDetails.productionLineId ||
             reportDetails.productionLine?.id;
+
+          const authData = localStorage.getItem('chainly-auth');
+          const token = authData ? JSON.parse(authData).token : null;
+          if (token) {
+            await this.realtime.startConnection(token);
+          }
 
 
           if (this.currentLineId && this.currentLineId !== productionLineId) {
@@ -262,17 +298,47 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
 
   loadSessionData() {
     const current = this.lines[this.currentIndex];
-    this.digitalTwinService.getReportsByLine(current.id, this.pageNumber, this.pageSize)
+    const savedReportId = localStorage.getItem(`report_${current.id}`);
+    const resolvedReportId =
+      current.reportId ??
+      (savedReportId ? Number(savedReportId) : undefined);
+
+    if (resolvedReportId) {
+      current.reportId = resolvedReportId;
+      this.digitalTwinService.getReportDetails(resolvedReportId).subscribe({
+        next: (report: any) => {
+          this.applySummary(report?.summary ?? report);
+          this.loadReportsPage(current.id, true);
+        },
+        error: () => {
+          this.loadReportsPage(current.id, false);
+        }
+      });
+      return;
+    }
+
+    this.loadReportsPage(current.id, false);
+  }
+
+  private loadReportsPage(lineId: number, skipSummaryFallback: boolean) {
+    this.digitalTwinService.getReportsByLine(lineId, this.pageNumber, this.pageSize)
       .subscribe((res: any) => {
-        this.totalProducts = res.summary.totalProducts;
-        this.flawlessProducts = res.summary.goodProducts;
-        this.defectedProducts = res.summary.defectiveProducts;
-        this.goodRatio = res.summary.goodRatio;
-        this.badRatio = res.summary.defectiveRatio;
         this.reports = res.items;
         this.totalCount = res.totalCount;
         this.totalPages = res.totalPages;
+
+        if (!skipSummaryFallback) {
+          this.applySummary(res.summary);
+        }
       });
+  }
+
+  private applySummary(summary: any) {
+    this.totalProducts = summary?.totalProducts ?? 0;
+    this.flawlessProducts = summary?.goodProducts ?? 0;
+    this.defectedProducts = summary?.defectiveProducts ?? 0;
+    this.goodRatio = summary?.goodRatio ?? 0;
+    this.badRatio = summary?.defectiveRatio ?? 0;
   }
 
 
@@ -405,4 +471,24 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
       this.realtime.leaveLine(this.currentLineId);
     }
   }
+
+  sendToSimulation(defect: boolean) {
+    const currentLine = this.lines[this.currentIndex]
+    if (!currentLine?.reportId) {
+      console.warn('No reportId')
+      return
+    }
+    const reportId = currentLine.reportId.toString()
+    this.firebase.sendBox(reportId, defect)
+    if ((window as any).unityInstance) {
+      (window as any).unityInstance.SendMessage(
+        'BoxSpawner',
+        'ReceiveBox',
+        defect.toString()
+      )
+    }
+    console.log('Sending to Unity:', defect)
+    console.log('unityInstance:', (window as any).unityInstance)
+  }
+
 }

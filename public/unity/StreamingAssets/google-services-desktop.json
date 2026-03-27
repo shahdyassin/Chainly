@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "362846304463",
+    "firebase_url": "https://chainly-f4afa-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "chainly-f4afa",
+    "storage_bucket": "chainly-f4afa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362846304463:android:5ba255710946af73dd5fba",
+        "android_client_info": {
+          "package_name": "com.chainly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbeCcvSLDJ3bUA7WKYlyr1k-WyAAKhHwE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
