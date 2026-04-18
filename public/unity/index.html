@@ -52,12 +52,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/new new new.loader.js";
+      var loaderUrl = buildUrl + "/new new new new.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/new new new.data",
-        frameworkUrl: buildUrl + "/new new new.framework.js",
-        codeUrl: buildUrl + "/new new new.wasm",
+        dataUrl: buildUrl + "/new new new new.data",
+        frameworkUrl: buildUrl + "/new new new new.framework.js",
+        codeUrl: buildUrl + "/new new new new.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "Environment",
@@ -116,7 +116,6 @@
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
               }).then((unityInstance) => {
-
                 window.unityInstance = unityInstance;
                 window.parent.unityInstance = unityInstance;
                 document.querySelector("#unity-loading-bar").style.display = "none";

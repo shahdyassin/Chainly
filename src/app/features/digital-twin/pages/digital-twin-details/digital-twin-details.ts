@@ -137,6 +137,8 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
       .getReportsByLine(current.id, 1, 1)
       .subscribe(async (res: any) => {
 
+        console.log("response : ", res.items)
+
         const runningReport = res.items?.find((r: any) => r.endedAt === null);
 
         if (runningReport) {
