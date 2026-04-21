@@ -32,6 +32,18 @@ export class DashboardShell implements OnInit {
 
   private currentParams: Record<string, any> = {};
 
+
+  sectionState = {
+    main: true,
+    operations: true,
+    suppliers: true,
+    management: true
+  };
+
+  toggleSection(section: keyof typeof this.sectionState) {
+    this.sectionState[section] = !this.sectionState[section];
+  }
+
   constructor(
     private auth: AuthService,
     private router: Router,

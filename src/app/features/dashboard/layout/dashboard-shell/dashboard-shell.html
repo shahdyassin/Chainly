@@ -14,72 +14,105 @@
 
     <nav class="nav">
       <div class="nav-group">
-        <p class="group-title">Main</p>
+        <div class="group-header" (click)="toggleSection('main')">
+          <p class="group-title">Main</p>
 
-        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-          class="nav-item">
-          <img src="/icons/dashboard/home.svg" alt="" />
-          <span>Dashboard</span>
-        </a>
+          <img src="/icons/dashboard/arrowUp.svg" class="arrow" [class.closed]="sectionState.main" />
+        </div>
+        <div class="group-items" *ngIf="sectionState.main">
 
-        <a routerLink="/dashboard/insights-list" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/insights.svg" alt="" />
-          <span>Insights</span>
-        </a>
+          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-item">
+            <img src="/icons/dashboard/home.svg" alt="" />
+            <span>Dashboard</span>
+          </a>
+
+          <a routerLink="/dashboard/insights-list" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/insights.svg" alt="" />
+            <span>Insights</span>
+          </a>
+        </div>
       </div>
 
       <div class="nav-group">
-        <p class="group-title">Operations</p>
+        <div class="group-header" (click)="toggleSection('operations')">
+          <p class="group-title">Operations</p>
 
-        <a routerLink="/dashboard/rising-demands" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/increase.svg" alt="" />
-          <span>Rising Demands</span>
-        </a>
+          <img src="/icons/dashboard/arrowUp.svg" class="arrow" [class.closed]="sectionState.operations" />
+        </div>
 
-        <a routerLink="/dashboard/production-lines" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/factory.svg" alt="" />
-          <span>Production Lines</span>
-        </a>
+        <div class="group-items" *ngIf="sectionState.operations">
 
-        <a routerLink="/dashboard/orders" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/order.svg" alt="" />
-          <span>Orders</span>
-        </a>
+          <a routerLink="/dashboard/rising-demands" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/increase.svg" alt="" />
+            <span>Rising Demands</span>
+          </a>
 
-        <a routerLink="/dashboard/digital-twin" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/twin.svg" alt="" />
-          <span>Digital Twin</span>
-        </a>
+          <a routerLink="/dashboard/production-lines" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/factory.svg" alt="" />
+            <span>Production Lines</span>
+          </a>
+
+          <a routerLink="/dashboard/orders" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/order.svg" alt="" />
+            <span>Orders</span>
+          </a>
+
+          <a routerLink="/dashboard/digital-twin" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/twin.svg" alt="" />
+            <span>Digital Twin</span>
+          </a>
+
+          <a routerLink="/dashboard/simulation-list" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/simulation.svg" alt="" />
+            <span>Simulation</span>
+          </a>
+        </div>
       </div>
 
       <div class="nav-group">
-        <p class="group-title">Suppliers Network</p>
+        <div class="group-header" (click)="toggleSection('suppliers')">
+          <p class="group-title">Suppliers Network</p>
 
-        <a routerLink="/dashboard/suppliers" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/suppliers.svg" alt="" />
-          <span>Suppliers</span>
-        </a>
+          <img src="/icons/dashboard/arrowUp.svg" class="arrow" [class.closed]="sectionState.suppliers" />
+        </div>
 
-        <a routerLink="/dashboard/supplies-list" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/truck.svg" alt="" />
-          <span>Supplies</span>
-        </a>
+        <div class="group-items" *ngIf="sectionState.suppliers">
+
+          <a routerLink="/dashboard/suppliers" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/suppliers.svg" alt="" />
+            <span>Suppliers</span>
+          </a>
+
+          <a routerLink="/dashboard/supplies-list" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/truck.svg" alt="" />
+            <span>Supplies</span>
+          </a>
+        </div>
       </div>
 
       <div class="nav-group">
-        <p class="group-title">Management</p>
+        <div class="group-header" (click)="toggleSection('management')">
+          <p class="group-title">Management</p>
 
-        <a routerLink="/dashboard/users-list" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/users.svg" alt="" />
-          <span>Users</span>
-        </a>
+          <img src="/icons/dashboard/arrowUp.svg" class="arrow" [class.closed]="sectionState.management" />
+        </div>
 
-        <a routerLink="/dashboard/camera-list" routerLinkActive="active" class="nav-item">
-          <img src="/icons/dashboard/camera.svg" alt="" />
-          <span>Cameras</span>
-        </a>
+        <div class="group-items" *ngIf="sectionState.management">
+
+          <a routerLink="/dashboard/users-list" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/users.svg" alt="" />
+            <span>Users</span>
+          </a>
+
+          <a routerLink="/dashboard/camera-list" routerLinkActive="active" class="nav-item">
+            <img src="/icons/dashboard/camera.svg" alt="" />
+            <span>Cameras</span>
+          </a>
+        </div>
       </div>
     </nav>
+
 
     <div class="user-card">
       <div class="avatar">

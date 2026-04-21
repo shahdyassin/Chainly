@@ -149,6 +149,13 @@ export const DASHBOARD_ROUTES: Routes = [
             .then(m => m.CameraList),
         data: { title: 'Cameras' }
       },
+      {
+        path: 'simulation-list',
+        loadComponent: () =>
+          import('../simulation/pages/simulation-list/simulation-list')
+            .then(m => m.SimulationList),
+        data: { title: 'Simulation' }
+      },
     ],
   },
 ];

@@ -348,6 +348,32 @@
   font-weight: 600;
 }
 
+
+
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100%;
+}
+
+.group-title {
+  margin: 0;
+}
+
+.arrow {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.25s ease;
+  opacity: 0.65;
+  transform: rotate(0deg);
+}
+
+.arrow.closed {
+  transform: rotate(180deg);
+}
+
 @media (min-width: 1025px) {
 
   .shell.sidebar-collapsed .sidebar {
