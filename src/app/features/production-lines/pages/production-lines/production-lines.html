@@ -139,6 +139,25 @@
           </div>
           <input formControlName="description" />
         </div>
+
+        <div class="pl-field-item">
+  <div class="pl-field-label">
+    <img src="/icons/productionLine/config.svg" />
+    <span>Line Configuration</span>
+  </div>
+
+  <div class="config-grid">
+
+    <input type="number" formControlName="maximumSpeed" placeholder="Max Speed" />
+
+    <input type="number" formControlName="ratedPower" placeholder="Rated Power" />
+
+    <input type="number" formControlName="maximumTemperature" placeholder="Max Temperature" />
+
+    <input type="number" formControlName="maximumCurrent" placeholder="Max Current" />
+
+  </div>
+</div>
       </div>
 
       <button class="btn-confirm" type="button" (click)="confirmAddEdit()">Confirm</button>

@@ -84,42 +84,42 @@
     </div>
 
 
-    <div class="right-cards">
+<div class="line-config-card">
 
-      <div class="card stat-card">
-        <div class="stat-header">
-          <span class="icon green-bg">
-            <img src="/icons/productionLine/flawless.svg" />
-          </span>
-          <span>Flawless Products</span>
-        </div>
+  <div class="config-header">
+    <h3>Line Configuration</h3>
 
-        <div class="stat-value">
-          {{ summary?.goodProducts || 0 }}
-        </div>
+    <button class="edit-btn" (click)="openEditModal()">
+      <img src="/icons/productionLine/editConfig.svg">
+      <span>Edit</span>
+    </button>
+  </div>
 
-        <div class="progress">
-          <div class="progress-bar green" style="width:70%"></div>
-        </div>
-      </div>
+  <div class="config-grid">
 
-      <div class="card stat-card">
-        <div class="stat-header">
-          <span class="icon red-bg">
-            <img src="/icons/productionLine/defected.svg" />
-          </span>
-          <span>Defected Products</span>
-        </div>
-
-        <div class="stat-value">
-          {{ summary?.defectiveProducts || 0 }}
-        </div>
-
-        <div class="progress">
-          <div class="progress-bar red" style="width:30%"></div>
-        </div>
-      </div>
+    <div class="config-box">
+      <span>Max Speed</span>
+      <strong>{{ summary?.maximumSpeed || 0 }} units/hour</strong>
     </div>
+
+    <div class="config-box">
+      <span>Rated Power</span>
+      <strong>{{ summary?.ratedPower || 0 }} W</strong>
+    </div>
+
+    <div class="config-box">
+      <span>Max Temperature</span>
+      <strong>{{ summary?.maximumTemperature || 0 }} C</strong>
+    </div>
+
+    <div class="config-box">
+      <span>Max Current</span>
+      <strong>{{ summary?.maximumCurrent || 0 }} A</strong>
+    </div>
+
+  </div>
+
+</div>
   </div>
 
 
@@ -430,3 +430,80 @@
 
     </div>
   </div>
+
+<div class="pl-backdrop" *ngIf="isEditOpen" (click)="closeEditModal()">
+
+  <div class="pl-modal" (click)="$event.stopPropagation()">
+
+    <div class="pl-modal-top-icon">
+      <img src="/icons/productionLine/edit.svg" />
+    </div>
+
+    <h3>Edit Production Line</h3>
+
+    <div class="pl-modal-form">
+
+      <div class="pl-field pl-field-group">
+
+        <!-- Name -->
+        <div class="pl-field-item">
+          <div class="pl-field-label">
+            <img src="/icons/productionLine/production.svg" />
+            <span>Production Line Name</span>
+          </div>
+
+          <input [(ngModel)]="editForm.lineName" />
+        </div>
+
+        <!-- Description -->
+        <div class="pl-field-item">
+          <div class="pl-field-label">
+            <img src="/icons/productionLine/description.svg" />
+            <span>Description</span>
+          </div>
+
+          <input [(ngModel)]="editForm.description" />
+        </div>
+
+        <!-- Config -->
+        <div class="pl-field-item">
+          <div class="pl-field-label">
+            <img src="/icons/productionLine/config.svg" />
+            <span>Line Configuration</span>
+          </div>
+
+          <div class="config-grid">
+
+            <input type="number"
+                   [(ngModel)]="editForm.maximumSpeed"
+                   placeholder="Max Speed">
+
+            <input type="number"
+                   [(ngModel)]="editForm.ratedPower"
+                   placeholder="Rated Power">
+
+            <input type="number"
+                   [(ngModel)]="editForm.maximumTemperature"
+                   placeholder="Max Temperature">
+
+            <input type="number"
+                   [(ngModel)]="editForm.maximumCurrent"
+                   placeholder="Max Current">
+
+          </div>
+        </div>
+
+      </div>
+
+      <button
+  class="btn-confirm"
+  type="button"
+  (click)="confirmAddEdit()">
+  Confirm
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

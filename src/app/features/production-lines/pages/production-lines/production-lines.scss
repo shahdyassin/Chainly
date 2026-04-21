@@ -592,6 +592,24 @@ table {
     }
 }
 
+
+
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.config-grid input {
+  height: 56px;
+  border-radius: 12px;
+  border: 0;
+  background: #f2f2f2;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
 @media (max-width: 800px) {
   .toolbar {
     flex-direction: column;

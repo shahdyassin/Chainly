@@ -32,10 +32,15 @@ export class ProductionLines implements OnInit {
   mode: 'add' | 'edit' = 'add';
   selected: ProductionLine | null = null;
 
-  form = this.fb.group({
-    lineName: ['', [Validators.required, Validators.minLength(2)]],
-    description: [''],
-  });
+form = this.fb.group({
+  lineName: this.fb.control<string>('', Validators.required),
+  description: this.fb.control<string>(''),
+
+  maximumSpeed: this.fb.control<number | null>(null, Validators.required),
+  ratedPower: this.fb.control<number | null>(null, Validators.required),
+  maximumTemperature: this.fb.control<number | null>(null, Validators.required),
+  maximumCurrent: this.fb.control<number | null>(null, Validators.required)
+});
 
   ngOnInit(): void {
     this.load(1);
@@ -64,19 +69,38 @@ export class ProductionLines implements OnInit {
     this.searchTimeout = setTimeout(() => this.load(1), 350);
   }
 
-  openAdd() {
-    this.mode = 'add';
-    this.selected = null;
-    this.form.reset({ lineName: '', description: '' });
-    this.isAddEditOpen = true;
-  }
+openAdd() {
+  this.mode = 'add';
+  this.selected = null;
 
-  openEdit(row: ProductionLine) {
-    this.mode = 'edit';
-    this.selected = row;
-    this.form.reset({ lineName: row.lineName, description: row.description ?? '' });
-    this.isAddEditOpen = true;
-  }
+  this.form.reset({
+  lineName: '',
+  description: '',
+  maximumSpeed: null,
+  ratedPower: null,
+  maximumTemperature: null,
+  maximumCurrent: null
+});
+
+  this.isAddEditOpen = true;
+}
+
+openEdit(row: ProductionLine) {
+  this.mode = 'edit';
+  this.selected = row;
+
+  this.form.reset({
+    lineName: row.lineName ?? '',
+    description: row.description ?? '',
+
+    maximumSpeed: row.maximumSpeed ?? null,
+    ratedPower: row.ratedPower ?? null,
+    maximumTemperature: row.maximumTemperature ?? null,
+    maximumCurrent: row.maximumCurrent ?? null
+  });
+
+  this.isAddEditOpen = true;
+}
 
   closeAddEdit() {
     this.isAddEditOpen = false;
@@ -88,10 +112,15 @@ export class ProductionLines implements OnInit {
       return;
     }
 
-    const payload = {
-      lineName: this.form.value.lineName!.trim(),
-      description: (this.form.value.description ?? '').trim() || null,
-    };
+const payload = {
+  lineName: this.form.value.lineName,
+  description: this.form.value.description || null,
+
+  maximumSpeed: Number(this.form.value.maximumSpeed),
+  ratedPower: Number(this.form.value.ratedPower),
+  maximumTemperature: Number(this.form.value.maximumTemperature),
+  maximumCurrent: Number(this.form.value.maximumCurrent)
+};
 
     if (this.mode === 'add') {
       this.api.create(payload).subscribe({

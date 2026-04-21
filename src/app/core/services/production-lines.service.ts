@@ -6,6 +6,11 @@ export interface ProductionLine {
   id: number;
   lineName: string;
   description: string | null;
+
+  maximumSpeed?: number;
+  ratedPower?: number;
+  maximumTemperature?: number;
+  maximumCurrent?: number;
 }
 
 export interface PagedResponse<T> {
@@ -33,7 +38,7 @@ getAll(
   const params = new HttpParams()
     .set('pageNumber', String(pageNumber))
     .set('pageSize', String(pageSize))
-    
+
     .set('search', cleaned);
 
   return this.http.get<PagedResponse<ProductionLine>>(this.baseUrl, { params });
@@ -41,13 +46,13 @@ getAll(
 
 
 
-  create(body: { lineName: string; description: string | null }): Observable<any> {
-    return this.http.post(this.baseUrl, body);
-  }
+create(body: any): Observable<any> {
+  return this.http.post(this.baseUrl, body);
+}
 
-  update(id: number, body: { lineName: string; description: string | null }): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, body);
-  }
+update(id: number, body: any): Observable<any> {
+  return this.http.put(`${this.baseUrl}/${id}`, body);
+}
 
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/${id}`, { responseType: 'text' as 'json' });

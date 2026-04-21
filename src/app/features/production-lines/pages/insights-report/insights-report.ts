@@ -96,6 +96,18 @@ export class InsightsReport implements OnInit {
   weekDaysShort = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 
+  isEditOpen = false;
+
+editForm = {
+  lineName: '',
+  description: '',
+  maximumSpeed: null,
+  ratedPower: null,
+  maximumTemperature: null,
+  maximumCurrent: null
+};
+
+
 
   private router = inject(Router);
   private productionLinesService = inject(ProductionLinesService);
@@ -127,55 +139,59 @@ export class InsightsReport implements OnInit {
   }
 
 
-  loadInsights() {
+loadInsights() {
 
-    this.reportsService
-      .getProductionLineReport(
-        this.productionLineId,
-        this.pageNumber,
-        this.pageSize,
-        this.filterStartDate ?? undefined,
-        this.filterEndDate ?? undefined
-      )
+  this.reportsService
+    .getProductionLineReport(
+      this.productionLineId,
+      this.pageNumber,
+      this.pageSize,
+      this.filterStartDate ?? undefined,
+      this.filterEndDate ?? undefined
+    )
+    .pipe(
+      catchError(() => {
 
-      .pipe(
-        catchError((err) => {
-          return of({
-            summary: null,
-            items: [],
-            totalCount: 0,
-            totalPages: 1
-          });
-        })
-      )
+        const currentLine = this.productionLines.find(
+          x => x.id === this.productionLineId
+        );
 
-      .subscribe((res) => {
+        return of({
+          summary: {
+            productionLineName: currentLine?.lineName || '',
+            totalProducts: 0,
+            goodRatio: 0,
+            defectiveRatio: 0,
+            maximumSpeed: currentLine?.maximumSpeed || 0,
+            ratedPower: currentLine?.ratedPower || 0,
+            maximumTemperature: currentLine?.maximumTemperature || 0,
+            maximumCurrent: currentLine?.maximumCurrent || 0
+          },
+          items: [],
+          totalCount: 0,
+          totalPages: 1
+        });
+      })
+    )
+    .subscribe((res) => {
 
-        if (!res) return;
+      this.summary = res.summary;
+      this.insights = res.items || [];
 
-        this.summary = res.summary;
-        this.insights = res.items || [];
+      this.totalCount = res.totalCount ?? 0;
+      this.totalPages = res.totalPages ?? 1;
 
-        if (this.insights.length) {
+      this.goodRatio = this.summary?.goodRatio ?? 0;
+      this.badRatio = this.summary?.defectiveRatio ?? 0;
 
-          const sorted = [...this.insights].sort(
-            (a, b) =>
-              new Date(b.endedAt || b.startedAt).getTime() -
-              new Date(a.endedAt || a.startedAt).getTime()
-          );
+      this.lastReportDate = null;
 
-          const latest = sorted[0].endedAt || sorted[0].startedAt;
-          this.lastReportDate = this.parseApiDate(latest);
-        }
-
-        this.totalCount = res.totalCount ?? 0;
-        this.totalPages = res.totalPages ?? 1;
-
-        this.goodRatio = this.summary?.goodRatio ?? 0;
-        this.badRatio = this.summary?.defectiveRatio ?? 0;
-
-      });
-  }
+      if (this.insights.length) {
+        const latest = this.insights[0].endedAt || this.insights[0].startedAt;
+        this.lastReportDate = this.parseApiDate(latest);
+      }
+    });
+}
 
   loadProductionLines() {
     this.productionLinesService.getAll(1, 1000).subscribe(res => {
@@ -525,4 +541,54 @@ export class InsightsReport implements OnInit {
     if (!text || !text.includes('_')) return '';
     return text.split('_')[1];
   }
+
+
+openEditModal() {
+
+  const currentLine = this.productionLines.find(
+    x => x.id === this.productionLineId
+  );
+
+  this.editForm = {
+    lineName: this.summary?.productionLineName || '',
+    description: currentLine?.description || '',
+
+    maximumSpeed: this.summary?.maximumSpeed,
+    ratedPower: this.summary?.ratedPower,
+    maximumTemperature: this.summary?.maximumTemperature,
+    maximumCurrent: this.summary?.maximumCurrent
+  };
+
+  this.isEditOpen = true;
+}
+
+closeEditModal() {
+  this.isEditOpen = false;
+}
+
+confirmAddEdit() {
+
+  const payload = {
+    lineName: this.editForm.lineName,
+    description: this.editForm.description || null,
+    maximumSpeed: Number(this.editForm.maximumSpeed),
+    ratedPower: Number(this.editForm.ratedPower),
+    maximumTemperature: Number(this.editForm.maximumTemperature),
+    maximumCurrent: Number(this.editForm.maximumCurrent)
+  };
+
+  this.productionLinesService
+    .update(this.productionLineId, payload)
+    .subscribe({
+      next: () => {
+
+        this.summary = {
+          ...this.summary,
+          ...payload
+        };
+
+        this.isEditOpen = false;
+      }
+    });
+}
 }
