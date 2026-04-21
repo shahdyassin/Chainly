@@ -76,18 +76,16 @@
 
       <div class="simulation-item">
 
-<div class="simulation-image-wrapper unity-wrapper" [class.inactive]="!sessionActive">
+        <div class="simulation-image-wrapper unity-wrapper" [class.inactive]="!sessionActive">
 
-  <iframe
-    *ngIf="sessionActive"
-    src="/unity/index.html" scrolling="no">
-  </iframe>
-<!-- <button (click)="testUnity()">test</button> -->
-  <div class="simulation-overlay" *ngIf="!sessionActive">
-    The Simulation is currently inactive
-  </div>
+          <iframe *ngIf="sessionActive" src="/unity/index.html" scrolling="no" allow="autoplay">
+          </iframe>
+          <!-- <button (click)="testUnity()">test</button> -->
+          <div class="simulation-overlay" *ngIf="!sessionActive">
+            The Simulation is currently inactive
+          </div>
 
-</div>
+        </div>
 
         <div class="simulation-caption">
           Simulation

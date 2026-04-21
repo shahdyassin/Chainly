@@ -6,7 +6,8 @@ import { DigitalTwinService } from '../../../../core/services/digital-twin.servi
 import { RealtimeService } from '../../../../core/services/realtime.service';
 import { Subject, takeUntil } from 'rxjs';
 import { FirebaseService } from '../../../../core/services/firebase.service';
-import { getDatabase, ref, onChildAdded } from 'firebase/database'
+import { getDatabase, ref, onChildAdded, get, query, limitToLast, orderByChild, startAt } from 'firebase/database'
+
 
 interface Line {
   id: number;
@@ -75,6 +76,8 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
   monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   weekDaysShort = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
+  private firebaseUnsubscribe: (() => void) | null = null;
+
   constructor() {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
@@ -101,16 +104,33 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
     this.realtime.onProductUpdate$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data: any) => {
+
         this.zone.run(() => {
+
           this.flawlessProducts = data.goodCount;
           this.defectedProducts = data.defectCount;
           this.totalProducts = data.totalCount;
+
           if (data.totalCount > 0) {
             this.goodRatio = Math.round((data.goodCount / data.totalCount) * 100);
             this.badRatio = Math.round((data.defectCount / data.totalCount) * 100);
           }
-          this.sendToSimulation(data.isDefect ?? false)
+
+
+          const currentLine = this.lines[this.currentIndex];
+
+          if (currentLine?.reportId) {
+
+
+            this.firebase.sendBox(
+              currentLine.reportId.toString(),
+              data.isDefect ?? false
+            );
+
+          }
+
         });
+
       });
   }
 
@@ -178,30 +198,51 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
         }
 
       });
+
+
   }
 
 
   listenToFirebase(reportId: string) {
-  const db = getDatabase()
-  const reportRef = ref(db, reportId)
+    if (this.firebaseUnsubscribe) {
+      this.firebaseUnsubscribe();
+      this.firebaseUnsubscribe = null;
+    }
 
-  onChildAdded(reportRef, (snapshot) => {
-    const data = snapshot.val()
-
-    console.log('firebase Received:', data)
-
-    this.sendToSimulation(data.defect)
-  })
-}
+    const db = getDatabase();
+    const reportRef = ref(db, reportId);
 
 
-// testUnity() {
-//   (window as any).unityInstance.SendMessage(
-//     'BoxSpawner',
-//     'ReceiveBox',
-//     'true'
-//   )
-// }
+    const connectionTime = Date.now();
+    // console.log('--- System Connected at:', connectionTime);
+
+    this.firebaseUnsubscribe = onChildAdded(reportRef, (snapshot) => {
+
+      const arrivalTime = Date.now();
+
+
+      if (arrivalTime - connectionTime < 2000) {
+        // console.log('Skipping old box from history...');
+        return;
+      }
+
+      const data = snapshot.val();
+      if (data) {
+        this.zone.run(() => {
+          // console.log('NEW BOX RECEIVED:', data);
+          this.sendToSimulation(data.defect);
+        });
+      }
+    });
+  }
+
+  // testUnity() {
+  //   (window as any).unityInstance.SendMessage(
+  //     'BoxSpawner',
+  //     'ReceiveBox',
+  //     'true'
+  //   )
+  // }
 
 
 
@@ -472,25 +513,25 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
     if (this.currentLineId) {
       this.realtime.leaveLine(this.currentLineId);
     }
+
+    if (this.firebaseUnsubscribe) {
+      this.firebaseUnsubscribe();
+    }
   }
 
   sendToSimulation(defect: boolean) {
-    const currentLine = this.lines[this.currentIndex]
-    if (!currentLine?.reportId) {
-      console.warn('No reportId')
-      return
-    }
-    const reportId = currentLine.reportId.toString()
-    this.firebase.sendBox(reportId, defect)
     if ((window as any).unityInstance) {
+
       (window as any).unityInstance.SendMessage(
         'BoxSpawner',
         'ReceiveBox',
         defect.toString()
-      )
+      );
+
+      console.log('Sent To Unity:', defect);
+    } else {
+      console.warn('Unity not loaded yet');
     }
-    console.log('Sending to Unity:', defect)
-    console.log('unityInstance:', (window as any).unityInstance)
   }
 
 }
