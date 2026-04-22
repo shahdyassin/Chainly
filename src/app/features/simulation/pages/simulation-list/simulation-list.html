@@ -1,1 +1,211 @@
-<p>simulation-list works!</p>
+<form class="simulation-page" [formGroup]="form">
+
+  <div class="left-side">
+
+    <div class="main-card">
+
+      <h2 class="title">Simulation Parameters</h2>
+
+
+      <div class="section-card">
+
+        <label class="section-label">
+          <img src="/icons/simulation/productionLine.svg">
+          Production Line
+        </label>
+
+        <div class="custom-line-dropdown">
+
+
+          <div class="dropdown-selected-line" *ngIf="!isTypingNewLine" (click)="toggleLineDropdown()">
+
+            <div class="green-box">
+
+              <div class="left-selected">
+
+                <img *ngIf="isCustomLine" src="/icons/simulation/addwithCircle.svg" class="plus-icon">
+
+                <span>
+                  {{
+                  isCustomLine
+                  ? 'Custom/New Line'
+                  : getSelectedLineName()
+                  }}
+                </span>
+
+              </div>
+
+              <img src="/icons/users/arrowDown.svg" class="arrow">
+
+            </div>
+
+          </div>
+
+
+
+          <div class="dropdown-selected-line" *ngIf="isTypingNewLine">
+
+            <div class="green-box" [class.input-mode]="isTypingNewLine">
+
+              <div class="left-selected full-width">
+
+                <img src="/icons/simulation/addwithCircle.svg" class="plus-icon">
+
+                <input type="text" class="new-line-input" placeholder="Enter Production Line Name"
+                  [(ngModel)]="newLineName" [ngModelOptions]="{standalone:true}">
+
+
+                <button type="button" class="done-btn" (click)="createNewLine()">
+
+                  Done
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="dropdown-menu-line" *ngIf="showLineDropdown">
+
+            <div class="dropdown-item-line" (click)="selectCustomLine()">
+
+              <img src="/icons/simulation/addwithCircle.svg" class="plus-icon">
+
+              <span>Custom/New Line</span>
+
+            </div>
+
+            <div class="dropdown-item-line" *ngFor="let item of lines" (click)="selectExistingLine(item)">
+
+              {{ item.lineName }}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section-card" *ngIf="isCustomLine">
+
+        <label class="section-label">
+          <img src="/icons/simulation/config.svg">
+          Line Configuration
+        </label>
+
+        <div class="grid-two">
+
+          <div class="input-box">
+            <span>Max Speed</span>
+            <input type="number" formControlName="maximumSpeed" placeholder="Ex:10000">
+            <small>units/hour</small>
+          </div>
+
+          <div class="input-box">
+            <span>Max Temp</span>
+            <input type="number" formControlName="maximumTemperature" placeholder="Ex:35">
+            <small>C</small>
+          </div>
+
+          <div class="input-box">
+            <span>Rated Power</span>
+            <input type="number" formControlName="ratedPower" placeholder="Ex:8500">
+            <small>W</small>
+          </div>
+
+          <div class="input-box">
+            <span>Maximum Current</span>
+            <input type="number" formControlName="maximumCurrent" placeholder="Ex:250">
+            <small>A</small>
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section-card">
+
+        <label class="section-label">
+          <img src="/icons/simulation/testScenario.svg">
+          Test Scenario
+        </label>
+
+        <div class="grid-two">
+
+          <div class="input-box">
+            <span>Throughput</span>
+            <input type="number" formControlName="throughput">
+            <small>units/hour</small>
+          </div>
+
+          <div class="input-box">
+            <span>Environmental Temp</span>
+            <input type="number" formControlName="environmentalTemperature">
+            <small>C</small>
+          </div>
+
+          <div class="input-box">
+            <span>Operating Time</span>
+            <input type="number" formControlName="operatingTime">
+            <small>hour</small>
+          </div>
+
+          <div class="input-box">
+            <span>Demand</span>
+            <input type="number" formControlName="demand">
+            <small>units</small>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button type="button" class="run-btn" (click)="runSimulation()">
+
+        Run Simulation
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+
+  <div class="right-side">
+
+    <div class="result-card">
+
+      <h2>Result</h2>
+
+      <ng-container *ngIf="result; else emptyResult">
+
+        <p>Load: {{ result.load }}</p>
+        <p>Production: {{ result.production }} units</p>
+        <p>Temperature: {{ result.temperature }} C</p>
+        <p>Decision: {{ result.decision }}</p>
+
+      </ng-container>
+
+      <ng-template #emptyResult>
+
+        <div class="empty-state">
+          Enter parameters and run simulation to see results
+        </div>
+
+      </ng-template>
+
+    </div>
+
+  </div>
+
+</form>
