@@ -609,6 +609,104 @@ h2 {
 }
 
 
+.simulation-controls{
+  margin-top: 18px;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  padding: 12px 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.speed-box{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.speed-label{
+  font-size: 16px;
+  font-weight: 500;
+  color: #444;
+  white-space: nowrap;
+}
+
+.speed-slider{
+  width: 260px;
+  height: 8px;
+  border-radius: 999px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+
+  background: linear-gradient(
+    to right,
+    #63cfc3 0%,
+    #63cfc3 var(--value, 35%),
+    #e7f5f3 var(--value, 35%),
+    #e7f5f3 100%
+  );
+}
+
+
+.speed-slider::-webkit-slider-runnable-track{
+  height: 8px;
+  border-radius: 999px;
+  background: transparent;
+}
+
+
+.speed-slider::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 8px;
+  height: 34px;
+  border-radius: 8px;
+  background: #63cfc3;
+  border: none;
+  margin-top: -13px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+
+
+.speed-slider::-moz-range-track{
+  height: 8px;
+  border-radius: 999px;
+  background: #e7f5f3;
+}
+
+.speed-slider::-moz-range-progress{
+  height: 8px;
+  border-radius: 999px;
+  background: #63cfc3;
+}
+
+.speed-slider::-moz-range-thumb{
+  width: 8px;
+  height: 34px;
+  border-radius: 8px;
+  background: #63cfc3;
+  border: none;
+}
+
+
+.speed-number{
+  width: 70px;
+  height: 34px;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 15px;
+}
+
+
 
 @media(max-width: 1024px){
   .simulation-grid {

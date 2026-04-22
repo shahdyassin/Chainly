@@ -15,7 +15,7 @@ export class RealtimeService {
     if (this.connection) return;
 
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl(`https://localhost:7063/hubs/reports`, {
+      .withUrl(`https://chainly.azurewebsites.net/hubs/reports`, {
         accessTokenFactory: () => token
       })
       .withAutomaticReconnect()

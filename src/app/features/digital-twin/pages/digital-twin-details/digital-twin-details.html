@@ -18,20 +18,6 @@
 
     <div class="header-actions">
 
-
-
-      <button class="session-btn" [class.stop]="sessionActive" (click)="toggleSession()">
-
-        <img *ngIf="!sessionActive" src="/icons/digital-twin/startSessionPage.svg" />
-
-        <img *ngIf="sessionActive" src="/icons/digital-twin/stopSession.svg" />
-
-        {{ sessionActive ? 'Stop Session' : 'Start Session' }}
-
-      </button>
-
-
-
       <button class="nav-btn" (click)="goPreviousLine()" [disabled]="!hasPrevActive">
         <img src="/icons/productionLine/left.svg">
       </button>
@@ -52,8 +38,6 @@
     </div>
 
     <div class="simulation-grid">
-
-
 
       <div class="simulation-item">
 
@@ -94,6 +78,45 @@
       </div>
 
     </div>
+
+    <div class="simulation-controls">
+
+  <div class="speed-box">
+
+    <span class="speed-label">Set speed:</span>
+
+<input
+  type="range"
+  min="1"
+  max="100"
+  [(ngModel)]="speed"
+  (input)="updateSliderFill($event)"
+  class="speed-slider"
+/>
+
+    <input
+    type="number"
+    [(ngModel)]="boxSpeed"
+    (input)="syncSliderWithBox()"
+    class="speed-number"
+  />
+
+  </div>
+
+  <button
+    class="session-btn"
+    [class.stop]="sessionActive"
+    (click)="toggleSession()"
+  >
+
+    <img *ngIf="!sessionActive" src="/icons/digital-twin/startSessionPage.svg" />
+    <img *ngIf="sessionActive" src="/icons/digital-twin/stopSession.svg" />
+
+    {{ sessionActive ? 'Stop Session' : 'Start Session' }}
+
+  </button>
+
+</div>
 
   </div>
 

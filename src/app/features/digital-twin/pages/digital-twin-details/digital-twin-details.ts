@@ -78,6 +78,35 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
 
   private firebaseUnsubscribe: (() => void) | null = null;
 
+  boxSpeed = 100;
+
+  speed = 50;
+
+  updateSliderFill(event: any) {
+    const value = event.target.value;
+    this.boxSpeed = value;
+    this.speed = value;
+    event.target.style.background = `linear-gradient(to right, #63cfc3 0%, #63cfc3 ${value}%, #e7f5f3 ${value}%, #e7f5f3 100%)`;
+    this.changeSpeed();
+  }
+
+
+  applySliderGradient(el: HTMLInputElement, value: number) {
+    const percentage = value;
+    el.style.background = `linear-gradient(to right, #63cfc3 0%, #63cfc3 ${percentage}%, #e7f5f3 ${percentage}%, #e7f5f3 100%)`;
+  }
+
+
+  syncSliderWithBox() {
+    if (this.boxSpeed > 100) this.boxSpeed = 100;
+    if (this.boxSpeed < 1) this.boxSpeed = 1;
+    this.speed = this.boxSpeed;
+    const slider = document.querySelector('.speed-slider') as HTMLInputElement;
+    if (slider) {
+      slider.style.background = `linear-gradient(to right, #63cfc3 0%, #63cfc3 ${this.speed}%, #e7f5f3 ${this.speed}%, #e7f5f3 100%)`;
+    }
+  }
+
   constructor() {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
@@ -132,6 +161,13 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
         });
 
       });
+
+    setTimeout(() => {
+      const slider = document.querySelector('.speed-slider') as HTMLInputElement;
+      if (slider) {
+        this.applySliderGradient(slider, this.speed);
+      }
+    }, 0);
   }
 
   private initRouting() {
@@ -532,6 +568,20 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
     } else {
       console.warn('Unity not loaded yet');
     }
+  }
+
+  changeSpeed() {
+
+    if ((window as any).unityInstance) {
+
+      (window as any).unityInstance.SendMessage(
+        'BoxSpawner',
+        'SetSpeed',
+        this.boxSpeed.toString()
+      );
+
+    }
+
   }
 
 }
