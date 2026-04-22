@@ -239,39 +239,31 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
   }
 
 
-  listenToFirebase(reportId: string) {
-    if (this.firebaseUnsubscribe) {
-      this.firebaseUnsubscribe();
-      this.firebaseUnsubscribe = null;
-    }
-
-    const db = getDatabase();
-    const reportRef = ref(db, reportId);
-
-
-    const connectionTime = Date.now();
-    // console.log('--- System Connected at:', connectionTime);
-
-    this.firebaseUnsubscribe = onChildAdded(reportRef, (snapshot) => {
-
-      const arrivalTime = Date.now();
-
-
-      if (arrivalTime - connectionTime < 2000) {
-        // console.log('Skipping old box from history...');
-        return;
-      }
-
-      const data = snapshot.val();
-      if (data) {
-        this.zone.run(() => {
-          // console.log('NEW BOX RECEIVED:', data);
-          this.sendToSimulation(data.defect);
-        });
-      }
-    });
+listenToFirebase(reportId: string) {
+  
+  if (this.firebaseUnsubscribe) {
+    this.firebaseUnsubscribe();
+    this.firebaseUnsubscribe = null;
   }
 
+  const db = getDatabase();
+  const reportRef = ref(db, reportId);
+  let firstLoad = true;
+
+  this.firebaseUnsubscribe = onChildAdded(reportRef, (snapshot) => {
+    if (firstLoad) return;
+    const data = snapshot.val();
+    if (data) {
+      this.zone.run(() => {
+        this.sendToSimulation(data.defect);
+      });
+    }
+  });
+
+  get(reportRef).then(() => {
+    firstLoad = false;
+  });
+}
   // testUnity() {
   //   (window as any).unityInstance.SendMessage(
   //     'BoxSpawner',
