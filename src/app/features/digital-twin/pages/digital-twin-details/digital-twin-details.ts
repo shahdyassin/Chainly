@@ -240,7 +240,7 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
 
 
 listenToFirebase(reportId: string) {
-  
+
   if (this.firebaseUnsubscribe) {
     this.firebaseUnsubscribe();
     this.firebaseUnsubscribe = null;
