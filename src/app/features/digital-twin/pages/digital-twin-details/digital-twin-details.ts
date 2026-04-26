@@ -239,31 +239,43 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
   }
 
 
-listenToFirebase(reportId: string) {
+  listenToFirebase(reportId: string) {
 
-  if (this.firebaseUnsubscribe) {
-    this.firebaseUnsubscribe();
-    this.firebaseUnsubscribe = null;
-  }
-
-  const db = getDatabase();
-  const reportRef = ref(db, reportId);
-  let firstLoad = true;
-
-  this.firebaseUnsubscribe = onChildAdded(reportRef, (snapshot) => {
-    if (firstLoad) return;
-    const data = snapshot.val();
-    if (data) {
-      this.zone.run(() => {
-        this.sendToSimulation(data.defect);
-      });
+    if (this.firebaseUnsubscribe) {
+      this.firebaseUnsubscribe();
+      this.firebaseUnsubscribe = null;
     }
-  });
 
-  get(reportRef).then(() => {
-    firstLoad = false;
-  });
-}
+    const db = getDatabase();
+    const reportRef = ref(db, reportId);
+    let firstLoad = true;
+    let lastExistingKey: string | null = null;
+
+    this.firebaseUnsubscribe = onChildAdded(reportRef, (snapshot) => {
+      const newKey = snapshot.key;
+
+
+      if (!newKey) return;
+
+      if (firstLoad) return;
+
+      const data = snapshot.val();
+      if (data) {
+        this.zone.run(() => {
+          this.sendToSimulation(data.defect);
+        });
+      }
+    });
+
+    get(reportRef).then((snapshot) => {
+      firstLoad = false;
+
+      const keys = Object.keys(snapshot.val() || {});
+      if (keys.length > 0) {
+        lastExistingKey = keys[keys.length - 1];
+      }
+    });
+  }
   // testUnity() {
   //   (window as any).unityInstance.SendMessage(
   //     'BoxSpawner',
@@ -563,17 +575,31 @@ listenToFirebase(reportId: string) {
   }
 
   changeSpeed() {
+    const currentLine = this.lines[this.currentIndex];
 
-    if ((window as any).unityInstance) {
+    const reportId = currentLine?.reportId || localStorage.getItem(`report_${currentLine?.id}`);
+
+    if (reportId && (window as any).unityInstance) {
 
       (window as any).unityInstance.SendMessage(
         'BoxSpawner',
         'SetSpeed',
-        this.boxSpeed.toString()
+        (Math.max(1, this.boxSpeed / 3)).toString()
       );
 
-    }
 
+      const db = getDatabase();
+      const speedRef = ref(db, `${reportId}/session_info/control`);
+      import('firebase/database').then(({ update }) => {
+        update(speedRef, {
+          target_speed: Number(this.boxSpeed)
+        }).then(() => {
+          console.log('Firebase Speed Updated to:', this.boxSpeed);
+        }).catch(err => {
+          console.error('Error updating Firebase speed:', err);
+        });
+      });
+    }
   }
 
 }
