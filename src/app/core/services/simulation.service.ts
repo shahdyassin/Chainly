@@ -29,7 +29,7 @@ export interface SimulationResponse {
     load: number;
     production: number;
     temperature: number;
-    isOK: boolean;
+    isOk: boolean;
   };
 
   aiAnalysis: string;

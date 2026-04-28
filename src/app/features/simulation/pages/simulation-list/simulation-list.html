@@ -168,10 +168,15 @@
       </div>
 
 
-      <button type="button" class="run-btn" (click)="runSimulation()">
+      <button type="button" class="run-btn" (click)="runSimulation()" [disabled]="loading">
+        <ng-container *ngIf="!loading; else loadingState">
+          Run Simulation
+        </ng-container>
 
-        Run Simulation
-
+        <ng-template #loadingState>
+          <span class="btn-loader"></span>
+          Running...
+        </ng-template>
       </button>
 
     </div>
@@ -193,6 +198,11 @@
         <p>Production: {{ result.production }} units</p>
         <p>Temperature: {{ result.temperature }} C</p>
         <p>Decision: {{ result.decision }}</p>
+
+        <div class="ai-analysis-box">
+          <h3>AI Analysis</h3>
+          <p>{{ result.analysis }}</p>
+        </div>
 
       </ng-container>
 

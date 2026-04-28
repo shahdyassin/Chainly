@@ -144,7 +144,7 @@ export class SimulationList implements OnInit {
           load: res.simulation.load,
           production: res.simulation.production,
           temperature: res.simulation.temperature,
-          decision: res.simulation.isOK ? 'OK' : 'Not Feasible',
+          decision: res.simulation.isOk ? 'OK' : 'Not Feasible',
           analysis: res.aiAnalysis
         };
 
