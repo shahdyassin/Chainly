@@ -247,7 +247,7 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
     }
 
     const db = getDatabase();
-    const reportRef = ref(db, reportId);
+    const reportRef = ref(db, `${reportId}/detections`);
     let firstLoad = true;
     let lastExistingKey: string | null = null;
 
@@ -584,7 +584,7 @@ export class DigitalTwinDetails implements OnInit, OnDestroy {
       (window as any).unityInstance.SendMessage(
         'BoxSpawner',
         'SetSpeed',
-        (Math.max(1, this.boxSpeed / 3)).toString()
+        (this.boxSpeed / 5).toFixed(2)
       );
 
 
