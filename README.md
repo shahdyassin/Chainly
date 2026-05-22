@@ -154,34 +154,50 @@ CHAINLY_WEB/
 # Screenshots
 
 ## Dashboard
-![Dashboard](./screenshots/Dashboard.png)
 
----
-
-## Digital Twin
-![Digital Twin](./screenshots/Digital_Twin.png)
-
----
-
-## Insights
-![Insights](./screenshots/Insights.png)
-
----
-
-## Insights Report
-![Insights Report](./screenshots/Insights_Report.png)
+<p align="center">
+  <img src="./screenshots/Dashboard.png" width="45%">
+  <img src="./screenshots/Dashboard_2.png" width="45%">
+</p>
 
 ---
 
 ## Rising Demand
-![Rising Demand](./screenshots/Rising_Demand.png)
+
+<p align="center">
+  <img src="./screenshots/Rising_Demand.png" width="45%">
+  <img src="./screenshots/Demand_Prediction.png" width="45%">
+</p>
+
+---
+
+
+## Digital Twin
+
+<p align="center">
+  <img src="./screenshots/Digital_Twin.png" width="70%">
+</p>
+
+---
+
+## Insights
+
+<p align="center">
+  <img src="./screenshots/Insights.png" width="45%">
+  <img src="./screenshots/Insights_Report.png" width="45%">
+</p>
 
 ---
 
 ## Suppliers
-![Suppliers](./screenshots/Suppliers.png)
+
+<p align="center">
+  <img src="./screenshots/Suppliers.png" width="45%">
+  <img src="./screenshots/Supplier_Info.png" width="45%">
+</p>
 
 ---
+
 
 # Installation
 
