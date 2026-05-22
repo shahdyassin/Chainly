@@ -1,59 +1,222 @@
-# ChainlyWeb
+# Chainly - Supply Chain Management Platform
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.1.
+Chainly is an AI-powered Supply Chain Management platform designed to help manufacturers optimize operations, improve product quality, and make smarter production decisions using modern technologies such as Computer Vision, Digital Twin simulation, and Demand Forecasting.
 
-## Development server
+🌐 Live Demo: https://www.chainly.site/
 
-To start a local development server, run:
+---
+
+# Features
+
+## AI-Powered Demand Forecasting
+Predicts future product demand to help manufacturers:
+- Balance supply and inventory
+- Reduce waste
+- Optimize production resources
+- Improve planning efficiency
+
+---
+
+## Digital Twin Simulation
+Real-time digital simulation of production lines that enables manufacturers to:
+- Test production decisions safely before implementation
+- Monitor production behavior in real time
+- Simulate factory environments digitally
+
+### Includes:
+- Real-time synchronization
+- Interactive dashboards
+- Live monitoring system
+
+---
+
+## Computer Vision Quality Assurance
+Automated quality monitoring system using Computer Vision to:
+- Detect production defects
+- Improve product quality
+- Reduce downtime
+- Increase manufacturing efficiency
+
+---
+
+## Supplier Recommendation System
+AI-based supplier recommendation feature that helps companies select suppliers based on:
+- Supplier performance
+- Sustainability metrics
+- Carbon footprint scoring
+
+---
+
+## Dashboards & Analytics
+Interactive dashboards and analytics for:
+- Production monitoring
+- Demand analysis
+- Inventory tracking
+- Operational insights
+
+---
+
+## Authentication & Security
+- Authentication & Authorization
+- Role-based access control
+- Protected APIs
+- Secure user management
+
+---
+
+# Tech Stack
+
+## Frontend
+- Angular
+- TypeScript
+- SCSS
+
+## Backend
+- ASP.NET Core Web API
+- Entity Framework Core
+
+## Database
+- SQL Server
+
+## Other Technologies
+- Firebase
+- Leaflet Maps
+- Computer Vision
+- AI/ML Models
+- Real-time Communication
+- Digital Twin Simulation
+
+---
+
+# My Contribution
+
+Worked on the frontend development using Angular, including:
+- Building responsive UI components
+- Developing dashboards and pages
+- Integrating frontend with backend APIs
+- Enhancing user experience and application flow
+- Implementing authentication flows and route handling
+- Integrating Unity simulation into the web platform
+- Implementing real-time Digital Twin visualization where moving objects on the production line are synchronized and displayed live inside the Unity simulation on the website
+
+---
+
+# Project Structure
+
+```text
+CHAINLY_WEB/
+│
+├── public/                         # Static assets
+│   ├── fonts/
+│   ├── icons/
+│   ├── images/
+│   ├── leaflet/
+│   └── unity/
+│
+├── src/
+│   ├── app/
+│   │
+│   ├── core/                       # Core application logic
+│   │   ├── guards/
+│   │   ├── interceptors/
+│   │   └── services/
+│   │
+│   ├── features/                   # Feature modules
+│   │   ├── auth/
+│   │   ├── dashboard/
+│   │   ├── digital-twin/
+│   │   ├── insights/
+│   │   ├── cameras/
+│   │   ├── landing/
+│   │   ├── orders/
+│   │   ├── production-lines/
+│   │   ├── rising-demands/
+│   │   ├── simulation/
+│   │   ├── suppliers/
+│   │   ├── supplies/
+│   │   └── users/
+│   │
+│   ├── shared/                     # Shared reusable components
+│   │   ├── components/
+│   │   └── map-picker/
+│   │
+│   ├── app.routes.ts
+│   ├── app.config.ts
+│   └── firebase.config.ts
+│
+├── angular.json
+├── package.json
+└── README.md
+```
+
+---
+
+# Screenshots
+
+## Dashboard
+![Dashboard](screenshots/Dashboard.png)
+
+---
+
+## Digital Twin
+![Digital Twin](screenshots/Digital_Twin.png)
+
+---
+
+## Insights
+![Insights](screenshots/Insights.png)
+
+---
+
+## Insights Report
+![Insights Report](screenshots/Insights_Report.png)
+
+---
+
+## Rising Demand
+![Rising Demand](screenshots/Rising_Demand.png)
+
+---
+
+## Suppliers
+![Suppliers](screenshots/Suppliers.png)
+
+---
+
+# Installation
+
+## Clone the repository
+
+```bash
+git clone https://github.com/shahdyassin/Chainly.git
+```
+
+---
+
+## Navigate to the project
+
+```bash
+cd Chainly
+```
+
+---
+
+## Install dependencies
+
+```bash
+npm install
+```
+
+---
+
+## Run the application
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The application will run on:
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```text
+http://localhost:4200
 ```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
