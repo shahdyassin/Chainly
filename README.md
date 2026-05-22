@@ -154,32 +154,32 @@ CHAINLY_WEB/
 # Screenshots
 
 ## Dashboard
-![Dashboard](screenshots/Dashboard.png)
+![Dashboard](./screenshots/Dashboard.png)
 
 ---
 
 ## Digital Twin
-![Digital Twin](screenshots/Digital_Twin.png)
+![Digital Twin](./screenshots/Digital_Twin.png)
 
 ---
 
 ## Insights
-![Insights](screenshots/Insights.png)
+![Insights](./screenshots/Insights.png)
 
 ---
 
 ## Insights Report
-![Insights Report](screenshots/Insights_Report.png)
+![Insights Report](./screenshots/Insights_Report.png)
 
 ---
 
 ## Rising Demand
-![Rising Demand](screenshots/Rising_Demand.png)
+![Rising Demand](./screenshots/Rising_Demand.png)
 
 ---
 
 ## Suppliers
-![Suppliers](screenshots/Suppliers.png)
+![Suppliers](./screenshots/Suppliers.png)
 
 ---
 
